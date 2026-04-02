@@ -1,1 +1,23 @@
-[]
+{
+  "global_settings": {},
+  "levels": [
+    {
+      "id": "L_1775160409808",
+      "kategori": "drag",
+      "pertanyaan": "Ok",
+      "audio_soal": null,
+      "item_target": {
+        "nama": "J",
+        "isTarget": true,
+        "url_gambar": "assets/tgt_1775160409808.jpg"
+      },
+      "item_pengecoh": [
+        {
+          "nama": "I",
+          "isTarget": false,
+          "url_gambar": "assets/pgc_1775160409808_0.jpg"
+        }
+      ]
+    }
+  ]
+}
