@@ -19,6 +19,24 @@
         }
       ],
       "bg_image": "assets/bg_lvl_1775163512725.jpg"
+    },
+    {
+      "id": "L_1775164305053",
+      "item_target": {
+        "isTarget": true,
+        "nama": "Kss",
+        "url_gambar": "assets/tgt_1775164305053.jpg"
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Susu",
+          "isTarget": false,
+          "url_gambar": "assets/pgc_1775164305053_0.jpg"
+        }
+      ],
+      "kategori": "kuis",
+      "pertanyaan": "Piye bos",
+      "bg_image": "assets/bg_lvl_1775164305053.jpg"
     }
   ]
 }
