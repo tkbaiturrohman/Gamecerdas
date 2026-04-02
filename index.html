@@ -51,13 +51,12 @@
             <div id="grid-level" class="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-2xl mb-10 pb-20">
                 <!-- Tombol level dirender di sini -->
             </div>
-            <!-- Tombol Kembali ke Menu -->
             <button onclick="Game.tutupPilihLevel()" class="absolute top-6 left-6 bg-white/20 text-white p-3 rounded-2xl hover:bg-white/30 backdrop-blur transition hidden" id="btn-tutup-level">
                 <i data-lucide="arrow-left" class="w-8 h-8"></i>
             </button>
         </div>
 
-        <!-- 3. Header Game (Tombol Mute Dipertahankan) -->
+        <!-- 3. Header Game -->
         <header class="w-full p-4 z-20 flex justify-between items-center glass-ui shadow-lg rounded-b-[2rem] flex-shrink-0">
             <div class="flex gap-2">
                 <button onclick="Game.bukaPilihLevel()" class="bg-sky-100 text-sky-700 p-3 rounded-2xl shadow hover:bg-sky-200 transition active:scale-95">
@@ -100,24 +99,17 @@
     <script>
         lucide.createIcons();
 
-        // ==========================================
         // LOGIKA DRAG & DROP
-        // ==========================================
         interact('.kartu-drag').draggable({
             inertia: true,
             listeners: {
-                start(e) {
-                    e.target.classList.add('is-dragging');
-                    // Jika anak menyentuh benda, MATIKAN suara soal & batalkan pengulangan
-                    AudioMgr.stopSoal(); 
-                },
+                start(e) { e.target.classList.add('is-dragging'); AudioMgr.stopSoal(); },
                 move(e) {
-                    var target = e.target;
-                    var x = (parseFloat(target.getAttribute('data-x')) || 0) + e.dx;
-                    var y = (parseFloat(target.getAttribute('data-y')) || 0) + e.dy;
-                    target.style.transform = `translate(${x}px, ${y}px) scale(1.15)`;
-                    target.setAttribute('data-x', x);
-                    target.setAttribute('data-y', y);
+                    var t = e.target;
+                    var x = (parseFloat(t.getAttribute('data-x')) || 0) + e.dx;
+                    var y = (parseFloat(t.getAttribute('data-y')) || 0) + e.dy;
+                    t.style.transform = `translate(${x}px, ${y}px) scale(1.15)`;
+                    t.setAttribute('data-x', x); t.setAttribute('data-y', y);
                 },
                 end(e) {
                     e.target.classList.remove('is-dragging');
@@ -142,69 +134,51 @@
             }
         });
 
-
-        // ==========================================
-        // MANAJEMEN AUDIO PROFESIONAL (DUCKING & LOOPING)
-        // ==========================================
+        // MANAJEMEN AUDIO
         const AudioMgr = {
-            bgm: new Audio(), 
-            sfxBenar: new Audio(), 
-            sfxSalah: new Audio(), 
-            soal: new Audio(), 
-            
-            isMuted: false, 
-            urlSoalSaatIni: null,
-            timerLoopSoal: null, // Timer untuk jeda 20 detik
-            
-            // Pengaturan Volume Audio Ducking
-            volumeNormalBGM: 0.4,
-            volumePelanBGM: 0.1, // Suara pelan saat soal dibacakan
+            bgm: new Audio(), sfxBenar: new Audio(), sfxSalah: new Audio(), soal: new Audio(), 
+            isMuted: false, urlSoalSaatIni: null, timerLoopSoal: null,
+            volumeNormalBGM: 0.4, volumePelanBGM: 0.1, 
             
             defBenar: 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3',
             defSalah: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3',
             
+            // JURUS PATH AMAN: Memakai jalur relatif murni yang kompatibel dengan Github Pages & Local
+            getAmanPath(url) {
+                if(!url) return null;
+                if(url.startsWith('http') || url.startsWith('data:')) return url;
+                return `public/${url}`;
+            },
+
             initGlobal(cfg) {
                 if(cfg && cfg.bgm_url) { 
-                    // Memastikan mengambil dari folder public jika tidak ada awalan http
-                    const urlAman = cfg.bgm_url.startsWith('http') ? cfg.bgm_url : `public/${cfg.bgm_url}`;
-                    this.bgm.src = urlAman; 
+                    this.bgm.src = this.getAmanPath(cfg.bgm_url); 
                     this.bgm.loop = true; 
                     this.bgm.volume = this.volumeNormalBGM; 
                 }
-                
-                // EVENT LISTENER: Apa yang terjadi jika suara soal SELESAI diputar penuh?
                 this.soal.onended = () => {
-                    // 1. Kembalikan volume BGM menjadi normal (Keras)
                     this.fadeVolume(this.bgm, this.volumeNormalBGM, 1000);
-                    
-                    // 2. Ubah UI tombol suara
                     document.getElementById('ikon-baca-soal').classList.remove('animate-pulse');
                     document.getElementById('teks-baca-soal').innerText = "Putar Ulang Suara";
                     
-                    // 3. Atur Timer: Tunggu 20 detik, lalu putar suara soal lagi!
                     clearTimeout(this.timerLoopSoal);
                     this.timerLoopSoal = setTimeout(() => {
-                        if (!this.isMuted && this.urlSoalSaatIni) {
-                            this.playSoal(this.urlSoalSaatIni); // Putar otomatis lagi
-                        }
-                    }, 20000); // 20000 ms = 20 Detik
+                        if (!this.isMuted && this.urlSoalSaatIni) this.playSoal(this.urlSoalSaatIni); 
+                    }, 20000); 
                 };
             },
 
             setAudioLevel(dataLevel) {
                 if (!dataLevel) return;
-                
-                this.sfxBenar.src = dataLevel.sfx_benar ? `public/${dataLevel.sfx_benar}` : this.defBenar;
-                this.sfxSalah.src = dataLevel.sfx_salah ? `public/${dataLevel.sfx_salah}` : this.defSalah;
-                this.urlSoalSaatIni = dataLevel.audio_soal ? `public/${dataLevel.audio_soal}` : null;
+                this.sfxBenar.src = dataLevel.sfx_benar ? this.getAmanPath(dataLevel.sfx_benar) : this.defBenar;
+                this.sfxSalah.src = dataLevel.sfx_salah ? this.getAmanPath(dataLevel.sfx_salah) : this.defSalah;
+                this.urlSoalSaatIni = dataLevel.audio_soal ? this.getAmanPath(dataLevel.audio_soal) : null;
             },
 
             toggleMute() {
                 this.isMuted = !this.isMuted;
-                this.bgm.muted = this.isMuted;
-                this.sfxBenar.muted = this.isMuted;
-                this.sfxSalah.muted = this.isMuted;
-                this.soal.muted = this.isMuted;
+                this.bgm.muted = this.isMuted; this.sfxBenar.muted = this.isMuted;
+                this.sfxSalah.muted = this.isMuted; this.soal.muted = this.isMuted;
 
                 const ikon = document.getElementById('ikon-suara');
                 const btn = document.getElementById('btn-mute');
@@ -213,135 +187,86 @@
                     ikon.setAttribute('data-lucide', 'volume-x');
                     btn.classList.replace('text-indigo-700', 'text-red-600');
                     btn.classList.replace('bg-indigo-100', 'bg-red-100');
-                    // Jika di-mute, hentikan segala suara soal dan timer looping
                     this.stopSoal(); 
                 } else {
                     ikon.setAttribute('data-lucide', 'volume-2');
                     btn.classList.replace('text-red-600', 'text-indigo-700');
                     btn.classList.replace('bg-red-100', 'bg-indigo-100');
-                    
-                    if (this.bgm.src) {
-                        this.bgm.volume = this.volumeNormalBGM;
-                        this.bgm.play().catch(e => console.log("BGM butuh klik layar"));
-                    }
+                    if (this.bgm.src) { this.bgm.volume = this.volumeNormalBGM; this.bgm.play().catch(e => console.log("BGM butuh klik layar")); }
                 }
                 lucide.createIcons();
             },
 
-            playBGM() { 
-                if(!this.isMuted && this.bgm.src) {
-                    this.bgm.volume = this.volumeNormalBGM;
-                    this.bgm.play().catch(e => console.log("BGM butuh klik interaksi pertama")); 
-                }
-            },
-            
-            playBenar() { 
-                this.stopSoal(); // Pastikan mati
-                if(!this.isMuted && this.sfxBenar.src) {
-                    this.sfxBenar.currentTime=0; this.sfxBenar.play().catch(()=>{}); 
-                }
-            },
-            
-            playSalah() { 
-                this.stopSoal(); // Pastikan mati
-                if(!this.isMuted && this.sfxSalah.src) {
-                    this.sfxSalah.currentTime=0; this.sfxSalah.play().catch(()=>{}); 
-                }
-            },
+            playBGM() { if(!this.isMuted && this.bgm.src) { this.bgm.volume = this.volumeNormalBGM; this.bgm.play().catch(e => console.log("BGM diblokir otomatis oleh browser. Harus unmute/klik layar.")); } },
+            playBenar() { this.stopSoal(); if(!this.isMuted && this.sfxBenar.src) { this.sfxBenar.currentTime=0; this.sfxBenar.play().catch(()=>{}); } },
+            playSalah() { this.stopSoal(); if(!this.isMuted && this.sfxSalah.src) { this.sfxSalah.currentTime=0; this.sfxSalah.play().catch(()=>{}); } },
             
             playSoal(urlOverride = null) {
-                // Batalkan antrean looping jika sedang menunggu
-                clearTimeout(this.timerLoopSoal);
-                this.soal.pause();
-                
+                clearTimeout(this.timerLoopSoal); this.soal.pause();
                 if(urlOverride) this.urlSoalSaatIni = urlOverride;
-                
                 if(!this.urlSoalSaatIni || this.isMuted) return;
                 
                 this.soal.src = this.urlSoalSaatIni;
                 const btnAudio = document.getElementById('ui-audio-soal');
-                const ikonBaca = document.getElementById('ikon-baca-soal');
-                const teksBaca = document.getElementById('teks-baca-soal');
                 
                 this.soal.play().then(() => {
-                    // DUCKING: Turunkan volume BGM agar Suara Soal lebih jelas terdengar
                     this.fadeVolume(this.bgm, this.volumePelanBGM, 500);
-
-                    // Update UI Tampilan Tombol
                     btnAudio.classList.remove('hidden');
-                    ikonBaca.classList.add('animate-pulse');
-                    teksBaca.innerText = "Sedang membacakan...";
-                    
-                    // (TIDAK ADA SETTIMEOUT DI SINI. AUDIO DIPUTAR PENUH SAMPAI AKHIR)
-                    // Event `onended` di atas yang akan menangani langkah selanjutnya.
-                    
-                }).catch(()=>{
-                    console.log("Audio soal butuh interaksi");
-                });
+                    document.getElementById('ikon-baca-soal').classList.add('animate-pulse');
+                    document.getElementById('teks-baca-soal').innerText = "Sedang membacakan...";
+                }).catch(()=>{ console.log("Audio soal butuh interaksi"); });
             },
 
-            putarUlangSoal() {
-                // Saat tombol diklik manual oleh anak
-                this.playSoal();
-            },
+            putarUlangSoal() { this.playSoal(); },
 
             stopSoal() {
-                // Fungsi ini dipanggil kalau anak menggeser gambar atau memencet tombol jawaban
-                this.soal.pause(); 
-                this.soal.currentTime = 0;
-                
-                // BATALKAN JEDA 20 DETIK (Karena anak sedang/sudah menjawab)
+                this.soal.pause(); this.soal.currentTime = 0;
                 clearTimeout(this.timerLoopSoal);
-                
-                // Kembalikan volume BGM ke normal dengan cepat
                 this.fadeVolume(this.bgm, this.volumeNormalBGM, 200);
                 
-                // Update UI Tombol
                 const ikonBaca = document.getElementById('ikon-baca-soal');
                 const teksBaca = document.getElementById('teks-baca-soal');
                 if(ikonBaca) ikonBaca.classList.remove('animate-pulse');
                 if(teksBaca) teksBaca.innerText = "Putar Ulang Suara";
             },
 
-            // Fungsi cantik untuk menaik/turunkan volume pelan-pelan (Fade)
             fadeVolume(audioEl, targetVolume, durationMs) {
                 if(!audioEl || isNaN(audioEl.duration)) return;
-                const steps = 10;
-                const stepTime = durationMs / steps;
+                const steps = 10; const stepTime = durationMs / steps;
                 const volumeStep = (targetVolume - audioEl.volume) / steps;
                 let currentStep = 0;
                 
                 const fadeInterval = setInterval(() => {
                     currentStep++;
                     let newVol = audioEl.volume + volumeStep;
-                    // Pastikan volume selalu di antara 0 dan 1
-                    if(newVol > 1) newVol = 1;
-                    if(newVol < 0) newVol = 0;
+                    if(newVol > 1) newVol = 1; if(newVol < 0) newVol = 0;
                     audioEl.volume = newVol;
-                    
-                    if(currentStep >= steps) {
-                        audioEl.volume = targetVolume;
-                        clearInterval(fadeInterval);
-                    }
+                    if(currentStep >= steps) { audioEl.volume = targetVolume; clearInterval(fadeInterval); }
                 }, stepTime);
             }
         };
 
-        // ==========================================
         // ENGINE GAME & STATE MANAGEMENT
-        // ==========================================
         const Game = {
             db: { global: {}, levels: [] }, 
             levelSekarang: 0, skor: 0, nyawa: 3, 
             levelTerbuka: parseInt(localStorage.getItem('maxUnlockedLevel')) || 0,
+
+            getAmanPath(url) {
+                if(!url) return null;
+                if(url.startsWith('http') || url.startsWith('data:')) return url;
+                return `public/${url}`;
+            },
 
             async mulaiPilihLevel() {
                 document.getElementById('layar-mulai').classList.add('opacity-0');
                 setTimeout(() => document.getElementById('layar-mulai').classList.add('hidden'), 500);
                 
                 try {
-                    const baseUrl = window.location.href.split('?')[0].replace(/\/$/, "");
-                    const res = await fetch(`${baseUrl}/public/data-soal.json?v=${Math.random()}`);
+                    // JURUS PATH AMAN: Menggunakan relative path yang bersih dan kompatibel
+                    const jsonUrl = `public/data-soal.json?v=${Date.now()}`;
+                    
+                    const res = await fetch(jsonUrl);
                     if (!res.ok) throw new Error("Gagal mengambil data.json");
                     const data = await res.json();
                     
@@ -352,18 +277,18 @@
                     
                     AudioMgr.initGlobal(this.db.global);
                 } catch(e) {
-                    console.warn("Menggunakan data cadangan:", e.message);
+                    // Catatan: Error "Failed to fetch" wajar terjadi jika kamu membuka file index.html
+                    // langsung di komputermu tanpa server (karena keamanan browser).
+                    console.warn("Menggunakan data cadangan. Jika kamu melihat ini, pastikan file data-soal.json sudah ada, atau jalankan via GitHub Pages.", e.message);
                     this.db.levels = [{ 
                         kategori: "kuis", 
-                        pertanyaan: "Admin belum membuat soal. Silakan masuk Panel Admin!", 
+                        pertanyaan: "Belum ada soal, atau sistem gagal membacanya. Pastikan masuk ke Panel Admin!", 
                         item_target: { nama: "Mengerti", isTarget: true }, 
                         item_pengecoh: [] 
                     }];
                 }
 
-                // Setelah tombol MAIN diklik, Browser PASTI mengizinkan audio putar BGM
                 AudioMgr.playBGM();
-                
                 this.levelTerbuka = Math.min(this.levelTerbuka, Math.max(0, this.db.levels.length - 1));
                 this.bukaPilihLevel(true);
             },
@@ -373,9 +298,7 @@
                 const grid = document.getElementById('grid-level');
                 const btnTutup = document.getElementById('btn-tutup-level');
                 
-                // Hentikan suara jika sedang berjalan
                 AudioMgr.stopSoal();
-
                 grid.innerHTML = '';
                 if(isBaruBuka) btnTutup.classList.add('hidden');
                 else btnTutup.classList.remove('hidden');
@@ -400,9 +323,7 @@
                 layar.classList.remove('hidden');
             },
 
-            tutupPilihLevel() {
-                document.getElementById('layar-pilih-level').classList.add('hidden');
-            },
+            tutupPilihLevel() { document.getElementById('layar-pilih-level').classList.add('hidden'); },
 
             mainkanLevel(idx) {
                 this.tutupPilihLevel();
@@ -437,16 +358,13 @@
                 document.getElementById('ui-level').innerText = this.levelSekarang + 1;
                 document.getElementById('teks-pertanyaan').innerText = dataLevel.pertanyaan || "Soal tanpa teks";
 
-                // Background Khusus Level
                 const bgLayar = dataLevel.bg_image || this.db.global.bg_image;
-                document.getElementById('view-game').style.backgroundImage = bgLayar ? `url(public/${bgLayar})` : 'none';
+                document.getElementById('view-game').style.backgroundImage = bgLayar ? `url('${this.getAmanPath(bgLayar)}')` : 'none';
                 
-                // Siapkan dan mainkan audio spesifik level ini
                 AudioMgr.setAudioLevel(dataLevel);
                 
-                document.getElementById('ui-audio-soal').classList.add('hidden'); // Sembunyikan dlu sebelum putar
+                document.getElementById('ui-audio-soal').classList.add('hidden'); 
                 if(dataLevel.audio_soal) {
-                    // Mulai putar soal pertama kali. (Selanjutnya akan loop otomatis oleh AudioMgr)
                     setTimeout(() => AudioMgr.playSoal(), 600); 
                 }
 
@@ -475,7 +393,7 @@
                     el.setAttribute('data-benar', it.isTarget ? 'ya' : 'tidak');
                     el.className = "kartu-drag w-24 h-24 md:w-32 md:h-32 bg-white rounded-[1.5rem] shadow-xl border-4 border-white cursor-grab touch-none flex items-center justify-center overflow-hidden relative";
                     
-                    const urlPath = it.url_gambar ? `public/${it.url_gambar}` : '';
+                    const urlPath = it.url_gambar ? this.getAmanPath(it.url_gambar) : '';
                     el.innerHTML = `
                         <div class="absolute inset-0 bg-slate-100 flex items-center justify-center text-slate-500 font-black text-sm md:text-lg text-center p-2 ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div>
                         <img src="${urlPath}" class="w-full h-full object-cover pointer-events-none" onerror="this.previousElementSibling.classList.remove('hidden'); this.style.display='none'" draggable="false" />
@@ -498,15 +416,12 @@
                     btn.className = "bg-white hover:bg-sky-50 border-4 border-sky-200 text-sky-800 font-black text-xl md:text-2xl py-6 px-4 rounded-[2rem] shadow-[0_8px_0_0_#bae6fd] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center justify-center gap-3";
                     
                     let konten = '';
-                    if(it.url_gambar) konten += `<img src="public/${it.url_gambar}" class="h-24 object-contain rounded-xl" onerror="this.style.display='none'" draggable="false">`;
+                    const urlPath = it.url_gambar ? this.getAmanPath(it.url_gambar) : '';
+                    if(urlPath) konten += `<img src="${urlPath}" class="h-24 object-contain rounded-xl" onerror="this.style.display='none'" draggable="false">`;
                     if(it.nama) konten += `<span>${it.nama}</span>`;
                     
                     btn.innerHTML = konten || "Pilihan";
-                    btn.onclick = () => { 
-                        // Jika anak pencet tombol jawaban, matikan otomatis suara soal yg mengulang-ulang
-                        AudioMgr.stopSoal(); 
-                        this.cekJawaban(it.isTarget, btn); 
-                    };
+                    btn.onclick = () => { AudioMgr.stopSoal(); this.cekJawaban(it.isTarget, btn); };
                     grid.appendChild(btn);
                 });
                 arena.appendChild(grid);
