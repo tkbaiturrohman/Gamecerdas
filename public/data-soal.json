@@ -4,18 +4,18 @@
     {
       "id": "L_1775160409808",
       "kategori": "drag",
-      "pertanyaan": "Ok",
+      "pertanyaan": "Apa yang kamu suka",
       "audio_soal": null,
       "item_target": {
-        "nama": "J",
+        "nama": "Ok",
         "isTarget": true,
-        "url_gambar": "assets/tgt_1775160409808.jpg"
+        "url_gambar": "assets/tgt_1775161855787.png"
       },
       "item_pengecoh": [
         {
-          "nama": "I",
+          "nama": "No",
           "isTarget": false,
-          "url_gambar": "assets/pgc_1775160409808_0.jpg"
+          "url_gambar": "assets/pgc_1775161855787_0.jpg"
         }
       ]
     }
