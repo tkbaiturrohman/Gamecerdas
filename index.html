@@ -20,7 +20,6 @@
         .is-dragging { opacity: 0.95; z-index: 9999 !important; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
         .drop-active { transform: scale(1.15); border-color: #3b82f6 !important; background-color: rgba(255,255,255,0.95) !important; box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); }
         
-        /* Animasi Unik */
         @keyframes popIn { 0% {transform: scale(0.3); opacity: 0;} 70% {transform: scale(1.1); opacity: 1;} 100% {transform: scale(1);} }
         .anim-pop { animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         
@@ -58,11 +57,19 @@
             </button>
         </div>
 
-        <!-- 3. Header Game -->
+        <!-- 3. Header Game (Ditambah Tombol MUTE) -->
         <header class="w-full p-4 z-20 flex justify-between items-center glass-ui shadow-lg rounded-b-[2rem] flex-shrink-0">
-            <button onclick="Game.bukaPilihLevel()" class="bg-sky-100 text-sky-700 p-3 rounded-2xl shadow hover:bg-sky-200 transition">
-                <i data-lucide="map" class="w-6 h-6"></i>
-            </button>
+            <div class="flex gap-2">
+                <!-- Tombol Peta Level -->
+                <button onclick="Game.bukaPilihLevel()" class="bg-sky-100 text-sky-700 p-3 rounded-2xl shadow hover:bg-sky-200 transition active:scale-95">
+                    <i data-lucide="map" class="w-6 h-6"></i>
+                </button>
+                <!-- Tombol Audio Mute/Unmute (Jurus Ampuh) -->
+                <button onclick="AudioMgr.toggleMute()" id="btn-mute" class="bg-indigo-100 text-indigo-700 p-3 rounded-2xl shadow hover:bg-indigo-200 transition active:scale-95">
+                    <i data-lucide="volume-2" id="ikon-suara" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
             <div class="flex gap-1 bg-white px-3 py-2 rounded-2xl shadow-inner border border-slate-200" id="ui-nyawa"></div>
             <div class="font-black text-xl md:text-3xl text-sky-600 drop-shadow-sm uppercase">Lv <span id="ui-level" class="text-sky-800">1</span></div>
             <div class="flex gap-2 items-center bg-white px-4 py-2 rounded-2xl shadow-inner border border-slate-200 text-orange-500 font-black text-xl">
@@ -74,9 +81,9 @@
         <main class="flex-1 overflow-y-auto overflow-x-hidden flex flex-col items-center justify-start p-4 w-full max-w-4xl mx-auto z-10 relative">
             <div class="glass-ui rounded-[2rem] p-6 shadow-xl w-full text-center mb-6 anim-pop flex-shrink-0">
                 <h2 id="teks-pertanyaan" class="text-2xl md:text-4xl font-black text-slate-800 leading-tight">...</h2>
-                <div id="ui-audio-soal" class="hidden mt-4 text-sky-600 text-sm font-bold flex items-center justify-center gap-2 bg-sky-50 py-2 px-6 rounded-full inline-flex mx-auto border border-sky-200 shadow-sm">
-                    <i data-lucide="volume-2" class="w-5 h-5 animate-pulse"></i> Sedang membacakan...
-                </div>
+                <button onclick="AudioMgr.putarUlangSoal()" id="ui-audio-soal" class="hidden mt-4 text-sky-600 text-sm font-bold flex items-center justify-center gap-2 bg-sky-50 hover:bg-sky-100 py-2 px-6 rounded-full inline-flex mx-auto border border-sky-200 shadow-sm transition active:scale-95">
+                    <i data-lucide="volume-2" id="ikon-baca-soal" class="w-5 h-5 animate-pulse"></i> <span id="teks-baca-soal">Sedang membacakan...</span>
+                </button>
             </div>
             <div id="arena-bermain" class="w-full flex-1 flex flex-col items-center justify-center min-h-0"></div>
         </main>
@@ -95,13 +102,15 @@
     <script>
         lucide.createIcons();
 
-        // LOGIKA DRAG & DROP (Mulus, Anti-Lag)
+        // ==========================================
+        // LOGIKA DRAG & DROP
+        // ==========================================
         interact('.kartu-drag').draggable({
             inertia: true,
             listeners: {
                 start(e) {
                     e.target.classList.add('is-dragging');
-                    AudioMgr.stopSoal();
+                    AudioMgr.stopSoal(); // Matikan pembacaan soal saat anak mulai bermain
                 },
                 move(e) {
                     var target = e.target;
@@ -134,38 +143,118 @@
             }
         });
 
-        // MANAJEMEN AUDIO
+
+        // ==========================================
+        // MANAJEMEN AUDIO (LANCAR & BISA DI-MUTE)
+        // ==========================================
         const AudioMgr = {
             bgm: new Audio(), sfxBenar: new Audio(), sfxSalah: new Audio(), soal: new Audio(), tSoal: null,
+            isMuted: false, urlSoalSaatIni: null,
+            
+            // Audio Bawaan Jika Kosong
             defBenar: 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3',
             defSalah: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3',
             
             initGlobal(cfg) {
-                if(cfg && cfg.bgm_url) { this.bgm.src = `./public/${cfg.bgm_url}`; this.bgm.loop = true; this.bgm.volume = 0.4; }
+                if(cfg && cfg.bgm_url) { 
+                    this.bgm.src = `public/${cfg.bgm_url}`; 
+                    this.bgm.loop = true; 
+                    this.bgm.volume = 0.3; 
+                }
             },
+
             setAudioLevel(dataLevel) {
                 if (!dataLevel) return;
-                this.sfxBenar.src = dataLevel.sfx_benar ? `./public/${dataLevel.sfx_benar}` : this.defBenar;
-                this.sfxSalah.src = dataLevel.sfx_salah ? `./public/${dataLevel.sfx_salah}` : this.defSalah;
+                this.sfxBenar.src = dataLevel.sfx_benar ? `public/${dataLevel.sfx_benar}` : this.defBenar;
+                this.sfxSalah.src = dataLevel.sfx_salah ? `public/${dataLevel.sfx_salah}` : this.defSalah;
+                this.urlSoalSaatIni = dataLevel.audio_soal ? `public/${dataLevel.audio_soal}` : null;
             },
-            playBGM() { this.bgm.play().catch(()=>{console.log("BGM diblokir browser, abaikan.");}); },
-            playBenar() { this.stopSoal(); this.sfxBenar.currentTime=0; this.sfxBenar.play().catch(()=>{}); },
-            playSalah() { this.stopSoal(); this.sfxSalah.currentTime=0; this.sfxSalah.play().catch(()=>{}); },
-            playSoal(url) {
-                this.stopSoal(); if(!url) return;
-                this.soal.src = `./public/${url}`;
+
+            // JURUS AMPUH: Tombol Mute/Unmute
+            toggleMute() {
+                this.isMuted = !this.isMuted;
+                this.bgm.muted = this.isMuted;
+                this.sfxBenar.muted = this.isMuted;
+                this.sfxSalah.muted = this.isMuted;
+                this.soal.muted = this.isMuted;
+
+                const ikon = document.getElementById('ikon-suara');
+                const btn = document.getElementById('btn-mute');
+                
+                if(this.isMuted) {
+                    ikon.setAttribute('data-lucide', 'volume-x');
+                    btn.classList.replace('text-indigo-700', 'text-red-600');
+                    btn.classList.replace('bg-indigo-100', 'bg-red-100');
+                } else {
+                    ikon.setAttribute('data-lucide', 'volume-2');
+                    btn.classList.replace('text-red-600', 'text-indigo-700');
+                    btn.classList.replace('bg-red-100', 'bg-indigo-100');
+                    // Jika di-unmute, paksa putar musik latarnya
+                    this.bgm.play().catch(e => console.log("Musik latar butuh klik di layar dulu"));
+                }
+                lucide.createIcons();
+            },
+
+            playBGM() { 
+                if(!this.isMuted && this.bgm.src) {
+                    this.bgm.play().catch(e => console.log("BGM diblokir otomatis oleh browser. Harus unmute/klik layar.")); 
+                }
+            },
+            
+            playBenar() { 
+                this.stopSoal(); 
+                if(!this.isMuted && this.sfxBenar.src) {
+                    this.sfxBenar.currentTime=0; this.sfxBenar.play().catch(()=>{}); 
+                }
+            },
+            
+            playSalah() { 
+                this.stopSoal(); 
+                if(!this.isMuted && this.sfxSalah.src) {
+                    this.sfxSalah.currentTime=0; this.sfxSalah.play().catch(()=>{}); 
+                }
+            },
+            
+            playSoal() {
+                this.stopSoal(); 
+                if(!this.urlSoalSaatIni || this.isMuted) return;
+                
+                this.soal.src = this.urlSoalSaatIni;
+                const btnAudio = document.getElementById('ui-audio-soal');
+                const ikonBaca = document.getElementById('ikon-baca-soal');
+                const teksBaca = document.getElementById('teks-baca-soal');
+                
                 this.soal.play().then(() => {
-                    document.getElementById('ui-audio-soal').classList.remove('hidden');
-                    this.tSoal = setTimeout(() => this.stopSoal(), 8000); 
-                }).catch(()=>{});
+                    btnAudio.classList.remove('hidden');
+                    ikonBaca.classList.add('animate-pulse');
+                    teksBaca.innerText = "Sedang membacakan...";
+                    
+                    // Otomatis mati setelah 10 detik
+                    this.tSoal = setTimeout(() => this.stopSoal(), 10000); 
+                }).catch(()=>{
+                    console.log("Audio soal gagal diputar otomatis");
+                });
             },
+
+            putarUlangSoal() {
+                // Dipanggil kalau anak memencet tombol "Sedang membacakan..."
+                this.playSoal();
+            },
+
             stopSoal() {
-                this.soal.pause(); clearTimeout(this.tSoal);
-                document.getElementById('ui-audio-soal').classList.add('hidden');
+                this.soal.pause(); 
+                clearTimeout(this.tSoal);
+                const ikonBaca = document.getElementById('ikon-baca-soal');
+                const teksBaca = document.getElementById('teks-baca-soal');
+                if(ikonBaca) ikonBaca.classList.remove('animate-pulse');
+                if(teksBaca) teksBaca.innerText = "Ulangi Suara Soal";
+                // Jangan sembunyikan tombolnya agar anak bisa klik ulang
             }
         };
 
-        // ENGINE GAME & STATE MANAGEMENT (Perbaikan Bug)
+        // ==========================================
+        // ENGINE GAME & STATE MANAGEMENT
+        // ==========================================
         const Game = {
             db: { global: {}, levels: [] }, 
             levelSekarang: 0, skor: 0, nyawa: 3, 
@@ -178,59 +267,46 @@
                 setTimeout(() => document.getElementById('layar-mulai').classList.add('hidden'), 500);
                 
                 try {
-                    const res = await fetch(`./public/data-soal.json?v=${Math.random()}`);
-                    if (!res.ok) throw new Error("Gagal mengambil data.json");
+                    // Gunakan path relatif standar yang paling aman untuk GitHub Pages
+                    const res = await fetch(`public/data-soal.json?v=${Date.now()}`);
+                    if (!res.ok) throw new Error("File data-soal.json tidak ditemukan atau gagal dimuat.");
                     const data = await res.json();
                     
-                    // PERBAIKAN: Berikan default objek kosong jika global_settings tidak ada
                     this.db.global = data.global_settings || {};
-                    // PERBAIKAN: Jika levels kosong/undefined, beri array kosong
                     this.db.levels = data.levels || [];
                     
                     if(this.db.levels.length === 0) throw new Error("Data Level Kosong");
                     
                     AudioMgr.initGlobal(this.db.global);
                 } catch(e) {
-                    console.error("Game menggunakan data cadangan:", e.message);
-                    // Data Cadangan agar game TIDAK MACET meski admin belum buat soal
+                    console.warn("Menjalankan Mode Demo. Alasan:", e.message);
+                    // Data Cadangan agar game TIDAK MACET meski JSON belum ada
+                    this.db.global = {};
                     this.db.levels = [{ 
                         kategori: "kuis", 
-                        pertanyaan: "Admin belum membuat soal. Silakan masuk Panel Admin!", 
-                        item_target: { nama: "OK Mengerti", isTarget: true }, 
+                        pertanyaan: "Ini adalah Mode Demo. Silakan masuk ke Panel Admin untuk membuat soalmu sendiri!", 
+                        item_target: { nama: "OK, Saya Mengerti", isTarget: true }, 
                         item_pengecoh: [] 
                     }];
                 }
 
-                // Coba putar musik latar
+                // Setelah tombol MAIN diklik, Browser PASTI mengizinkan audio
                 AudioMgr.playBGM();
                 
-                // Validasi agar levelTerbuka tidak error jika admin menghapus level di database
                 this.levelTerbuka = Math.min(this.levelTerbuka, Math.max(0, this.db.levels.length - 1));
-                
-                // Langsung buka layar pemilihan level
                 this.bukaPilihLevel(true);
             },
 
-            // --- SISTEM PEMILIHAN LEVEL ---
-            // isBaruBuka: penanda apakah ini buka pilih level pertama kali dari tombol Main
             bukaPilihLevel(isBaruBuka = false) {
                 const layar = document.getElementById('layar-pilih-level');
                 const grid = document.getElementById('grid-level');
                 const btnTutup = document.getElementById('btn-tutup-level');
                 
                 grid.innerHTML = '';
+                if(isBaruBuka) btnTutup.classList.add('hidden');
+                else btnTutup.classList.remove('hidden');
 
-                // Jika baru pertama kali buka, sembunyikan tombol kembali
-                if(isBaruBuka) {
-                    btnTutup.classList.add('hidden');
-                } else {
-                    btnTutup.classList.remove('hidden');
-                }
-
-                // PERBAIKAN: Pastikan levels adalah array agar forEach tidak error
-                if (!Array.isArray(this.db.levels)) {
-                    this.db.levels = [];
-                }
+                if (!Array.isArray(this.db.levels)) this.db.levels = [];
 
                 this.db.levels.forEach((lvl, idx) => {
                     const isUnlocked = idx <= this.levelTerbuka;
@@ -257,7 +333,7 @@
             mainkanLevel(idx) {
                 this.tutupPilihLevel();
                 this.levelSekarang = idx;
-                this.nyawa = 3; // Reset nyawa
+                this.nyawa = 3; 
                 this.renderUI();
                 this.muatArena();
             },
@@ -282,28 +358,28 @@
                 arena.innerHTML = ''; 
                 
                 const dataLevel = this.db.levels[this.levelSekarang];
-                
-                // PERBAIKAN: Jika dataLevel tiba-tiba tidak ada
-                if (!dataLevel) {
-                    arena.innerHTML = "<h3 class='text-red-500 font-bold'>Error: Data level ini kosong.</h3>";
-                    return;
-                }
+                if (!dataLevel) return;
 
                 document.getElementById('ui-level').innerText = this.levelSekarang + 1;
                 document.getElementById('teks-pertanyaan').innerText = dataLevel.pertanyaan || "Soal tanpa teks";
 
-                // Background Khusus Level
+                // Setting Audio & Latar Per Level
                 const bgLayar = dataLevel.bg_image || this.db.global.bg_image;
-                document.getElementById('view-game').style.backgroundImage = bgLayar ? `url(./public/${bgLayar})` : 'none';
+                document.getElementById('view-game').style.backgroundImage = bgLayar ? `url(public/${bgLayar})` : 'none';
                 
                 AudioMgr.setAudioLevel(dataLevel);
-                if(dataLevel.audio_soal) AudioMgr.playSoal(dataLevel.audio_soal);
+                
+                // Pastikan tombol suara awalnya tersembunyi
+                document.getElementById('ui-audio-soal').classList.add('hidden');
+                if(dataLevel.audio_soal) {
+                    // Beri jeda sedikit agar browser rileks sebelum play
+                    setTimeout(() => AudioMgr.playSoal(), 500); 
+                }
 
                 if(dataLevel.kategori === 'drag') this.mesinDrag(dataLevel, arena);
                 else this.mesinKuis(dataLevel, arena);
             },
 
-            // --- MESIN DRAG & DROP ---
             mesinDrag(data, arena) {
                 arena.innerHTML = `
                     <div id="zona-target" class="w-40 h-40 md:w-56 md:h-56 border-4 border-dashed border-sky-400 bg-white/50 backdrop-blur rounded-[2rem] flex flex-col items-center justify-center mb-6 shadow-inner z-0">
@@ -315,8 +391,6 @@
                 lucide.createIcons();
                 
                 const wadahItem = document.getElementById('wadah-item');
-                
-                // PERBAIKAN: Cegah Crash jika item_target atau item_pengecoh kosong/undefined
                 const target = data.item_target || { nama: "Target", isTarget: true };
                 const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
                 
@@ -327,7 +401,7 @@
                     el.setAttribute('data-benar', it.isTarget ? 'ya' : 'tidak');
                     el.className = "kartu-drag w-24 h-24 md:w-32 md:h-32 bg-white rounded-[1.5rem] shadow-xl border-4 border-white cursor-grab touch-none flex items-center justify-center overflow-hidden relative";
                     
-                    const urlPath = it.url_gambar ? `./public/${it.url_gambar}` : '';
+                    const urlPath = it.url_gambar ? `public/${it.url_gambar}` : '';
                     el.innerHTML = `
                         <div class="absolute inset-0 bg-slate-100 flex items-center justify-center text-slate-500 font-black text-sm md:text-lg text-center p-2 ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div>
                         <img src="${urlPath}" class="w-full h-full object-cover pointer-events-none" onerror="this.previousElementSibling.classList.remove('hidden'); this.style.display='none'" draggable="false" />
@@ -336,12 +410,10 @@
                 });
             },
 
-            // --- MESIN KUIS ---
             mesinKuis(data, arena) {
                 const grid = document.createElement('div');
                 grid.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-3xl pb-8 anim-slide-up mt-auto";
                 
-                // PERBAIKAN: Cegah Crash
                 const target = data.item_target || { nama: "Jawaban Benar", isTarget: true };
                 const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
                 
@@ -352,7 +424,7 @@
                     btn.className = "bg-white hover:bg-sky-50 border-4 border-sky-200 text-sky-800 font-black text-xl md:text-2xl py-6 px-4 rounded-[2rem] shadow-[0_8px_0_0_#bae6fd] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center justify-center gap-3";
                     
                     let konten = '';
-                    if(it.url_gambar) konten += `<img src="./public/${it.url_gambar}" class="h-24 object-contain rounded-xl" onerror="this.style.display='none'" draggable="false">`;
+                    if(it.url_gambar) konten += `<img src="public/${it.url_gambar}" class="h-24 object-contain rounded-xl" onerror="this.style.display='none'" draggable="false">`;
                     if(it.nama) konten += `<span>${it.nama}</span>`;
                     
                     btn.innerHTML = konten || "Pilihan";
@@ -362,7 +434,6 @@
                 arena.appendChild(grid);
             },
 
-            // --- LOGIKA PENILAIAN ---
             cekJawaban(isBenar, elemenAnimasi) {
                 document.querySelectorAll('.kartu-drag').forEach(e => e.style.pointerEvents = 'none');
                 document.querySelectorAll('button').forEach(e => e.disabled = true);
