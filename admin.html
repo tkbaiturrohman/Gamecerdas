@@ -15,6 +15,7 @@
 <body>
 
     <div class="app-container flex flex-col pb-28">
+        <!-- Header -->
         <header class="bg-indigo-700 text-white p-4 shadow-lg sticky top-0 z-50 flex justify-between items-center">
             <h1 class="text-xl font-black flex items-center gap-2"><i data-lucide="server"></i> Pusat Data Game</h1>
             <div class="flex gap-2">
@@ -29,6 +30,7 @@
                 <span>Klik tombol kuning "Repo" di atas untuk menghubungkan GitHub.</span>
             </div>
 
+            <!-- Daftar Level -->
             <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
                 <div class="flex justify-between items-center mb-4 pb-3 border-b-2 border-slate-100">
                     <h2 class="font-black text-xl text-slate-800">Daftar Level</h2>
@@ -38,18 +40,21 @@
             </div>
         </main>
 
+        <!-- Tombol Publish Raksasa -->
         <div class="fixed bottom-0 w-full max-w-[600px] p-5 bg-white/90 backdrop-blur border-t-2 z-40">
             <button onclick="publishKeGitHub()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xl py-4 rounded-2xl shadow-[0_8px_0_0_#059669] active:translate-y-2 active:shadow-none flex justify-center items-center gap-2 transition-all">
-                <i data-lucide="upload-cloud"></i> SINKRONKAN KE GITHUB
+                <i data-lucide="upload-cloud"></i> SIMPAN & PUBLISH KE GITHUB
             </button>
         </div>
 
+        <!-- Overlay Loading Animasi -->
         <div id="modal-loading" class="hidden fixed inset-0 z-[100] bg-indigo-900/90 backdrop-blur flex flex-col justify-center items-center p-6 text-center transition-all">
             <i data-lucide="loader" class="w-16 h-16 text-white animate-spin mb-6"></i>
             <h3 class="text-3xl font-black text-white mb-2 tracking-widest uppercase">Menyinkronkan</h3>
             <p id="loading-teks" class="text-indigo-200 font-bold text-lg">Mengupload aset...</p>
         </div>
 
+        <!-- Modal Config Repo & Global Audio -->
         <div id="modal-config" class="hidden fixed inset-0 z-[60] bg-slate-900/70 backdrop-blur-sm flex justify-center items-center p-4">
             <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl relative">
                 <h2 class="font-black text-xl mb-4 flex items-center gap-2 text-indigo-800"><i data-lucide="github"></i> Setup GitHub</h2>
@@ -67,6 +72,7 @@
             </div>
         </div>
 
+        <!-- Modal Form Level (Super Kustom) -->
         <div id="modal-soal" class="hidden fixed inset-0 z-[60] bg-slate-100 flex flex-col max-w-[600px] mx-auto overflow-y-auto">
             <header class="bg-white p-5 flex justify-between items-center shadow-sm border-b">
                 <h2 id="judul-modal-form" class="font-black text-xl text-slate-800">Edit Level</h2>
@@ -76,6 +82,7 @@
             <div class="flex-1 p-5 space-y-6">
                 <input type="hidden" id="edit-index" value="-1">
 
+                <!-- Basic Info -->
                 <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
                     <label class="font-black text-sm block mb-2 text-indigo-800">Kategori Game</label>
                     <select id="in-kategori" class="w-full p-3 border-2 border-indigo-100 rounded-xl bg-indigo-50 font-bold text-indigo-700 outline-none mb-4">
@@ -87,6 +94,7 @@
                     <textarea id="in-tanya" class="w-full p-3 border-2 border-slate-200 rounded-xl bg-slate-50 outline-none focus:border-indigo-400" rows="2" placeholder="Tarik gambar sapi!"></textarea>
                 </div>
 
+                <!-- Custom Media Per-Level Baru! -->
                 <div class="bg-sky-50 p-5 rounded-3xl shadow-sm border-2 border-sky-200">
                     <h3 class="font-black text-sky-800 mb-3 flex items-center gap-2"><i data-lucide="image"></i> Media Khusus Level Ini</h3>
                     <div class="space-y-3">
@@ -112,6 +120,7 @@
                     </div>
                 </div>
 
+                <!-- Target Benar -->
                 <div class="bg-emerald-50 p-5 rounded-3xl border-2 border-emerald-300">
                     <label class="font-black text-lg block mb-3 text-emerald-800 flex items-center gap-2"><i data-lucide="check-circle-2"></i> TARGET BENAR</label>
                     <input type="text" id="in-benar-nama" placeholder="Teks Jawaban" class="w-full p-3 border-2 border-emerald-300 rounded-xl bg-white mb-3 font-black text-slate-700 outline-none focus:border-emerald-500">
@@ -119,6 +128,7 @@
                     <input type="file" id="f-benar-img" accept="image/*" class="w-full text-sm bg-white p-2 rounded-xl border border-emerald-300">
                 </div>
 
+                <!-- Pengecoh -->
                 <div class="bg-rose-50 p-5 rounded-3xl border-2 border-rose-300 mb-6">
                     <label class="font-black text-lg block mb-2 text-rose-800 flex items-center gap-2"><i data-lucide="x-circle"></i> PENGECOH</label>
                     <p class="text-[11px] text-rose-600 mb-3 font-bold bg-rose-100 p-2 rounded-lg">Pisahkan teks dengan koma. Gambar bisa pilih banyak file sekaligus.</p>
@@ -141,6 +151,7 @@
 
         let dbLokal = { global_settings: {}, levels: [] };
         let antreanFile = []; 
+        let fileYangHarusDihapus = []; // JURUS GARBAGE COLLECTOR
 
         function bukaModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function tutupModal(id) { document.getElementById(id).classList.add('hidden'); }
@@ -180,6 +191,7 @@
             statusEl.innerHTML = `<i data-lucide="refresh-cw" class="w-6 h-6 animate-spin text-indigo-500"></i> <span class="text-indigo-800">Menghubungkan...</span>`;
             
             try {
+                // Cache busting parameter
                 const res = await fetch(`https://api.github.com/repos/${repo}/contents/public/data-soal.json?v=${Date.now()}`, {
                     headers: { 'Authorization': `token ${token}` }
                 });
@@ -234,8 +246,32 @@
             lucide.createIcons();
         }
 
+        // FUNGSI BARU: Mendata semua file yang dipakai di sebuah level untuk dihancurkan
+        function daftarAsetLevelIni(dataLevel) {
+            let list = [];
+            if(dataLevel.bg_image) list.push(`public/${dataLevel.bg_image}`);
+            if(dataLevel.audio_soal) list.push(`public/${dataLevel.audio_soal}`);
+            if(dataLevel.sfx_benar) list.push(`public/${dataLevel.sfx_benar}`);
+            if(dataLevel.sfx_salah) list.push(`public/${dataLevel.sfx_salah}`);
+            if(dataLevel.item_target && dataLevel.item_target.url_gambar) list.push(`public/${dataLevel.item_target.url_gambar}`);
+            
+            if(dataLevel.item_pengecoh) {
+                dataLevel.item_pengecoh.forEach(pgc => {
+                    if(pgc.url_gambar) list.push(`public/${pgc.url_gambar}`);
+                });
+            }
+            return list;
+        }
+
         function hapusLevel(idx) {
-            if(confirm("Hapus level ini? Pastikan klik tombol Publish di bawah setelah menghapus!")) {
+            if(confirm("Hapus level ini? (Data dan gambar akan dihancurkan permanen saat kamu klik PUBLISH)")) {
+                const levelYgDihapus = dbLokal.levels[idx];
+                
+                // Tambahkan semua URL asetnya ke daftar Garbage Collector
+                const asetTerpakai = daftarAsetLevelIni(levelYgDihapus);
+                fileYangHarusDihapus = [...fileYangHarusDihapus, ...asetTerpakai];
+
+                // Hapus dari data JSON
                 dbLokal.levels.splice(idx, 1);
                 renderDaftarLevel();
             }
@@ -286,25 +322,54 @@
 
             // 1. Proses Kustomisasi Media Per-Level
             const fBgLevel = document.getElementById('f-lvl-bg').files[0];
-            if(fBgLevel) { objLevel.bg_image = `assets/bg_lvl_${ts}.${fBgLevel.name.split('.').pop()}`; antreanFile.push({path: `public/${objLevel.bg_image}`, file: fBgLevel}); }
+            if(fBgLevel) { 
+                // Jika sedang mengedit dan mengubah file, masukkan file lama ke Garbage Collector
+                if(idxEdit > -1 && objLevel.bg_image) fileYangHarusDihapus.push(`public/${objLevel.bg_image}`);
+                
+                objLevel.bg_image = `assets/bg_lvl_${ts}.${fBgLevel.name.split('.').pop()}`; 
+                antreanFile.push({path: `public/${objLevel.bg_image}`, file: fBgLevel}); 
+            }
             
             const fAudioSoal = document.getElementById('f-lvl-soal').files[0];
-            if(fAudioSoal) { objLevel.audio_soal = `assets/a_soal_${ts}.mp3`; antreanFile.push({path: `public/${objLevel.audio_soal}`, file: fAudioSoal}); }
+            if(fAudioSoal) { 
+                if(idxEdit > -1 && objLevel.audio_soal) fileYangHarusDihapus.push(`public/${objLevel.audio_soal}`);
+                objLevel.audio_soal = `assets/a_soal_${ts}.mp3`; 
+                antreanFile.push({path: `public/${objLevel.audio_soal}`, file: fAudioSoal}); 
+            }
             
             const fSfxBenar = document.getElementById('f-lvl-benar').files[0];
-            if(fSfxBenar) { objLevel.sfx_benar = `assets/a_bnr_${ts}.mp3`; antreanFile.push({path: `public/${objLevel.sfx_benar}`, file: fSfxBenar}); }
+            if(fSfxBenar) { 
+                if(idxEdit > -1 && objLevel.sfx_benar) fileYangHarusDihapus.push(`public/${objLevel.sfx_benar}`);
+                objLevel.sfx_benar = `assets/a_bnr_${ts}.mp3`; 
+                antreanFile.push({path: `public/${objLevel.sfx_benar}`, file: fSfxBenar}); 
+            }
             
             const fSfxSalah = document.getElementById('f-lvl-salah').files[0];
-            if(fSfxSalah) { objLevel.sfx_salah = `assets/a_slh_${ts}.mp3`; antreanFile.push({path: `public/${objLevel.sfx_salah}`, file: fSfxSalah}); }
+            if(fSfxSalah) { 
+                if(idxEdit > -1 && objLevel.sfx_salah) fileYangHarusDihapus.push(`public/${objLevel.sfx_salah}`);
+                objLevel.sfx_salah = `assets/a_slh_${ts}.mp3`; 
+                antreanFile.push({path: `public/${objLevel.sfx_salah}`, file: fSfxSalah}); 
+            }
 
-            // 2. Proses Target & Pengecoh (Sama seperti sebelumnya)
+            // 2. Proses Target & Pengecoh
             const fTarget = document.getElementById('f-benar-img').files[0];
-            if(fTarget) { objLevel.item_target.url_gambar = `assets/tgt_${ts}.${fTarget.name.split('.').pop()}`; antreanFile.push({ path: `public/${objLevel.item_target.url_gambar}`, file: fTarget }); }
+            if(fTarget) { 
+                if(idxEdit > -1 && objLevel.item_target.url_gambar) fileYangHarusDihapus.push(`public/${objLevel.item_target.url_gambar}`);
+                objLevel.item_target.url_gambar = `assets/tgt_${ts}.${fTarget.name.split('.').pop()}`; 
+                antreanFile.push({ path: `public/${objLevel.item_target.url_gambar}`, file: fTarget }); 
+            }
 
             const textPengecoh = document.getElementById('in-salah-nama').value.split(',').map(s => s.trim()).filter(s => s);
             const filePengecoh = document.getElementById('f-salah-img').files;
 
+            // Jika ada perubahan pada pengecoh, hapus file gambar pengecoh yang lama
             if (textPengecoh.length > 0 || filePengecoh.length > 0) {
+                if (idxEdit > -1 && objLevel.item_pengecoh) {
+                    objLevel.item_pengecoh.forEach(pgc => {
+                        if(pgc.url_gambar) fileYangHarusDihapus.push(`public/${pgc.url_gambar}`);
+                    });
+                }
+
                 objLevel.item_pengecoh = []; 
                 let maxLen = Math.max(textPengecoh.length, filePengecoh.length);
                 for(let i=0; i<maxLen; i++) {
@@ -324,12 +389,13 @@
             tutupModal('modal-soal');
         }
 
-        // --- ENGINE UPLOAD GITHUB API ---
+        // --- ENGINE UPLOAD & DELETE GITHUB API ---
         const ubahFileKeBase64 = (file) => new Promise((resolve) => { 
             const r = new FileReader(); r.readAsDataURL(file); 
             r.onload = () => { let b64 = r.result.replace(/^data:(.*,)?/, ''); if(b64.length % 4 > 0) b64 += '='.repeat(4 - (b64.length % 4)); resolve(b64); }; 
         });
 
+        // UPDATE ATAU BUAT FILE
         async function githubPutRequest(token, repo, path, base64Content) {
             const url = `https://api.github.com/repos/${repo}/contents/${path}`;
             let sha = null;
@@ -337,6 +403,28 @@
             const bodyData = { message: `CMS Update: ${path}`, content: base64Content }; if (sha) bodyData.sha = sha;
             const putRes = await fetch(url, { method: 'PUT', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(bodyData) });
             if(!putRes.ok) throw new Error(`Upload Gagal: ${path}`);
+        }
+
+        // FUNGSI BARU: MENGHANCURKAN FILE (DELETE)
+        async function githubDeleteRequest(token, repo, path) {
+            const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+            try {
+                // 1. Dapatkan SHA filenya dulu
+                const getRes = await fetch(url, { headers: { 'Authorization': `token ${token}` } });
+                if(getRes.ok) {
+                    const data = await getRes.json();
+                    const sha = data.sha;
+                    // 2. Tembak perintah DELETE
+                    const delRes = await fetch(url, { 
+                        method: 'DELETE', 
+                        headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify({ message: `CMS Auto-Delete: Menghapus Aset ${path}`, sha: sha }) 
+                    });
+                    if(!delRes.ok) console.warn("Gagal menghapus file:", path);
+                }
+            } catch(e) {
+                console.warn("File mungkin sudah tidak ada:", path);
+            }
         }
 
         async function publishKeGitHub() {
@@ -348,12 +436,22 @@
             modLoad.classList.remove('hidden');
 
             try {
+                // PROSES 1: MENGHAPUS ASET SAMPAH
+                if (fileYangHarusDihapus.length > 0) {
+                    for(let i=0; i<fileYangHarusDihapus.length; i++) {
+                        tLoad.innerText = `Menghapus file sampah ${i+1}/${fileYangHarusDihapus.length}...`;
+                        await githubDeleteRequest(token, repo, fileYangHarusDihapus[i]);
+                    }
+                }
+
+                // PROSES 2: MENGUNGGAH ASET BARU
                 for(let i=0; i<antreanFile.length; i++) {
                     tLoad.innerText = `Mengunggah file ${i+1} dari ${antreanFile.length}...`;
                     const b64 = await ubahFileKeBase64(antreanFile[i].file);
                     await githubPutRequest(token, repo, antreanFile[i].path, b64);
                 }
 
+                // PROSES 3: MENGUPDATE JSON
                 tLoad.innerText = `Menyinkronkan Database...`;
                 const jsonStr = JSON.stringify(dbLokal, null, 2);
                 const jsonB64 = window.btoa(unescape(encodeURIComponent(jsonStr)));
@@ -361,10 +459,11 @@
 
                 tLoad.innerText = `SELESAI!`;
                 antreanFile = []; 
+                fileYangHarusDihapus = []; // Kosongkan antrean sampah
                 
                 setTimeout(() => {
                     modLoad.classList.add('hidden');
-                    alert("Berhasil! Perubahan sudah disimpan. Tunggu 1 menit lalu coba mainkan gamenya.");
+                    alert("Berhasil! Semua Data & Aset sudah tersinkronisasi sempurna. Tunggu 1 menit lalu mainkan gamenya.");
                 }, 1000);
 
             } catch(e) {
