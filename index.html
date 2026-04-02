@@ -35,25 +35,30 @@
 
     <div id="view-game" class="h-[100dvh] w-screen flex flex-col relative overflow-hidden">
         
+        <!-- 1. Layar Mulai Utama -->
         <div id="layar-mulai" class="absolute inset-0 z-[100] bg-sky-500 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-500">
             <div class="bg-white p-6 rounded-[2rem] shadow-2xl mb-8 anim-wobble border-8 border-sky-300">
                 <i data-lucide="puzzle" class="w-24 h-24 text-sky-500"></i>
             </div>
             <h1 class="text-5xl md:text-7xl font-black text-white mb-12 drop-shadow-xl">Game Pintar!</h1>
-            <button onclick="Game.bukaPilihLevel()" class="bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-black text-4xl py-6 px-16 rounded-[2.5rem] shadow-[0_12px_0_0_#b45309] active:translate-y-3 active:shadow-none transition-all">
+            <button onclick="Game.mulaiPilihLevel()" class="bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-black text-4xl py-6 px-16 rounded-[2.5rem] shadow-[0_12px_0_0_#b45309] active:translate-y-3 active:shadow-none transition-all">
                 MAIN
             </button>
         </div>
 
+        <!-- 2. Layar Pemilihan Level -->
         <div id="layar-pilih-level" class="hidden absolute inset-0 z-[90] bg-sky-900/90 backdrop-blur-md flex flex-col items-center justify-start pt-20 p-6 overflow-y-auto">
             <h2 class="text-4xl font-black text-white mb-8 drop-shadow-md">Pilih Level</h2>
             <div id="grid-level" class="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-2xl mb-10 pb-20">
-                </div>
-            <button onclick="Game.tutupPilihLevel()" class="absolute top-6 left-6 bg-white/20 text-white p-3 rounded-2xl hover:bg-white/30 backdrop-blur transition">
+                <!-- Tombol level dirender di sini -->
+            </div>
+            <!-- Tombol Kembali ke Menu -->
+            <button onclick="Game.tutupPilihLevel()" class="absolute top-6 left-6 bg-white/20 text-white p-3 rounded-2xl hover:bg-white/30 backdrop-blur transition hidden" id="btn-tutup-level">
                 <i data-lucide="arrow-left" class="w-8 h-8"></i>
             </button>
         </div>
 
+        <!-- 3. Header Game -->
         <header class="w-full p-4 z-20 flex justify-between items-center glass-ui shadow-lg rounded-b-[2rem] flex-shrink-0">
             <button onclick="Game.bukaPilihLevel()" class="bg-sky-100 text-sky-700 p-3 rounded-2xl shadow hover:bg-sky-200 transition">
                 <i data-lucide="map" class="w-6 h-6"></i>
@@ -65,9 +70,10 @@
             </div>
         </header>
 
+        <!-- 4. Area Bermain -->
         <main class="flex-1 overflow-y-auto overflow-x-hidden flex flex-col items-center justify-start p-4 w-full max-w-4xl mx-auto z-10 relative">
             <div class="glass-ui rounded-[2rem] p-6 shadow-xl w-full text-center mb-6 anim-pop flex-shrink-0">
-                <h2 id="teks-pertanyaan" class="text-3xl md:text-5xl font-black text-slate-800 leading-tight">...</h2>
+                <h2 id="teks-pertanyaan" class="text-2xl md:text-4xl font-black text-slate-800 leading-tight">...</h2>
                 <div id="ui-audio-soal" class="hidden mt-4 text-sky-600 text-sm font-bold flex items-center justify-center gap-2 bg-sky-50 py-2 px-6 rounded-full inline-flex mx-auto border border-sky-200 shadow-sm">
                     <i data-lucide="volume-2" class="w-5 h-5 animate-pulse"></i> Sedang membacakan...
                 </div>
@@ -75,6 +81,7 @@
             <div id="arena-bermain" class="w-full flex-1 flex flex-col items-center justify-center min-h-0"></div>
         </main>
 
+        <!-- 5. Layar Pesan (Benar/Salah/Over) -->
         <div id="layar-pesan" class="hidden absolute inset-0 z-[80] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
             <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full text-center shadow-2xl border-8 border-white anim-pop relative overflow-hidden">
                 <div id="pesan-ikon" class="mx-auto flex justify-center mb-4 relative z-10"></div>
@@ -127,21 +134,21 @@
             }
         });
 
-        // MANAJEMEN AUDIO (Per-Level Custom)
+        // MANAJEMEN AUDIO
         const AudioMgr = {
             bgm: new Audio(), sfxBenar: new Audio(), sfxSalah: new Audio(), soal: new Audio(), tSoal: null,
             defBenar: 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3',
             defSalah: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3',
             
             initGlobal(cfg) {
-                if(cfg.bgm_url) { this.bgm.src = `./public/${cfg.bgm_url}`; this.bgm.loop = true; this.bgm.volume = 0.4; }
+                if(cfg && cfg.bgm_url) { this.bgm.src = `./public/${cfg.bgm_url}`; this.bgm.loop = true; this.bgm.volume = 0.4; }
             },
-            // Fungsi baru: Atur suara berdasarkan level saat ini
             setAudioLevel(dataLevel) {
+                if (!dataLevel) return;
                 this.sfxBenar.src = dataLevel.sfx_benar ? `./public/${dataLevel.sfx_benar}` : this.defBenar;
                 this.sfxSalah.src = dataLevel.sfx_salah ? `./public/${dataLevel.sfx_salah}` : this.defSalah;
             },
-            playBGM() { this.bgm.play().catch(()=>{}); },
+            playBGM() { this.bgm.play().catch(()=>{console.log("BGM diblokir browser, abaikan.");}); },
             playBenar() { this.stopSoal(); this.sfxBenar.currentTime=0; this.sfxBenar.play().catch(()=>{}); },
             playSalah() { this.stopSoal(); this.sfxSalah.currentTime=0; this.sfxSalah.play().catch(()=>{}); },
             playSoal(url) {
@@ -158,40 +165,72 @@
             }
         };
 
-        // ENGINE GAME & STATE MANAGEMENT
+        // ENGINE GAME & STATE MANAGEMENT (Perbaikan Bug)
         const Game = {
             db: { global: {}, levels: [] }, 
             levelSekarang: 0, skor: 0, nyawa: 3, 
-            levelTerbuka: parseInt(localStorage.getItem('maxUnlockedLevel')) || 0, // Ambil dari HP
+            levelTerbuka: parseInt(localStorage.getItem('maxUnlockedLevel')) || 0,
 
-            async mulai() {
+            // FUNGSI BARU: Dipanggil dari tombol MAIN di layar awal
+            async mulaiPilihLevel() {
+                // Sembunyikan layar awal dengan animasi
                 document.getElementById('layar-mulai').classList.add('opacity-0');
                 setTimeout(() => document.getElementById('layar-mulai').classList.add('hidden'), 500);
                 
                 try {
                     const res = await fetch(`./public/data-soal.json?v=${Math.random()}`);
+                    if (!res.ok) throw new Error("Gagal mengambil data.json");
                     const data = await res.json();
+                    
+                    // PERBAIKAN: Berikan default objek kosong jika global_settings tidak ada
                     this.db.global = data.global_settings || {};
+                    // PERBAIKAN: Jika levels kosong/undefined, beri array kosong
                     this.db.levels = data.levels || [];
                     
-                    if(this.db.levels.length === 0) throw new Error("Kosong");
+                    if(this.db.levels.length === 0) throw new Error("Data Level Kosong");
+                    
                     AudioMgr.initGlobal(this.db.global);
                 } catch(e) {
-                    this.db.levels = [{ kategori: "drag", pertanyaan: "Data kosong. Buka Admin Panel!", item_target: { nama: "OK", isTarget: true }, item_pengecoh: [] }];
+                    console.error("Game menggunakan data cadangan:", e.message);
+                    // Data Cadangan agar game TIDAK MACET meski admin belum buat soal
+                    this.db.levels = [{ 
+                        kategori: "kuis", 
+                        pertanyaan: "Admin belum membuat soal. Silakan masuk Panel Admin!", 
+                        item_target: { nama: "OK Mengerti", isTarget: true }, 
+                        item_pengecoh: [] 
+                    }];
                 }
 
+                // Coba putar musik latar
                 AudioMgr.playBGM();
-                // Validasi agar levelTerbuka tidak melebihi jumlah level (jika admin hapus level)
-                this.levelTerbuka = Math.min(this.levelTerbuka, this.db.levels.length - 1);
                 
-                this.bukaPilihLevel();
+                // Validasi agar levelTerbuka tidak error jika admin menghapus level di database
+                this.levelTerbuka = Math.min(this.levelTerbuka, Math.max(0, this.db.levels.length - 1));
+                
+                // Langsung buka layar pemilihan level
+                this.bukaPilihLevel(true);
             },
 
             // --- SISTEM PEMILIHAN LEVEL ---
-            bukaPilihLevel() {
+            // isBaruBuka: penanda apakah ini buka pilih level pertama kali dari tombol Main
+            bukaPilihLevel(isBaruBuka = false) {
                 const layar = document.getElementById('layar-pilih-level');
                 const grid = document.getElementById('grid-level');
+                const btnTutup = document.getElementById('btn-tutup-level');
+                
                 grid.innerHTML = '';
+
+                // Jika baru pertama kali buka, sembunyikan tombol kembali
+                if(isBaruBuka) {
+                    btnTutup.classList.add('hidden');
+                } else {
+                    btnTutup.classList.remove('hidden');
+                }
+
+                // PERBAIKAN: Pastikan levels adalah array agar forEach tidak error
+                if (!Array.isArray(this.db.levels)) {
+                    this.db.levels = [];
+                }
 
                 this.db.levels.forEach((lvl, idx) => {
                     const isUnlocked = idx <= this.levelTerbuka;
@@ -218,13 +257,12 @@
             mainkanLevel(idx) {
                 this.tutupPilihLevel();
                 this.levelSekarang = idx;
-                this.nyawa = 3; // Reset nyawa saat main level
+                this.nyawa = 3; // Reset nyawa
                 this.renderUI();
                 this.muatArena();
             },
 
             simpanProgres() {
-                // Update level terbuka jika anak mencapai level baru
                 if (this.levelSekarang >= this.levelTerbuka) {
                     this.levelTerbuka = Math.min(this.levelSekarang + 1, this.db.levels.length - 1);
                     localStorage.setItem('maxUnlockedLevel', this.levelTerbuka);
@@ -244,20 +282,28 @@
                 arena.innerHTML = ''; 
                 
                 const dataLevel = this.db.levels[this.levelSekarang];
-                document.getElementById('ui-level').innerText = this.levelSekarang + 1;
-                document.getElementById('teks-pertanyaan').innerText = dataLevel.pertanyaan;
+                
+                // PERBAIKAN: Jika dataLevel tiba-tiba tidak ada
+                if (!dataLevel) {
+                    arena.innerHTML = "<h3 class='text-red-500 font-bold'>Error: Data level ini kosong.</h3>";
+                    return;
+                }
 
-                // Terapkan Kustomisasi Per-Level (Background & Audio)
+                document.getElementById('ui-level').innerText = this.levelSekarang + 1;
+                document.getElementById('teks-pertanyaan').innerText = dataLevel.pertanyaan || "Soal tanpa teks";
+
+                // Background Khusus Level
                 const bgLayar = dataLevel.bg_image || this.db.global.bg_image;
                 document.getElementById('view-game').style.backgroundImage = bgLayar ? `url(./public/${bgLayar})` : 'none';
+                
                 AudioMgr.setAudioLevel(dataLevel);
-
                 if(dataLevel.audio_soal) AudioMgr.playSoal(dataLevel.audio_soal);
 
                 if(dataLevel.kategori === 'drag') this.mesinDrag(dataLevel, arena);
                 else this.mesinKuis(dataLevel, arena);
             },
 
+            // --- MESIN DRAG & DROP ---
             mesinDrag(data, arena) {
                 arena.innerHTML = `
                     <div id="zona-target" class="w-40 h-40 md:w-56 md:h-56 border-4 border-dashed border-sky-400 bg-white/50 backdrop-blur rounded-[2rem] flex flex-col items-center justify-center mb-6 shadow-inner z-0">
@@ -269,7 +315,12 @@
                 lucide.createIcons();
                 
                 const wadahItem = document.getElementById('wadah-item');
-                let itemsAcak = [data.item_target, ...(data.item_pengecoh || [])].sort(() => Math.random() - 0.5);
+                
+                // PERBAIKAN: Cegah Crash jika item_target atau item_pengecoh kosong/undefined
+                const target = data.item_target || { nama: "Target", isTarget: true };
+                const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
+                
+                let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
 
                 itemsAcak.forEach(it => {
                     const el = document.createElement('div');
@@ -285,14 +336,20 @@
                 });
             },
 
+            // --- MESIN KUIS ---
             mesinKuis(data, arena) {
                 const grid = document.createElement('div');
                 grid.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-3xl pb-8 anim-slide-up mt-auto";
                 
-                let itemsAcak = [data.item_target, ...(data.item_pengecoh || [])].sort(() => Math.random() - 0.5);
+                // PERBAIKAN: Cegah Crash
+                const target = data.item_target || { nama: "Jawaban Benar", isTarget: true };
+                const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
+                
+                let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
+                
                 itemsAcak.forEach(it => {
                     const btn = document.createElement('button');
-                    btn.className = "bg-white hover:bg-sky-50 border-4 border-sky-200 text-sky-800 font-black text-2xl py-6 px-4 rounded-[2rem] shadow-[0_8px_0_0_#bae6fd] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center justify-center gap-3";
+                    btn.className = "bg-white hover:bg-sky-50 border-4 border-sky-200 text-sky-800 font-black text-xl md:text-2xl py-6 px-4 rounded-[2rem] shadow-[0_8px_0_0_#bae6fd] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center justify-center gap-3";
                     
                     let konten = '';
                     if(it.url_gambar) konten += `<img src="./public/${it.url_gambar}" class="h-24 object-contain rounded-xl" onerror="this.style.display='none'" draggable="false">`;
@@ -305,6 +362,7 @@
                 arena.appendChild(grid);
             },
 
+            // --- LOGIKA PENILAIAN ---
             cekJawaban(isBenar, elemenAnimasi) {
                 document.querySelectorAll('.kartu-drag').forEach(e => e.style.pointerEvents = 'none');
                 document.querySelectorAll('button').forEach(e => e.disabled = true);
@@ -331,7 +389,7 @@
                 const wadahTombol = document.getElementById('wadah-tombol-pesan');
                 
                 layar.classList.remove('hidden');
-                wadahTombol.innerHTML = ''; // Bersihkan tombol
+                wadahTombol.innerHTML = '';
 
                 if(status === 'benar') {
                     ikon.innerHTML = `<i data-lucide="star" class="w-32 h-32 text-yellow-400 fill-yellow-400 drop-shadow-lg"></i>`;
@@ -346,7 +404,7 @@
                         sub.innerText = `Hebat! Lanjut ke level berikutnya yuk!`;
                         wadahTombol.innerHTML = `
                             <button onclick="document.getElementById('layar-pesan').classList.add('hidden'); Game.mainkanLevel(Game.levelSekarang + 1);" class="w-full bg-sky-500 text-white font-black text-2xl py-4 rounded-[1.5rem] shadow-[0_8px_0_0_#0284c7] active:translate-y-2 active:shadow-none transition-all">Lanjut Level</button>
-                            <button onclick="document.getElementById('layar-pesan').classList.add('hidden'); Game.bukaPilihLevel();" class="w-full bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-[1.5rem] mt-3 hover:bg-slate-300">Kembali ke Menu</button>
+                            <button onclick="document.getElementById('layar-pesan').classList.add('hidden'); Game.bukaPilihLevel();" class="w-full bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-[1.5rem] mt-3 hover:bg-slate-300">Kembali ke Peta</button>
                         `;
                     }
                 } else if(status === 'salah') {
