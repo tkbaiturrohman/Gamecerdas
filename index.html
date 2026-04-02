@@ -3,282 +3,365 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Game Pintar Edukasi & CMS</title>
+    <title>Platform Game Edukasi</title>
     
+    <!-- Font Lucu -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Interact.js (Untuk Drag & Drop) -->
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <!-- Ikon Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        body { font-family: 'Fredoka', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); background-size: cover; background-position: center; }
+        body { font-family: 'Fredoka', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: #e0f2fe; }
+        
+        /* --- CSS GAME --- */
+        #body-game { background-size: cover; background-position: center; transition: background 0.5s; }
+        .glass-ui { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(8px); border: 2px solid white; }
+        .kartu-drag { touch-action: none; user-select: none; transition: transform 0.1s; }
+        .is-dragging { opacity: 0.9; transform: scale(1.1); z-index: 50; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .drop-active { transform: scale(1.05); border-color: #3b82f6 !important; background-color: rgba(255,255,255,0.9); }
+        
+        /* Animasi */
         @keyframes pop { 0% {transform: scale(0.8); opacity: 0;} 100% {transform: scale(1); opacity: 1;} }
         .anim-pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-10px);} 75% {transform: translateX(10px);} }
         .anim-shake { animation: shake 0.4s ease-in-out; }
-        .kartu-drag { touch-action: none; user-select: none; transition: transform 0.1s; }
-        .is-dragging { opacity: 0.9; transform: scale(1.1); z-index: 50; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-        .drop-active { transform: scale(1.05); border-color: #3b82f6 !important; background-color: rgba(255,255,255,0.8); }
-        .glass-ui { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 2px solid rgba(255,255,255,0.8); }
+
+        /* --- CSS ADMIN --- */
+        .admin-mode { background: #f8fafc !important; overflow-y: auto !important; touch-action: auto !important; }
+        .app-container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; }
         
-        /* CSS KHUSUS ADMIN */
-        .admin-mode { background: #f1f5f9; overflow-y: auto !important; touch-action: auto !important; }
-        .app-container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        /* Scrollbar tersembunyi tapi bisa di-scroll */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body id="body-utama">
 
     <!-- ========================================== -->
-    <!-- BAGIAN 1: UI GAME UTAMA                    -->
+    <!-- LAYER 1: UI GAME UTAMA (PLAYER)            -->
     <!-- ========================================== -->
-    <div id="view-game" class="h-screen w-screen flex flex-col relative hidden">
-        <!-- Layar Mulai Izin Audio -->
-        <div id="layar-mulai" class="absolute inset-0 z-[100] bg-indigo-500/90 backdrop-blur-md flex flex-col items-center justify-center">
-            <i data-lucide="play-circle" class="w-32 h-32 text-white mb-6 animate-pulse"></i>
-            <h1 class="text-4xl font-bold text-white mb-8 text-center drop-shadow-md">Siap Belajar & Bermain?</h1>
-            <button onclick="GameEngine.inisiasiPertama()" class="bg-yellow-400 hover:bg-yellow-300 text-indigo-900 font-black text-2xl py-4 px-12 rounded-full shadow-[0_8px_0_0_#b45309] active:shadow-none active:translate-y-2 transition-all mb-4">MULAI SEKARANG</button>
-            <p class="text-white/70 text-sm mt-10">Admin? Buka URL tambahkan <span class="font-mono bg-black/20 p-1 rounded">?mode=admin</span></p>
+    <div id="view-game" class="h-screen w-screen flex flex-col relative hidden" id="body-game">
+        
+        <!-- Layar Mulai / Izin Audio -->
+        <div id="layar-mulai" class="absolute inset-0 z-[100] bg-sky-500/90 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center">
+            <i data-lucide="rocket" class="w-24 h-24 text-white mb-6 animate-bounce"></i>
+            <h1 class="text-4xl md:text-5xl font-black text-white mb-8 drop-shadow-lg">Ayo Bermain!</h1>
+            <button onclick="Game.mulai()" class="bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-black text-3xl py-4 px-12 rounded-full shadow-[0_8px_0_0_#b45309] active:translate-y-2 active:shadow-none transition-all">
+                MULAI
+            </button>
+            <p class="text-white/80 mt-12 text-sm font-bold bg-black/20 py-2 px-4 rounded-xl">
+                Khusus Guru/Admin: Tambahkan <code class="bg-black/40 px-2 py-1 rounded">?mode=admin</code> di URL
+            </p>
         </div>
 
-        <header class="w-full p-4 z-20 flex justify-between items-center glass-ui shadow-sm rounded-b-3xl">
-            <div class="flex gap-1 bg-white/80 px-4 py-2 rounded-full shadow-inner" id="wadah-nyawa"></div>
-            <div class="text-center font-black text-xl md:text-2xl text-indigo-700 uppercase">Level <span id="teks-level">1</span></div>
-            <div class="flex gap-2 items-center bg-white/80 px-4 py-2 rounded-full shadow-inner text-orange-500 font-bold text-xl">
-                <i data-lucide="star" class="fill-orange-400"></i><span id="teks-skor">0</span>
+        <!-- Header Game -->
+        <header class="w-full p-4 z-20 flex justify-between items-center glass-ui shadow-md">
+            <div class="flex gap-1 bg-white px-3 py-2 rounded-full shadow-inner border border-slate-200" id="ui-nyawa"></div>
+            <div class="font-black text-2xl text-sky-600 drop-shadow-sm uppercase">Level <span id="ui-level">1</span></div>
+            <div class="flex gap-2 items-center bg-white px-4 py-2 rounded-full shadow-inner border border-slate-200 text-orange-500 font-bold text-xl">
+                <i data-lucide="star" class="fill-orange-400"></i><span id="ui-skor">0</span>
             </div>
         </header>
 
+        <!-- Area Bermain -->
         <main class="flex-1 relative flex flex-col items-center justify-start pt-6 pb-4 px-4 w-full max-w-4xl mx-auto z-10">
-            <div class="glass-ui rounded-3xl p-6 shadow-xl w-full text-center mb-6 anim-pop border-4 border-white">
-                <h2 id="teks-pertanyaan" class="text-2xl md:text-4xl font-bold text-slate-800 leading-snug drop-shadow-sm">Memuat Data Game...</h2>
-                <p id="indikator-suara" class="text-indigo-500 text-sm font-bold mt-2 flex items-center justify-center gap-1 hidden">
-                    <i data-lucide="volume-2" class="w-4 h-4 animate-pulse"></i> Membacakan Soal...
-                </p>
+            <div class="glass-ui rounded-3xl p-6 shadow-lg w-full text-center mb-4 anim-pop">
+                <h2 id="teks-pertanyaan" class="text-2xl md:text-3xl font-bold text-slate-800 leading-snug">Menghubungkan ke Server...</h2>
+                <div id="ui-audio-soal" class="hidden mt-2 text-sky-500 text-sm font-bold flex items-center justify-center gap-2">
+                    <i data-lucide="volume-2" class="w-4 h-4 animate-pulse"></i> Membacakan soal...
+                </div>
             </div>
-            <div id="wadah-dinamis" class="w-full flex-1 flex flex-col items-center"></div>
+            
+            <!-- Tempat Render Mesin Game Dinamis -->
+            <div id="arena-bermain" class="w-full flex-1 flex flex-col items-center"></div>
         </main>
 
+        <!-- Layar Pesan Akhir (Benar/Salah/Tamat) -->
         <div id="layar-pesan" class="hidden absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full text-center shadow-2xl border-8 border-white anim-pop">
-                <div id="ikon-pesan" class="mx-auto flex justify-center mb-4"></div>
-                <h1 id="judul-pesan" class="text-4xl font-black mb-2">Hebat!</h1>
-                <button id="tombol-pesan" class="w-full mt-6 bg-indigo-500 text-white font-black text-xl py-4 rounded-2xl shadow-lg active:scale-95 transition-all">Lanjut</button>
+                <div id="pesan-ikon" class="mx-auto flex justify-center mb-4"></div>
+                <h1 id="pesan-judul" class="text-4xl font-black mb-2">Hebat!</h1>
+                <button id="pesan-tombol" class="w-full mt-6 bg-sky-500 hover:bg-sky-600 text-white font-black text-xl py-4 rounded-2xl shadow-[0_6px_0_0_#0284c7] active:translate-y-2 active:shadow-none transition-all">Lanjut</button>
             </div>
         </div>
     </div>
 
 
     <!-- ========================================== -->
-    <!-- BAGIAN 2: UI PANEL ADMIN                   -->
+    <!-- LAYER 2: UI PANEL ADMIN (CMS)              -->
     <!-- ========================================== -->
     <div id="view-admin" class="hidden admin-mode">
-        <div class="app-container flex flex-col relative pb-24">
-            <header class="bg-indigo-600 text-white p-4 shadow-md sticky top-0 z-50 flex justify-between items-center">
-                <h1 class="text-xl font-bold flex items-center gap-2"><i data-lucide="layout-dashboard"></i> Panel Admin</h1>
+        <div class="app-container flex flex-col">
+            
+            <header class="bg-slate-800 text-white p-4 shadow-md sticky top-0 z-50 flex justify-between items-center">
+                <h1 class="text-xl font-bold flex items-center gap-2"><i data-lucide="settings-2"></i> CMS Edukasi</h1>
                 <div class="flex gap-2">
-                    <a href="?" class="p-2 bg-indigo-700 rounded-lg text-sm font-bold"><i data-lucide="play" class="w-4 h-4"></i> Main</a>
-                    <button onclick="AdminCMS.bukaModal('modal-pengaturan')" class="p-2 bg-slate-800 rounded-lg"><i data-lucide="settings" class="w-4 h-4"></i></button>
+                    <button onclick="window.location.href='?'" class="bg-slate-600 p-2 rounded hover:bg-slate-500" title="Main Game"><i data-lucide="play" class="w-4 h-4"></i></button>
+                    <button onclick="Admin.bukaModal('modal-config')" class="bg-blue-600 p-2 rounded hover:bg-blue-500" title="Pengaturan Repo"><i data-lucide="github" class="w-4 h-4"></i></button>
                 </div>
             </header>
 
-            <div id="loading" class="hidden absolute inset-0 bg-white/90 z-[100] flex flex-col justify-center items-center">
-                <i data-lucide="loader-2" class="w-10 h-10 text-indigo-600 animate-spin mb-2"></i>
-                <p id="loading-teks" class="text-indigo-800 font-bold text-center px-4">Memproses data ke GitHub...</p>
-            </div>
+            <main class="flex-1 p-4 pb-24 space-y-6">
+                <!-- Info Status -->
+                <div id="admin-status" class="bg-yellow-50 border border-yellow-200 text-yellow-800 p-3 rounded-lg text-sm font-bold flex items-center gap-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4"></i> Belum terhubung ke GitHub. Klik ikon GitHub di kanan atas!
+                </div>
 
-            <main class="p-4 space-y-6">
-                <!-- Daftar Soal -->
-                <div>
-                    <div class="flex justify-between items-center mb-3">
-                        <h2 class="font-bold text-slate-800 text-lg">Daftar Level Soal</h2>
-                        <button onclick="AdminCMS.bukaModal('modal-soal')" class="bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded-lg flex gap-1 items-center"><i data-lucide="plus" class="w-4 h-4"></i> Tambah</button>
+                <!-- Daftar Level -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="font-bold text-lg text-slate-800">Daftar Level Soal</h2>
+                        <button onclick="Admin.bukaModal('modal-soal')" class="bg-green-100 text-green-700 font-bold px-3 py-1 rounded-lg text-sm flex gap-1 items-center"><i data-lucide="plus" class="w-4 h-4"></i> Tambah</button>
                     </div>
-                    <div id="daftar-soal" class="space-y-3"><p class="text-center text-sm text-slate-400">Loading JSON GitHub...</p></div>
+                    <div id="daftar-soal-admin" class="space-y-2">
+                        <!-- Render dari JS -->
+                    </div>
                 </div>
             </main>
 
-            <!-- Tombol Publikasi -->
-            <div class="fixed bottom-0 w-full max-w-[600px] p-4 bg-white border-t border-slate-200 z-40">
-                <button onclick="AdminCMS.simpanKeGitHub()" class="w-full bg-green-500 text-white font-bold py-3 rounded-xl shadow-lg flex justify-center items-center gap-2 active:scale-95 transition-transform"><i data-lucide="cloud-upload"></i> PUBLISH KE GITHUB & VERCEL</button>
+            <!-- Tombol Publish Mengambang -->
+            <div class="fixed bottom-0 w-full max-w-[600px] p-4 bg-white border-t z-40">
+                <button onclick="Admin.publishKeGitHub()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg flex justify-center items-center gap-2 hover:bg-blue-700">
+                    <i data-lucide="upload-cloud"></i> PUBLISH KE GITHUB PAGES
+                </button>
             </div>
 
-            <!-- Modal Tambah Soal -->
-            <div id="modal-soal" class="hidden fixed inset-0 z-[60] bg-white flex flex-col max-w-[600px] mx-auto overflow-y-auto">
-                <header class="bg-slate-100 p-4 flex justify-between items-center border-b">
-                    <h2 class="font-bold text-lg">Buat Soal Baru</h2>
-                    <button onclick="AdminCMS.tutupModal('modal-soal')" class="text-slate-500 font-bold text-xl">X</button>
-                </header>
-                <div class="p-4 space-y-4">
-                    <p class="text-xs text-red-500 font-bold bg-red-50 p-2 rounded">Perhatian: Kosongkan kotak file/gambar jika kamu tidak ingin menimpanya.</p>
-                    <div>
-                        <label class="font-bold text-sm block mb-1">Kategori Game</label>
-                        <select id="in-kategori" class="w-full p-3 border rounded-lg font-bold"><option value="drag">🕹️ Drag & Drop</option><option value="kuis">📝 Kuis Pilihan</option></select>
-                    </div>
-                    <div>
-                        <label class="font-bold text-sm block mb-1">Teks Pertanyaan</label>
-                        <textarea id="in-pertanyaan" class="w-full p-2 border rounded-lg" rows="2" placeholder="Tarik Singa!"></textarea>
-                    </div>
-                    <div class="bg-indigo-50 p-3 rounded-lg">
-                        <label class="font-bold text-sm block text-indigo-700">Audio Pertanyaan (Looping 10s)</label>
-                        <input type="file" id="file-audio" accept="audio/*" class="w-full text-sm mt-1">
-                    </div>
-                    <div class="border-2 border-green-200 p-3 rounded-lg bg-green-50">
-                        <label class="font-bold text-sm block text-green-700 mb-2">Target BENAR</label>
-                        <input type="text" id="in-target-nama" placeholder="Nama Jawaban" class="w-full p-2 border rounded mb-2">
-                        <label class="text-xs font-bold block mb-1">Gambar Target:</label>
-                        <input type="file" id="file-target-img" accept="image/*" class="w-full text-sm">
-                    </div>
-                    <div class="border-2 border-red-200 p-3 rounded-lg bg-red-50">
-                        <label class="font-bold text-sm block text-red-700 mb-2">Pengecoh SALAH (Bisa Multi File)</label>
-                        <input type="text" id="in-pengecoh-nama" placeholder="Nama Pengecoh (pisahkan koma jika kuis)" class="w-full p-2 border rounded mb-2">
-                        <label class="text-xs font-bold block mb-1">Gambar Pengecoh:</label>
-                        <input type="file" id="file-pengecoh-img" accept="image/*" multiple class="w-full text-sm">
-                    </div>
-                    <button onclick="AdminCMS.simpanKeAntrean()" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl mt-4">Simpan Level Ini</button>
-                </div>
+            <!-- Modal Loading -->
+            <div id="modal-loading" class="hidden fixed inset-0 z-[100] bg-white/90 flex flex-col justify-center items-center">
+                <i data-lucide="loader" class="w-12 h-12 text-blue-600 animate-spin mb-4"></i>
+                <h3 class="text-xl font-bold text-slate-800">Menyinkronkan Data</h3>
+                <p id="loading-teks" class="text-slate-500 font-bold mt-2 text-center">Menghubungi GitHub...</p>
             </div>
 
             <!-- Modal Config GitHub -->
-            <div id="modal-pengaturan" class="hidden fixed inset-0 z-[60] bg-black/50 flex justify-center items-center p-4">
-                <div class="bg-white rounded-xl w-full max-w-[400px] p-6">
-                    <h2 class="font-bold text-lg mb-4">Koneksi GitHub & Suara</h2>
-                    <input type="password" id="gh-token" placeholder="GitHub Token (ghp_...)" class="w-full p-2 border rounded mb-2 text-sm">
-                    <input type="text" id="gh-repo" placeholder="User/Repo (cth: budi/gamecerdas)" class="w-full p-2 border rounded mb-4 text-sm">
+            <div id="modal-config" class="hidden fixed inset-0 z-[60] bg-black/60 flex justify-center items-center p-4">
+                <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
+                    <h2 class="font-bold text-lg mb-4 flex gap-2"><i data-lucide="github"></i> Akses GitHub API</h2>
+                    <p class="text-xs text-slate-500 mb-4">Token harus punya izin <b>repo</b>.</p>
+                    <input type="password" id="gh-token" placeholder="Personal Access Token (ghp_...)" class="w-full p-3 border rounded-lg mb-3 bg-slate-50 font-mono text-sm">
+                    <input type="text" id="gh-repo" placeholder="username/nama-repo" class="w-full p-3 border rounded-lg mb-4 bg-slate-50 font-mono text-sm">
                     
-                    <hr class="my-4">
-                    <h3 class="font-bold text-sm mb-2 text-indigo-700">Audio/BG Global</h3>
-                    <label class="text-xs font-bold block">BG Image</label><input type="file" id="file-bg" accept="image/*" class="w-full text-xs mb-2">
-                    <label class="text-xs font-bold block">BGM (Latar)</label><input type="file" id="file-bgm" accept="audio/*" class="w-full text-xs mb-2">
-                    <label class="text-xs font-bold block">SFX Benar</label><input type="file" id="file-sfx-benar" accept="audio/*" class="w-full text-xs mb-2">
-                    <label class="text-xs font-bold block">SFX Salah</label><input type="file" id="file-sfx-salah" accept="audio/*" class="w-full text-xs mb-4">
+                    <h3 class="font-bold text-sm mb-2 mt-4 text-slate-800 border-t pt-4">Media Global (Opsional)</h3>
+                    <label class="text-xs font-bold block text-slate-600">BG Image (Latar)</label><input type="file" id="f-bg" accept="image/*" class="w-full text-xs mb-2">
+                    <label class="text-xs font-bold block text-slate-600">Audio BGM (MP3)</label><input type="file" id="f-bgm" accept="audio/*" class="w-full text-xs mb-2">
+                    <label class="text-xs font-bold block text-slate-600">SFX Benar (MP3)</label><input type="file" id="f-benar" accept="audio/*" class="w-full text-xs mb-2">
+                    <label class="text-xs font-bold block text-slate-600">SFX Salah (MP3)</label><input type="file" id="f-salah" accept="audio/*" class="w-full text-xs mb-4">
 
-                    <button onclick="AdminCMS.simpanConfigLokal()" class="w-full bg-slate-800 text-white py-2 rounded font-bold">Simpan & Tutup</button>
+                    <button onclick="Admin.simpanConfigLokal()" class="w-full bg-slate-800 text-white py-3 rounded-lg font-bold">Simpan & Hubungkan</button>
+                    <button onclick="Admin.tutupModal('modal-config')" class="w-full text-slate-500 font-bold py-2 mt-2">Batal</button>
+                </div>
+            </div>
+
+            <!-- Modal Buat Soal -->
+            <div id="modal-soal" class="hidden fixed inset-0 z-[60] bg-slate-100 flex flex-col max-w-[600px] mx-auto">
+                <header class="bg-white p-4 flex justify-between items-center shadow-sm">
+                    <h2 class="font-bold text-lg text-slate-800">Buat Level Baru</h2>
+                    <button onclick="Admin.tutupModal('modal-soal')" class="text-slate-500"><i data-lucide="x"></i></button>
+                </header>
+                <div class="flex-1 overflow-y-auto p-4 space-y-5">
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                        <label class="font-bold text-sm block mb-2 text-slate-700">Tipe Permainan</label>
+                        <select id="in-kategori" class="w-full p-3 border rounded-lg bg-slate-50 font-bold text-blue-700 outline-none">
+                            <option value="drag">🕹️ Drag & Drop (Tarik Taruh)</option>
+                            <option value="kuis">📝 Tebak Kata (Pilihan Ganda)</option>
+                        </select>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                        <label class="font-bold text-sm block mb-2 text-slate-700">Teks Pertanyaan</label>
+                        <textarea id="in-tanya" class="w-full p-3 border rounded-lg bg-slate-50 outline-none" rows="2" placeholder="Cth: Manakah yang hewan laut?"></textarea>
+                        
+                        <label class="font-bold text-sm block mt-4 mb-2 text-blue-600 flex items-center gap-1"><i data-lucide="mic" class="w-4 h-4"></i> Audio Soal (Dibacakan)</label>
+                        <input type="file" id="f-soal" accept="audio/*" class="w-full text-sm">
+                        <p class="text-[10px] text-slate-400 mt-1">*Audio akan berhenti saat anak menyentuh layar</p>
+                    </div>
+
+                    <div class="bg-green-50 p-4 rounded-xl border border-green-200">
+                        <label class="font-black text-sm block mb-2 text-green-700">🎯 JAWABAN BENAR</label>
+                        <input type="text" id="in-benar-nama" placeholder="Teks/Nama (opsional jika ada gambar)" class="w-full p-3 border border-green-300 rounded-lg bg-white mb-2 outline-none">
+                        <label class="text-xs font-bold block text-green-800 mb-1">Gambar Jawaban (Wajib untuk Drag):</label>
+                        <input type="file" id="f-benar-img" accept="image/*" class="w-full text-sm">
+                    </div>
+
+                    <div class="bg-red-50 p-4 rounded-xl border border-red-200 mb-8">
+                        <label class="font-black text-sm block mb-2 text-red-700">❌ PENGECOH / JAWABAN SALAH</label>
+                        <p class="text-xs text-red-600 mb-2 font-semibold">Teks: Pisahkan dengan koma (Kucing, Anjing). Gambar: Bisa pilih banyak (Multi-select).</p>
+                        <input type="text" id="in-salah-nama" placeholder="Contoh: Meja, Kursi, Lemari" class="w-full p-3 border border-red-300 rounded-lg bg-white mb-2 outline-none">
+                        <label class="text-xs font-bold block text-red-800 mb-1">Gambar Pengecoh:</label>
+                        <input type="file" id="f-salah-img" accept="image/*" multiple class="w-full text-sm">
+                    </div>
+                </div>
+                <div class="bg-white p-4 border-t">
+                    <button onclick="Admin.tambahLevel()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow hover:bg-blue-700">
+                        Simpan ke Daftar Level
+                    </button>
                 </div>
             </div>
 
         </div>
     </div>
 
+
+    <!-- ========================================== -->
+    <!-- LOGIKA JAVASCRIPT GLOBAL                   -->
+    <!-- ========================================== -->
     <script>
         lucide.createIcons();
 
-        // ==========================================
-        // ROUTER: DETEKSI GAME ATAU ADMIN
-        // ==========================================
-        const urlParams = new URLSearchParams(window.location.search);
-        const modeAplikasi = urlParams.get('mode');
-
-        if (modeAplikasi === 'admin') {
+        // 1. ROUTER DASAR
+        const IS_ADMIN = new URLSearchParams(window.location.search).get('mode') === 'admin';
+        
+        if (IS_ADMIN) {
             document.getElementById('view-admin').classList.remove('hidden');
-            document.getElementById('body-utama').className = "admin-mode";
-            setTimeout(() => AdminCMS.init(), 100);
+            document.body.className = "admin-mode";
+            setTimeout(() => Admin.init(), 100);
         } else {
             document.getElementById('view-game').classList.remove('hidden');
-            setTimeout(() => GameEngine.init(), 100);
+            // Game menunggu tombol 'MULAI' ditekan (untuk bypass Auto-Play policy browser)
         }
 
         // ==========================================
-        // SISTEM AUDIO (DIGUNAKAN OLEH GAME ENGINE)
+        // 2. SISTEM AUDIO BERSAMA
         // ==========================================
-        const AudioSys = {
-            bgm: new Audio(), sfxBenar: new Audio(), sfxSalah: new Audio(), soal: new Audio(), timerSoal: null,
-            setup(config) {
-                if(config.bgm_url) { this.bgm.src = config.bgm_url; this.bgm.loop = true; this.bgm.volume = 0.3; }
-                if(config.sfx_benar) this.sfxBenar.src = config.sfx_benar;
-                if(config.sfx_salah) this.sfxSalah.src = config.sfx_salah;
+        const AudioMgr = {
+            bgm: new Audio(), sfxBenar: new Audio(), sfxSalah: new Audio(), soal: new Audio(), tSoal: null,
+            siapkan(cfg) {
+                if(cfg.bgm_url) { this.bgm.src = cfg.bgm_url; this.bgm.loop = true; this.bgm.volume = 0.4; }
+                if(cfg.sfx_benar) this.sfxBenar.src = cfg.sfx_benar;
+                if(cfg.sfx_salah) this.sfxSalah.src = cfg.sfx_salah;
             },
-            mainkanBenar() { this.hentikanSoal(); this.sfxBenar.currentTime = 0; this.sfxBenar.play().catch(e=>{}); },
-            mainkanSalah() { this.hentikanSoal(); this.sfxSalah.currentTime = 0; this.sfxSalah.play().catch(e=>{}); },
-            bacakanSoal(url) {
-                this.hentikanSoal(); if(!url) return;
+            playBGM() { this.bgm.play().catch(()=>{}); },
+            playBenar() { this.stopSoal(); this.sfxBenar.currentTime=0; this.sfxBenar.play().catch(()=>{}); },
+            playSalah() { this.stopSoal(); this.sfxSalah.currentTime=0; this.sfxSalah.play().catch(()=>{}); },
+            playSoal(url) {
+                this.stopSoal(); if(!url) return;
                 this.soal.src = url;
                 this.soal.play().then(() => {
-                    document.getElementById('indikator-suara').classList.remove('hidden');
-                    this.timerSoal = setTimeout(() => this.hentikanSoal(), 10000); // Berhenti otomatis 10 detik
-                }).catch(e=>{});
+                    document.getElementById('ui-audio-soal').classList.remove('hidden');
+                    this.tSoal = setTimeout(() => this.stopSoal(), 8000); // Batas aman 8 detik
+                }).catch(()=>{});
             },
-            hentikanSoal() {
-                this.soal.pause(); this.soal.currentTime = 0; clearTimeout(this.timerSoal);
-                document.getElementById('indikator-suara').classList.add('hidden');
+            stopSoal() {
+                this.soal.pause(); clearTimeout(this.tSoal);
+                document.getElementById('ui-audio-soal').classList.add('hidden');
             }
         };
 
         // ==========================================
-        // LOGIKA GAME ENGINE
+        // 3. GAME ENGINE
         // ==========================================
-        const GameEngine = {
-            config: {}, levelData: [], curLevel: 0, skor: 0, nyawa: 3,
-            async init() {
+        const Game = {
+            db: { global: {}, levels: [] },
+            levelSekarang: 0, skor: 0, nyawa: 3,
+
+            async mulai() {
+                document.getElementById('layar-mulai').classList.add('hidden');
+                
+                // Ambil Data dari public/data-soal.json
                 try {
-                    const res = await fetch('./public/data-soal.json?t=' + Date.now());
+                    // Cache busting dengan timestamp
+                    const res = await fetch(`./public/data-soal.json?v=${Date.now()}`);
                     const data = await res.json();
-                    this.config = data.global_settings;
-                    this.levelData = data.levels;
-                    if(this.config.bg_image) document.getElementById('body-utama').style.backgroundImage = `url(./public/${this.config.bg_image})`;
-                    AudioSys.setup(this.config);
+                    if(!data.levels || data.levels.length === 0) throw new Error("JSON Kosong");
+                    
+                    this.db.global = data.global_settings || {};
+                    this.db.levels = data.levels;
+                    
+                    if(this.db.global.bg_image) {
+                        document.getElementById('view-game').style.backgroundImage = `url(./public/${this.db.global.bg_image})`;
+                    }
+                    AudioMgr.siapkan(this.db.global);
                 } catch(e) {
-                    // Data Default jika repo kosong
-                    this.levelData = [
-                        { kategori: "drag", pertanyaan: "Tidak ada data. Tambahkan di Panel Admin!", item_target: { isTarget: true, url_gambar: "https://via.placeholder.com/150/00FF00/FFF?text=OK" }, item_pengecoh: [] }
+                    console.warn("Gagal load JSON. Pakai data fallback.", e);
+                    this.db.levels = [
+                        { kategori: "drag", pertanyaan: "Belum ada soal. Hubungi Guru (Buka mode admin)!", 
+                          item_target: { nama: "Target", isTarget: true, url_gambar: "" }, item_pengecoh: [] }
                     ];
                 }
-            },
-            inisiasiPertama() {
-                document.getElementById('layar-mulai').classList.add('hidden');
-                AudioSys.bgm.play().catch(e=>{});
-                this.skor = 0; this.nyawa = 3; this.curLevel = 0;
-                this.updateUISkor(); this.renderNyawa();
-                this.muatLevel();
-            },
-            updateUISkor() { document.getElementById('teks-skor').innerText = this.skor; },
-            renderNyawa() {
-                const w = document.getElementById('wadah-nyawa'); w.innerHTML = '';
-                for(let i=0; i<3; i++) w.innerHTML += `<i data-lucide="heart" class="w-8 h-8 ${i < this.nyawa ? 'fill-pink-500 text-pink-500' : 'text-slate-300'}"></i>`;
-                lucide.createIcons();
-            },
-            muatLevel() {
-                const wadah = document.getElementById('wadah-dinamis'); wadah.innerHTML = '';
-                const data = this.levelData[this.curLevel];
-                document.getElementById('teks-level').innerText = this.curLevel + 1;
-                document.getElementById('teks-pertanyaan').innerText = data.pertanyaan;
-                
-                if(data.audio_soal) AudioSys.bacakanSoal(`./public/${data.audio_soal}`);
 
-                if(data.kategori === 'drag') this.renderDrag(data, wadah);
-                else this.renderKuis(data, wadah);
+                AudioMgr.playBGM();
+                this.resetProgress();
             },
-            renderDrag(data, wadah) {
-                wadah.innerHTML = `<div id="zona-target" class="w-48 h-48 border-4 border-dashed border-indigo-400 bg-white/40 rounded-3xl flex items-center justify-center mt-4 mb-auto"><i data-lucide="box" class="w-16 h-16 text-indigo-400/50"></i></div>
-                                   <div id="wadah-item" class="w-full flex justify-center flex-wrap gap-4 pb-8 mt-8"></div>`;
+
+            resetProgress() {
+                this.skor = 0; this.nyawa = 3; this.levelSekarang = 0;
+                this.renderUI();
+                this.muatLevelArena();
+            },
+
+            renderUI() {
+                document.getElementById('ui-skor').innerText = this.skor;
+                const wadahNyawa = document.getElementById('ui-nyawa');
+                wadahNyawa.innerHTML = '';
+                for(let i=0; i<3; i++) {
+                    wadahNyawa.innerHTML += `<i data-lucide="heart" class="w-8 h-8 ${i < this.nyawa ? 'fill-pink-500 text-pink-500' : 'text-slate-200'}"></i>`;
+                }
                 lucide.createIcons();
-                const wadahItem = document.getElementById('wadah-item');
-                let items = [data.item_target, ...data.item_pengecoh].sort(()=>Math.random()-0.5);
+            },
+
+            muatLevelArena() {
+                const arena = document.getElementById('arena-bermain');
+                arena.innerHTML = ''; // Bersihkan
+
+                const dataLevel = this.db.levels[this.levelSekarang];
+                document.getElementById('ui-level').innerText = this.levelSekarang + 1;
+                document.getElementById('teks-pertanyaan').innerText = dataLevel.pertanyaan;
+
+                if(dataLevel.audio_soal) AudioMgr.playSoal(`./public/${dataLevel.audio_soal}`);
+
+                // Panggil Mesin Render sesuai kategori
+                if(dataLevel.kategori === 'drag') this.mesinDrag(dataLevel, arena);
+                else this.mesinKuis(dataLevel, arena);
+            },
+
+            // --- MESIN 1: DRAG & DROP ---
+            mesinDrag(data, arena) {
+                arena.innerHTML = `
+                    <div id="zona-target" class="w-48 h-48 border-4 border-dashed border-sky-400 bg-white/50 rounded-3xl flex items-center justify-center mt-2 mb-auto transition-colors">
+                        <i data-lucide="package-open" class="w-16 h-16 text-sky-500/50"></i>
+                    </div>
+                    <div id="wadah-item" class="w-full flex justify-center flex-wrap gap-4 mt-8 pb-8"></div>
+                `;
+                lucide.createIcons();
                 
-                items.forEach(it => {
-                    const div = document.createElement('div');
-                    div.setAttribute('data-b', it.isTarget ? '1' : '0');
-                    div.className = "kartu-drag w-28 h-28 bg-white rounded-2xl shadow-lg border-4 border-white cursor-grab touch-none flex items-center justify-center overflow-hidden anim-pop";
-                    const url = it.url_gambar ? (it.url_gambar.startsWith('http') ? it.url_gambar : `./public/${it.url_gambar}`) : '';
-                    div.innerHTML = `<img src="${url}" class="w-full h-full object-cover pointer-events-none" onerror="this.style.display='none'" />
-                                     <span class="text-xs font-bold text-slate-500 ${url ? 'hidden' : ''}">${it.nama||'?'}</span>`;
-                    div.addEventListener('pointerdown', () => AudioSys.hentikanSoal());
-                    wadahItem.appendChild(div);
+                const wadahItem = document.getElementById('wadah-item');
+                let itemsAcak = [data.item_target, ...data.item_pengecoh].sort(() => Math.random() - 0.5);
+
+                itemsAcak.forEach(it => {
+                    const el = document.createElement('div');
+                    el.setAttribute('data-benar', it.isTarget ? 'ya' : 'tidak');
+                    el.className = "kartu-drag w-28 h-28 md:w-32 md:h-32 bg-white rounded-2xl shadow-lg border-4 border-white cursor-grab touch-none flex items-center justify-center overflow-hidden anim-pop";
+                    
+                    const urlPath = it.url_gambar ? `./public/${it.url_gambar}` : '';
+                    el.innerHTML = `
+                        <img src="${urlPath}" class="w-full h-full object-cover pointer-events-none" onerror="this.style.display='none'" />
+                        <span class="font-bold text-slate-500 text-sm ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</span>
+                    `;
+                    
+                    // Stop audio saat mulai interaksi
+                    el.addEventListener('pointerdown', () => AudioMgr.stopSoal());
+                    wadahItem.appendChild(el);
                 });
 
-                // Set Interact.js
+                // Aktifkan Interact.js
                 interact('.kartu-drag').draggable({
                     inertia: true,
                     listeners: {
                         start(e) { e.target.classList.add('is-dragging'); },
                         move(e) {
-                            const t = e.target;
-                            const x = (parseFloat(t.getAttribute('data-x')) || 0) + e.dx; const y = (parseFloat(t.getAttribute('data-y')) || 0) + e.dy;
-                            t.style.transform = `translate(${x}px, ${y}px)`;
-                            t.setAttribute('data-x', x); t.setAttribute('data-y', y);
+                            let x = (parseFloat(e.target.getAttribute('data-x')) || 0) + e.dx;
+                            let y = (parseFloat(e.target.getAttribute('data-y')) || 0) + e.dy;
+                            e.target.style.transform = `translate(${x}px, ${y}px)`;
+                            e.target.setAttribute('data-x', x); e.target.setAttribute('data-y', y);
                         },
                         end(e) {
-                            const t = e.target; t.classList.remove('is-dragging');
-                            t.style.transform = 'translate(0px, 0px)'; t.setAttribute('data-x', 0); t.setAttribute('data-y', 0);
+                            e.target.classList.remove('is-dragging');
+                            e.target.style.transform = 'translate(0px, 0px)';
+                            e.target.setAttribute('data-x', 0); e.target.setAttribute('data-y', 0);
                         }
                     }
                 });
@@ -289,195 +372,328 @@
                     ondragleave(e) { e.target.classList.remove('drop-active'); },
                     ondrop: (e) => {
                         e.target.classList.remove('drop-active');
-                        const isBenar = e.relatedTarget.getAttribute('data-b') === '1';
-                        this.prosesJawaban(isBenar, e.target);
+                        this.cekJawaban(e.relatedTarget.getAttribute('data-benar') === 'ya', e.target);
                     }
                 });
             },
-            renderKuis(data, wadah) {
-                let items = [data.item_target, ...data.item_pengecoh].sort(()=>Math.random()-0.5);
-                const gridDiv = document.createElement('div'); gridDiv.className = "grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl mt-10 anim-pop";
-                items.forEach(it => {
+
+            // --- MESIN 2: KUIS / TEBAK KATA ---
+            mesinKuis(data, arena) {
+                const grid = document.createElement('div');
+                grid.className = "grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl mt-8 anim-pop";
+                
+                let itemsAcak = [data.item_target, ...data.item_pengecoh].sort(() => Math.random() - 0.5);
+                
+                itemsAcak.forEach(it => {
                     const btn = document.createElement('button');
-                    btn.className = "bg-white border-4 border-indigo-200 text-indigo-800 font-bold text-2xl py-6 px-4 rounded-3xl shadow-[0_8px_0_0_#c7d2fe] active:translate-y-2 active:shadow-none";
-                    btn.innerText = it.nama || "Pilihan";
-                    btn.onclick = () => { AudioSys.hentikanSoal(); this.prosesJawaban(it.isTarget === true, btn); };
-                    gridDiv.appendChild(btn);
+                    btn.className = "bg-white hover:bg-sky-50 border-4 border-sky-100 text-sky-800 font-bold text-2xl py-6 px-4 rounded-3xl shadow-[0_6px_0_0_#bae6fd] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center gap-2";
+                    
+                    let konten = '';
+                    if(it.url_gambar) konten += `<img src="./public/${it.url_gambar}" class="h-20 object-contain rounded" onerror="this.style.display='none'">`;
+                    if(it.nama) konten += `<span>${it.nama}</span>`;
+                    
+                    btn.innerHTML = konten;
+                    btn.onclick = () => { AudioMgr.stopSoal(); this.cekJawaban(it.isTarget, btn); };
+                    grid.appendChild(btn);
                 });
-                wadah.appendChild(gridDiv);
+                arena.appendChild(grid);
             },
-            prosesJawaban(isBenar, targetEl) {
+
+            // --- LOGIKA PENILAIAN ---
+            cekJawaban(isBenar, elemenAnimasi) {
+                // Kunci interaksi
                 document.querySelectorAll('.kartu-drag').forEach(e => interact(e).draggable(false));
                 document.querySelectorAll('button').forEach(e => e.disabled = true);
 
                 if(isBenar) {
-                    AudioSys.mainkanBenar(); this.skor += 100; this.updateUISkor();
-                    targetEl.classList.add('bg-green-100', 'border-green-500');
-                    setTimeout(() => this.tampilPesanAkhir('benar'), 1000);
+                    AudioMgr.playBenar();
+                    this.skor += 100;
+                    this.renderUI();
+                    elemenAnimasi.classList.add('bg-green-100', 'border-green-500');
+                    setTimeout(() => this.munculLayarAkhir('benar'), 1000);
                 } else {
-                    AudioSys.mainkanSalah(); this.nyawa--; this.renderNyawa();
-                    targetEl.classList.add('bg-red-100', 'border-red-500', 'anim-shake');
-                    setTimeout(() => this.tampilPesanAkhir(this.nyawa <= 0 ? 'kalah' : 'salah'), 1000);
+                    AudioMgr.playSalah();
+                    this.nyawa--;
+                    this.renderUI();
+                    elemenAnimasi.classList.add('bg-red-100', 'border-red-500', 'anim-shake');
+                    setTimeout(() => this.munculLayarAkhir(this.nyawa <= 0 ? 'kalah' : 'salah'), 1000);
                 }
             },
-            tampilPesanAkhir(status) {
-                const layar = document.getElementById('layar-pesan'); const judul = document.getElementById('judul-pesan');
-                const ikon = document.getElementById('ikon-pesan'); const tombol = document.getElementById('tombol-pesan');
+
+            munculLayarAkhir(status) {
+                const layar = document.getElementById('layar-pesan');
+                const ikon = document.getElementById('pesan-ikon');
+                const judul = document.getElementById('pesan-judul');
+                const tombol = document.getElementById('pesan-tombol');
                 layar.classList.remove('hidden');
 
                 if(status === 'benar') {
-                    ikon.innerHTML = `<i data-lucide="star" class="w-24 h-24 text-yellow-400 fill-yellow-400"></i>`;
+                    ikon.innerHTML = `<i data-lucide="award" class="w-24 h-24 text-yellow-400 fill-yellow-400"></i>`;
                     judul.innerText = "Luar Biasa!"; judul.className = "text-4xl font-black mb-2 text-green-500";
-                    if(this.curLevel >= this.levelData.length - 1) {
-                        tombol.innerText = "Main Lagi dari Awal"; tombol.onclick = () => { layar.classList.add('hidden'); this.inisiasiPertama(); };
+                    if(this.levelSekarang >= this.db.levels.length - 1) {
+                        tombol.innerText = "Tamat! Main Lagi"; 
+                        tombol.onclick = () => { layar.classList.add('hidden'); this.resetProgress(); };
                     } else {
-                        tombol.innerText = "Lanjut Level Berikutnya"; tombol.onclick = () => { this.curLevel++; layar.classList.add('hidden'); this.muatLevel(); };
+                        tombol.innerText = "Level Berikutnya"; 
+                        tombol.onclick = () => { this.levelSekarang++; layar.classList.add('hidden'); this.muatLevelArena(); };
                     }
                 } else if(status === 'salah') {
-                    ikon.innerHTML = `<i data-lucide="alert-circle" class="w-24 h-24 text-orange-400"></i>`;
-                    judul.innerText = "Coba Lagi!"; judul.className = "text-4xl font-black mb-2 text-orange-500";
-                    tombol.innerText = "Ulangi Level Ini"; tombol.onclick = () => { layar.classList.add('hidden'); this.muatLevel(); };
+                    ikon.innerHTML = `<i data-lucide="alert-triangle" class="w-24 h-24 text-orange-400"></i>`;
+                    judul.innerText = "Kurang Tepat"; judul.className = "text-4xl font-black mb-2 text-orange-500";
+                    tombol.innerText = "Ulangi Level Ini"; 
+                    tombol.onclick = () => { layar.classList.add('hidden'); this.muatLevelArena(); };
                 } else {
-                    ikon.innerHTML = `<i data-lucide="heart-crack" class="w-24 h-24 text-red-500"></i>`;
+                    ikon.innerHTML = `<i data-lucide="frown" class="w-24 h-24 text-red-500"></i>`;
                     judul.innerText = "Game Over"; judul.className = "text-4xl font-black mb-2 text-red-600";
-                    tombol.innerText = "Mulai Ulang Game"; tombol.onclick = () => { layar.classList.add('hidden'); this.inisiasiPertama(); };
+                    tombol.innerText = "Coba Dari Awal"; 
+                    tombol.onclick = () => { layar.classList.add('hidden'); this.resetProgress(); };
                 }
                 lucide.createIcons();
             }
         };
 
+
         // ==========================================
-        // LOGIKA PANEL ADMIN (CMS GITHUB)
+        // 4. CMS ADMIN PANEL (GITHUB API)
         // ==========================================
-        const AdminCMS = {
-            dbJSON: { global_settings: {}, levels: [] },
-            antreanUpload: [],
-            
+        const Admin = {
+            dbLokal: { global_settings: {}, levels: [] },
+            antreanFile: [], // Array file fisik untuk diupload
+
             init() {
-                document.getElementById('gh-token').value = localStorage.getItem('ghToken') || '';
-                document.getElementById('gh-repo').value = localStorage.getItem('ghRepo') || '';
-                this.fetchDataGitHub();
+                const token = localStorage.getItem('ghToken');
+                const repo = localStorage.getItem('ghRepo');
+                
+                if(token && repo) {
+                    document.getElementById('gh-token').value = token;
+                    document.getElementById('gh-repo').value = repo;
+                    this.tarikDataGitHub();
+                } else {
+                    this.bukaModal('modal-config');
+                }
             },
+
             bukaModal(id) { document.getElementById(id).classList.remove('hidden'); },
             tutupModal(id) { document.getElementById(id).classList.add('hidden'); },
+
             simpanConfigLokal() {
-                localStorage.setItem('ghToken', document.getElementById('gh-token').value);
-                localStorage.setItem('ghRepo', document.getElementById('gh-repo').value);
-                this.tutupModal('modal-pengaturan');
-                this.fetchDataGitHub();
-            },
-            
-            async fetchDataGitHub() {
-                const t = localStorage.getItem('ghToken'); const r = localStorage.getItem('ghRepo');
-                if(!t || !r) return document.getElementById('daftar-soal').innerHTML = '<p class="text-center text-red-500 text-sm">Buka Pengaturan (⚙️) dan isi Token GitHub!</p>';
+                const token = document.getElementById('gh-token').value.trim();
+                const repo = document.getElementById('gh-repo').value.trim();
+                if(!token || !repo) return alert("Harap isi Token dan Repo!");
                 
+                localStorage.setItem('ghToken', token);
+                localStorage.setItem('ghRepo', repo);
+                
+                this.tutupModal('modal-config');
+                this.tarikDataGitHub();
+            },
+
+            async tarikDataGitHub() {
+                const token = localStorage.getItem('ghToken');
+                const repo = localStorage.getItem('ghRepo');
+                const statusEl = document.getElementById('admin-status');
+
+                statusEl.innerHTML = `<i data-lucide="refresh-cw" class="w-4 h-4 animate-spin"></i> Menghubungi GitHub...`;
+                statusEl.className = "bg-blue-50 border border-blue-200 text-blue-800 p-3 rounded-lg text-sm font-bold flex items-center gap-2";
+                lucide.createIcons();
+
                 try {
-                    const res = await fetch(`https://api.github.com/repos/${r}/contents/public/data-soal.json`, { headers: { 'Authorization': `token ${t}` } });
+                    // Cache busting API Github
+                    const res = await fetch(`https://api.github.com/repos/${repo}/contents/public/data-soal.json?v=${Date.now()}`, {
+                        headers: { 'Authorization': `token ${token}` }
+                    });
+                    
                     if(res.ok) {
                         const data = await res.json();
-                        this.dbJSON = JSON.parse(decodeURIComponent(escape(window.atob(data.content))));
+                        this.dbLokal = JSON.parse(decodeURIComponent(escape(window.atob(data.content))));
+                        statusEl.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i> Terhubung ke ${repo}`;
+                        statusEl.className = "bg-green-50 border border-green-200 text-green-800 p-3 rounded-lg text-sm font-bold flex items-center gap-2";
+                    } else if (res.status === 404) {
+                        statusEl.innerHTML = `<i data-lucide="info" class="w-4 h-4"></i> File JSON belum ada. Buat level pertama lalu Publish!`;
+                        statusEl.className = "bg-yellow-50 border border-yellow-200 text-yellow-800 p-3 rounded-lg text-sm font-bold flex items-center gap-2";
+                    } else {
+                        throw new Error(`Gagal (Status: ${res.status}). Cek Token.`);
                     }
-                } catch(e) {} // Jika JSON belum ada, abaikan
-                this.renderDaftar();
-            },
-            
-            renderDaftar() {
-                const w = document.getElementById('daftar-soal'); w.innerHTML = '';
-                if(this.dbJSON.levels.length === 0) return w.innerHTML = '<p class="text-center text-slate-400 text-sm border-2 border-dashed p-4 rounded-xl">Belum ada soal, mari buat level 1!</p>';
+                } catch(e) {
+                    statusEl.innerHTML = `<i data-lucide="x-circle" class="w-4 h-4"></i> Error: ${e.message}`;
+                    statusEl.className = "bg-red-50 border border-red-200 text-red-800 p-3 rounded-lg text-sm font-bold flex items-center gap-2";
+                }
                 
-                this.dbJSON.levels.forEach((s, i) => {
-                    w.innerHTML += `<div class="bg-white p-3 rounded-xl shadow-sm border flex justify-between items-center">
-                        <div><span class="text-xs font-bold text-indigo-500">${s.kategori.toUpperCase()} - Lvl ${i+1}</span>
-                        <h3 class="font-bold text-sm truncate w-48">${s.pertanyaan}</h3></div>
-                        <button onclick="AdminCMS.hapusSoal('${s.id}')" class="p-2 bg-red-100 text-red-700 rounded-lg"><i data-lucide="trash" class="w-4 h-4"></i></button>
-                    </div>`;
+                lucide.createIcons();
+                this.renderDaftarLevel();
+            },
+
+            renderDaftarLevel() {
+                const wadah = document.getElementById('daftar-soal-admin');
+                wadah.innerHTML = '';
+                
+                if(!this.dbLokal.levels || this.dbLokal.levels.length === 0) {
+                    wadah.innerHTML = `<p class="text-center text-slate-400 py-6 border-2 border-dashed rounded-lg">Belum ada Level dibuat.</p>`;
+                    return;
+                }
+
+                this.dbLokal.levels.forEach((lvl, idx) => {
+                    wadah.innerHTML += `
+                        <div class="border border-slate-200 p-3 rounded-lg flex justify-between items-center bg-slate-50">
+                            <div class="overflow-hidden">
+                                <span class="text-[10px] font-black text-indigo-500 uppercase px-2 py-0.5 bg-indigo-100 rounded">${lvl.kategori}</span>
+                                <span class="text-xs font-bold text-slate-500 ml-1">Lvl ${idx + 1}</span>
+                                <h3 class="font-bold text-sm text-slate-800 mt-1 truncate">${lvl.pertanyaan}</h3>
+                            </div>
+                            <button onclick="Admin.hapusLevel(${idx})" class="text-red-500 bg-red-100 p-2 rounded hover:bg-red-200 transition">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    `;
                 });
                 lucide.createIcons();
             },
-            hapusSoal(id) {
-                if(confirm("Hapus level ini?")) {
-                    this.dbJSON.levels = this.dbJSON.levels.filter(s => s.id !== id);
-                    this.renderDaftar();
+
+            hapusLevel(idx) {
+                if(confirm("Yakin hapus level ini dari daftar lokal? (Tidak akan terhapus di web sebelum di-Publish)")) {
+                    this.dbLokal.levels.splice(idx, 1);
+                    this.renderDaftarLevel();
                 }
             },
-            
-            simpanKeAntrean() {
+
+            tambahLevel() {
                 const ts = Date.now();
-                let soal = {
-                    id: `lvl_${ts}`, kategori: document.getElementById('in-kategori').value,
-                    pertanyaan: document.getElementById('in-pertanyaan').value, audio_soal: null,
-                    item_target: { nama: document.getElementById('in-target-nama').value, isTarget: true, url_gambar: null },
+                const kat = document.getElementById('in-kategori').value;
+                const tanya = document.getElementById('in-tanya').value;
+                
+                if(!tanya) return alert("Pertanyaan tidak boleh kosong!");
+
+                let objLevel = {
+                    id: `L_${ts}`, kategori: kat, pertanyaan: tanya, audio_soal: null,
+                    item_target: { nama: document.getElementById('in-benar-nama').value, isTarget: true, url_gambar: null },
                     item_pengecoh: []
                 };
 
-                const fAudio = document.getElementById('file-audio').files[0];
-                if(fAudio) { soal.audio_soal = `assets/a_${ts}.mp3`; this.antreanUpload.push({ path: `public/${soal.audio_soal}`, file: fAudio }); }
-
-                const fTgt = document.getElementById('file-target-img').files[0];
-                if(fTgt) { soal.item_target.url_gambar = `assets/t_${ts}.${fTgt.name.split('.').pop()}`; this.antreanUpload.push({ path: `public/${soal.item_target.url_gambar}`, file: fTgt }); }
-
-                const arrPengecoh = document.getElementById('in-pengecoh-nama').value.split(',').map(s=>s.trim()).filter(s=>s);
-                const filesPgc = document.getElementById('file-pengecoh-img').files;
-                
-                if(filesPgc.length > 0) {
-                    Array.from(filesPgc).forEach((f, i) => {
-                        const path = `assets/p_${ts}_${i}.${f.name.split('.').pop()}`;
-                        this.antreanUpload.push({ path: `public/${path}`, file: f });
-                        soal.item_pengecoh.push({ nama: arrPengecoh[i]||"X", isTarget: false, url_gambar: path });
-                    });
-                } else if(arrPengecoh.length > 0) {
-                    arrPengecoh.forEach(n => soal.item_pengecoh.push({nama: n, isTarget: false, url_gambar: null}));
+                // Proses File Audio
+                const fAudio = document.getElementById('f-soal').files[0];
+                if(fAudio) { 
+                    objLevel.audio_soal = `assets/a_${ts}.mp3`; 
+                    this.antreanFile.push({ path: `public/${objLevel.audio_soal}`, file: fAudio }); 
                 }
 
-                this.dbJSON.levels.push(soal);
-                this.renderDaftar(); this.tutupModal('modal-soal');
+                // Proses Target Image
+                const fTarget = document.getElementById('f-benar-img').files[0];
+                if(fTarget) {
+                    objLevel.item_target.url_gambar = `assets/tgt_${ts}.${fTarget.name.split('.').pop()}`;
+                    this.antreanFile.push({ path: `public/${objLevel.item_target.url_gambar}`, file: fTarget });
+                }
+
+                // Proses Pengecoh (Teks & Multi-Image)
+                const textPengecoh = document.getElementById('in-salah-nama').value.split(',').map(s => s.trim()).filter(s => s);
+                const filePengecoh = document.getElementById('f-salah-img').files;
+
+                // Gabungkan Teks dan File Pengecoh
+                let maxLen = Math.max(textPengecoh.length, filePengecoh.length);
+                for(let i=0; i<maxLen; i++) {
+                    let pgc = { nama: textPengecoh[i] || "X", isTarget: false, url_gambar: null };
+                    if(filePengecoh[i]) {
+                        pgc.url_gambar = `assets/pgc_${ts}_${i}.${filePengecoh[i].name.split('.').pop()}`;
+                        this.antreanFile.push({ path: `public/${pgc.url_gambar}`, file: filePengecoh[i] });
+                    }
+                    objLevel.item_pengecoh.push(pgc);
+                }
+
+                // Masukkan ke DB Lokal
+                this.dbLokal.levels.push(objLevel);
+                this.renderDaftarLevel();
+                this.tutupModal('modal-soal');
+                
+                // Reset Form
+                document.getElementById('in-tanya').value = '';
+                document.getElementById('in-benar-nama').value = '';
+                document.getElementById('in-salah-nama').value = '';
+                document.getElementById('f-soal').value = '';
+                document.getElementById('f-benar-img').value = '';
+                document.getElementById('f-salah-img').value = '';
             },
 
-            fileToBase64: (f) => new Promise((r) => { const reader = new FileReader(); reader.readAsDataURL(f); reader.onload = () => { let res = reader.result.replace(/^data:(.*,)?/, ''); if(res.length%4>0) res += '='.repeat(4-(res.length%4)); r(res); }; }),
-            
-            async uploadGitHubAPI(token, repo, path, b64) {
+            // --- FUNGSI UPLOAD GITHUB API ---
+            ubahFileKeBase64: (file) => new Promise((resolve) => { 
+                const r = new FileReader(); 
+                r.readAsDataURL(file); 
+                r.onload = () => { 
+                    let b64 = r.result.replace(/^data:(.*,)?/, ''); 
+                    if(b64.length % 4 > 0) b64 += '='.repeat(4 - (b64.length % 4)); 
+                    resolve(b64); 
+                }; 
+            }),
+
+            async githubPutRequest(token, repo, path, base64Content) {
                 const url = `https://api.github.com/repos/${repo}/contents/${path}`;
                 let sha = null;
-                try { const r = await fetch(url, { headers: { 'Authorization': `token ${token}` } }); if(r.ok) sha = (await r.json()).sha; } catch(e){}
-                const body = { message: `Auto Update: ${path}`, content: b64 }; if(sha) body.sha = sha;
-                const put = await fetch(url, { method: 'PUT', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-                if(!put.ok) throw new Error("Gagal kirim ke GitHub");
+                try {
+                    // Cari SHA file lama agar bisa ditimpa
+                    const getRes = await fetch(url, { headers: { 'Authorization': `token ${token}` } });
+                    if(getRes.ok) sha = (await getRes.json()).sha;
+                } catch(e) {} // Abaikan jika file baru
+
+                const bodyData = { message: `CMS Update: ${path}`, content: base64Content };
+                if (sha) bodyData.sha = sha;
+
+                const putRes = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bodyData)
+                });
+                if(!putRes.ok) throw new Error(`Gagal upload ${path}`);
             },
 
-            async simpanKeGitHub() {
-                const t = localStorage.getItem('ghToken'); const r = localStorage.getItem('ghRepo');
-                if(!t || !r) return alert("Isi Token GitHub di Pengaturan!");
-                
-                const overlay = document.getElementById('loading'); const teks = document.getElementById('loading-teks');
-                overlay.classList.remove('hidden');
+            async publishKeGitHub() {
+                const token = localStorage.getItem('ghToken');
+                const repo = localStorage.getItem('ghRepo');
+                if(!token || !repo) return alert("Cek konfigurasi Token GitHub!");
+
+                const modLoad = document.getElementById('modal-loading');
+                const tLoad = document.getElementById('loading-teks');
+                modLoad.classList.remove('hidden');
 
                 try {
-                    // Cek File Global Setup
-                    const fBg = document.getElementById('file-bg').files[0]; if(fBg) { this.dbJSON.global_settings.bg_image = `assets/bg.jpg`; this.antreanUpload.push({path:`public/assets/bg.jpg`, file:fBg}); }
-                    const fBgm = document.getElementById('file-bgm').files[0]; if(fBgm) { this.dbJSON.global_settings.bgm_url = `assets/bgm.mp3`; this.antreanUpload.push({path:`public/assets/bgm.mp3`, file:fBgm}); }
-                    const fSfxB = document.getElementById('file-sfx-benar').files[0]; if(fSfxB) { this.dbJSON.global_settings.sfx_benar = `assets/b.mp3`; this.antreanUpload.push({path:`public/assets/b.mp3`, file:fSfxB}); }
-                    const fSfxS = document.getElementById('file-sfx-salah').files[0]; if(fSfxS) { this.dbJSON.global_settings.sfx_salah = `assets/s.mp3`; this.antreanUpload.push({path:`public/assets/s.mp3`, file:fSfxS}); }
+                    // 1. Cek & Proses Pengaturan Global (BG, BGM, SFX)
+                    const fBg = document.getElementById('f-bg').files[0];
+                    if(fBg) { this.dbLokal.global_settings.bg_image = `assets/bg.jpg`; this.antreanFile.push({path:`public/assets/bg.jpg`, file:fBg}); }
+                    
+                    const fBgm = document.getElementById('f-bgm').files[0];
+                    if(fBgm) { this.dbLokal.global_settings.bgm_url = `assets/bgm.mp3`; this.antreanFile.push({path:`public/assets/bgm.mp3`, file:fBgm}); }
+                    
+                    const fBenar = document.getElementById('f-benar').files[0];
+                    if(fBenar) { this.dbLokal.global_settings.sfx_benar = `assets/b.mp3`; this.antreanFile.push({path:`public/assets/b.mp3`, file:fBenar}); }
+                    
+                    const fSalah = document.getElementById('f-salah').files[0];
+                    if(fSalah) { this.dbLokal.global_settings.sfx_salah = `assets/s.mp3`; this.antreanFile.push({path:`public/assets/s.mp3`, file:fSalah}); }
 
-                    // Upload Fisik Media
-                    for(let i=0; i<this.antreanUpload.length; i++) {
-                        teks.innerText = `Kirim File ${i+1}/${this.antreanUpload.length}...`;
-                        const b64 = await this.fileToBase64(this.antreanUpload[i].file);
-                        await this.uploadGitHubAPI(t, r, this.antreanUpload[i].path, b64);
+                    // 2. Upload Semua Media Fisik (Satu per satu)
+                    for(let i=0; i<this.antreanFile.length; i++) {
+                        tLoad.innerText = `Mengunggah media ${i+1} dari ${this.antreanFile.length}...`;
+                        const b64 = await this.ubahFileKeBase64(this.antreanFile[i].file);
+                        await this.githubPutRequest(token, repo, this.antreanFile[i].path, b64);
                     }
 
-                    // Upload JSON
-                    teks.innerText = "Menyimpan Konfigurasi Game (JSON)...";
-                    const jsonB64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(this.dbJSON, null, 2))));
-                    await this.uploadGitHubAPI(t, r, 'public/data-soal.json', jsonB64);
+                    // 3. Upload JSON Akhir
+                    tLoad.innerText = `Menyimpan Data Level JSON...`;
+                    const jsonStr = JSON.stringify(this.dbLokal, null, 2);
+                    const jsonB64 = window.btoa(unescape(encodeURIComponent(jsonStr)));
+                    await this.githubPutRequest(token, repo, 'public/data-soal.json', jsonB64);
 
-                    teks.innerText = "Selesai! Vercel memproses...";
-                    this.antreanUpload = []; // bersihkan antrean
-                    setTimeout(() => { overlay.classList.add('hidden'); alert("BERHASIL! Tutup URL /?mode=admin dan buka URL aslinya untuk bermain."); }, 2000);
+                    tLoad.innerText = `Sukses! Selesai dipublish.`;
+                    this.antreanFile = []; // Bersihkan antrean
+                    
+                    setTimeout(() => {
+                        modLoad.classList.add('hidden');
+                        alert("Berhasil disimpan ke GitHub! Halaman GitHub Pages biasanya butuh waktu 1-2 menit untuk terupdate ke publik.");
+                    }, 2000);
+
                 } catch(e) {
-                    alert("Gagal: " + e.message); overlay.classList.add('hidden');
+                    alert("Error Saat Upload: " + e.message);
+                    modLoad.classList.add('hidden');
                 }
             }
         };
+
     </script>
 </body>
 </html>
