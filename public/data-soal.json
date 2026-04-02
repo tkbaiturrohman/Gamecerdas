@@ -1,4 +1,43 @@
 {
   "global_settings": {},
-  "levels": []
+  "levels": [
+    {
+      "id": "L_1775165411128",
+      "item_target": {
+        "isTarget": true,
+        "nama": "Mantap",
+        "url_gambar": "assets/tgt_1775165411128.jpg"
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Wkwk",
+          "isTarget": false,
+          "url_gambar": "assets/pgc_1775165411128_0.jpg"
+        }
+      ],
+      "kategori": "drag",
+      "pertanyaan": "Aku ga tau",
+      "bg_image": "assets/bg_lvl_1775165411128.jpg",
+      "audio_soal": "assets/a_soal_1775165411128.mp3"
+    },
+    {
+      "id": "L_1775165462665",
+      "item_target": {
+        "isTarget": true,
+        "nama": "Ok",
+        "url_gambar": "assets/tgt_1775165462665.jpg"
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Iai",
+          "isTarget": false,
+          "url_gambar": "assets/pgc_1775165462665_0.jpg"
+        }
+      ],
+      "kategori": "kuis",
+      "pertanyaan": "Mbouh",
+      "bg_image": "assets/bg_lvl_1775165462665.jpg",
+      "audio_soal": "assets/a_soal_1775165462665.mp3"
+    }
+  ]
 }
