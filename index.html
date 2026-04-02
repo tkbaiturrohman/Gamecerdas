@@ -7,44 +7,62 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Pustaka Drag & Drop Terbaik -->
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        body { font-family: 'Quicksand', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: #bae6fd; }
+        /* Mencegah zoom dan scroll yang tidak disengaja di HP */
+        body { 
+            font-family: 'Quicksand', sans-serif; 
+            margin: 0; 
+            background: #bae6fd; 
+            touch-action: pan-y; /* Hanya izinkan scroll vertikal bawaan */
+        }
         
-        #body-game { background-size: cover; background-position: center; transition: background 0.5s ease-in-out; }
-        .glass-ui { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 4px solid rgba(255,255,255,0.9); }
+        #view-game { 
+            background-size: cover; 
+            background-position: center; 
+            transition: background 0.5s ease-in-out; 
+        }
+
+        .glass-ui { 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(12px); 
+            border: 4px solid rgba(255,255,255,0.9); 
+        }
         
-        /* CSS Drag & Drop yang Diperbaiki */
+        /* JURUS AMPUH DRAG & DROP: Menghapus transisi penyebab lag saat digeser */
         .kartu-drag { 
-            touch-action: none; 
+            touch-action: none; /* Wajib untuk interact.js di HP */
             user-select: none; 
-            transition: box-shadow 0.2s; /* Hapus transition transform agar drag mulus */
+            transition: box-shadow 0.2s; /* Hanya animasikan bayangan, BUKAN transform */
         }
         .is-dragging { 
             opacity: 0.95; 
-            z-index: 100; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3); 
+            z-index: 9999 !important; /* Pastikan selalu paling atas saat ditarik */
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4); 
         }
         .drop-active { 
             transform: scale(1.1); 
             border-color: #3b82f6 !important; 
             background-color: rgba(255,255,255,0.95) !important; 
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); 
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.5); 
         }
         
+        /* Animasi Cantik */
         @keyframes popIn { 0% {transform: scale(0.5); opacity: 0;} 80% {transform: scale(1.05); opacity: 1;} 100% {transform: scale(1);} }
         .anim-pop { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-8px);} 75% {transform: translateX(8px);} }
         .anim-shake { animation: shake 0.3s ease-in-out; }
     </style>
 </head>
-<body id="body-utama">
+<body>
 
-    <div id="view-game" class="h-screen w-screen flex flex-col relative" id="body-game">
+    <!-- Gunakan h-[100dvh] agar menyesuaikan address bar HP -->
+    <div id="view-game" class="h-[100dvh] w-screen flex flex-col relative overflow-hidden">
         
-        <!-- Layar Mulai (Bersih dari Admin) -->
+        <!-- Layar Mulai (Bypass Izin Audio Browser) -->
         <div id="layar-mulai" class="absolute inset-0 z-[100] bg-sky-500/95 flex flex-col items-center justify-center p-6 text-center">
             <div class="bg-white p-6 rounded-[2rem] shadow-2xl mb-8 animate-bounce border-8 border-sky-300">
                 <i data-lucide="rocket" class="w-20 h-20 text-sky-500 fill-sky-100"></i>
@@ -55,26 +73,31 @@
             </button>
         </div>
 
-        <header class="w-full p-4 z-20 flex justify-between items-center glass-ui shadow-md rounded-b-[2rem] mx-auto max-w-5xl">
-            <div class="flex gap-1 bg-white px-4 py-2 rounded-2xl shadow-inner border border-slate-200" id="ui-nyawa"></div>
-            <div class="font-black text-2xl md:text-3xl text-sky-600 drop-shadow-sm uppercase">Level <span id="ui-level" class="text-sky-800">1</span></div>
-            <div class="flex gap-2 items-center bg-white px-5 py-2 rounded-2xl shadow-inner border border-slate-200 text-orange-500 font-black text-2xl">
-                <i data-lucide="star" class="fill-orange-400 w-6 h-6"></i><span id="ui-skor">0</span>
+        <!-- HEADER STATUS -->
+        <header class="w-full p-4 z-20 flex justify-between items-center glass-ui shadow-md rounded-b-[2rem] flex-shrink-0">
+            <div class="flex gap-1 bg-white px-3 py-2 rounded-2xl shadow-inner border border-slate-200" id="ui-nyawa"></div>
+            <div class="font-black text-xl md:text-3xl text-sky-600 drop-shadow-sm uppercase">Level <span id="ui-level" class="text-sky-800">1</span></div>
+            <div class="flex gap-2 items-center bg-white px-4 py-2 rounded-2xl shadow-inner border border-slate-200 text-orange-500 font-black text-xl">
+                <i data-lucide="star" class="fill-orange-400 w-5 h-5"></i><span id="ui-skor">0</span>
             </div>
         </header>
 
-        <main class="flex-1 relative flex flex-col items-center justify-start pt-6 pb-4 px-4 w-full max-w-5xl mx-auto z-10 overflow-hidden">
-            <div class="glass-ui rounded-[2rem] p-6 shadow-xl w-full text-center mb-2 anim-pop">
-                <h2 id="teks-pertanyaan" class="text-3xl md:text-5xl font-black text-slate-800 leading-tight">Menyiapkan Game...</h2>
-                <div id="ui-audio-soal" class="hidden mt-3 text-sky-600 text-sm font-bold flex items-center justify-center gap-2 bg-sky-50 py-2 px-4 rounded-full inline-flex mx-auto border border-sky-200">
-                    <i data-lucide="volume-2" class="w-5 h-5 animate-pulse"></i> Sedang membacakan soal...
+        <!-- AREA BERMAIN (Bisa scroll vertikal jika layar terlalu kecil agar tidak terpotong) -->
+        <main class="flex-1 overflow-y-auto overflow-x-hidden flex flex-col items-center justify-start p-4 w-full max-w-3xl mx-auto z-10 relative">
+            
+            <div class="glass-ui rounded-[2rem] p-5 shadow-xl w-full text-center mb-4 anim-pop flex-shrink-0">
+                <h2 id="teks-pertanyaan" class="text-2xl md:text-4xl font-black text-slate-800 leading-tight">Menyiapkan Game...</h2>
+                <div id="ui-audio-soal" class="hidden mt-3 text-sky-600 text-xs font-bold flex items-center justify-center gap-2 bg-sky-50 py-2 px-4 rounded-full inline-flex mx-auto border border-sky-200">
+                    <i data-lucide="volume-2" class="w-4 h-4 animate-pulse"></i> Sedang membacakan soal...
                 </div>
             </div>
             
-            <!-- Arena Bermain -->
-            <div id="arena-bermain" class="w-full flex-1 flex flex-col items-center justify-center relative"></div>
+            <!-- Tempat merender objek (Kotak Target dan Barang) -->
+            <div id="arena-bermain" class="w-full flex-1 flex flex-col items-center justify-center min-h-0"></div>
+            
         </main>
 
+        <!-- OVERLAY PESAN (Benar/Salah) -->
         <div id="layar-pesan" class="hidden absolute inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
             <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full text-center shadow-2xl border-8 border-white anim-pop relative overflow-hidden">
                 <div id="pesan-ikon" class="mx-auto flex justify-center mb-4 relative z-10"></div>
@@ -88,7 +111,60 @@
     <script>
         lucide.createIcons();
 
-        // SISTEM AUDIO
+        // 1. INISIASI INTERACT.JS SECARA GLOBAL (Hanya dipanggil 1 kali agar tidak ganda & ngelag)
+        interact('.kartu-drag').draggable({
+            inertia: true,
+            // HAPUS PEMBATAS WILAYAH DI SINI (Biarkan bebas ke mana saja di layar)
+            listeners: {
+                start(e) {
+                    e.target.classList.add('is-dragging');
+                    AudioMgr.stopSoal(); // Hentikan audio saat disentuh
+                },
+                move(e) {
+                    var target = e.target;
+                    // Hitung pergeseran kursor
+                    var x = (parseFloat(target.getAttribute('data-x')) || 0) + e.dx;
+                    var y = (parseFloat(target.getAttribute('data-y')) || 0) + e.dy;
+
+                    // Gerakkan benda dengan translate murni (paling mulus)
+                    target.style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
+                    
+                    target.setAttribute('data-x', x);
+                    target.setAttribute('data-y', y);
+                },
+                end(e) {
+                    e.target.classList.remove('is-dragging');
+                    // Kembalikan ke tempat asal dengan mulus (Jika belum di-drop ke target)
+                    if(!e.target.classList.contains('sudah-didrop')) {
+                        e.target.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                        e.target.style.transform = 'translate(0px, 0px) scale(1)';
+                        e.target.setAttribute('data-x', 0);
+                        e.target.setAttribute('data-y', 0);
+                        
+                        // Hapus transisi agar geseran selanjutnya tidak lag
+                        setTimeout(() => { e.target.style.transition = 'box-shadow 0.2s'; }, 300);
+                    }
+                }
+            }
+        });
+
+        interact('#zona-target').dropzone({
+            accept: '.kartu-drag',
+            overlap: 0.5, // 50% bagian benda harus masuk kotak
+            ondragenter(e) { e.target.classList.add('drop-active'); },
+            ondragleave(e) { e.target.classList.remove('drop-active'); },
+            ondrop: (e) => {
+                e.target.classList.remove('drop-active');
+                e.relatedTarget.classList.add('sudah-didrop'); // Tandai benda agar tidak mantul balik
+                
+                // Cek jawaban
+                const isBenar = e.relatedTarget.getAttribute('data-benar') === 'ya';
+                Game.cekJawaban(isBenar, e.target);
+            }
+        });
+
+
+        // 2. SISTEM AUDIO
         const AudioMgr = {
             bgm: new Audio(), sfxBenar: new Audio(), sfxSalah: new Audio(), soal: new Audio(), tSoal: null,
             siapkan(cfg) {
@@ -113,14 +189,15 @@
             }
         };
 
-        // ENGINE GAME
+        // 3. ENGINE GAME LOGIC
         const Game = {
             db: { global: {}, levels: [] }, levelSekarang: 0, skor: 0, nyawa: 3,
 
             async mulai() {
                 document.getElementById('layar-mulai').classList.add('hidden');
                 try {
-                    const res = await fetch(`./public/data-soal.json?v=${Date.now()}`);
+                    // Gunakan Math.random() agar benar-benar tidak ter-cache oleh browser
+                    const res = await fetch(`./public/data-soal.json?v=${Math.random()}`);
                     if(!res.ok) throw new Error("Gagal load JSON");
                     const data = await res.json();
                     
@@ -130,11 +207,16 @@
                     if(this.db.levels.length === 0) throw new Error("Level Kosong");
                     
                     if(this.db.global.bg_image) {
-                        document.getElementById('body-utama').style.backgroundImage = `url(./public/${this.db.global.bg_image})`;
+                        document.getElementById('view-game').style.backgroundImage = `url(./public/${this.db.global.bg_image})`;
                     }
                     AudioMgr.siapkan(this.db.global);
                 } catch(e) {
-                    this.db.levels = [{ kategori: "kuis", pertanyaan: "Admin belum membuat soal. Buka admin.html!", item_target: { nama: "OK", isTarget: true }, item_pengecoh: [] }];
+                    this.db.levels = [{ 
+                        kategori: "kuis", 
+                        pertanyaan: "Level belum dibuat. Silakan buka admin.html untuk membuat soal pertama!", 
+                        item_target: { nama: "Mengerti", isTarget: true }, 
+                        item_pengecoh: [] 
+                    }];
                 }
 
                 AudioMgr.playBGM();
@@ -147,12 +229,14 @@
                 document.getElementById('ui-skor').innerText = this.skor;
                 const wadahNyawa = document.getElementById('ui-nyawa');
                 wadahNyawa.innerHTML = '';
-                for(let i=0; i<3; i++) wadahNyawa.innerHTML += `<i data-lucide="heart" class="w-8 h-8 ${i < this.nyawa ? 'fill-rose-500 text-rose-500' : 'text-slate-200'}"></i>`;
+                for(let i=0; i<3; i++) wadahNyawa.innerHTML += `<i data-lucide="heart" class="w-6 h-6 md:w-8 md:h-8 ${i < this.nyawa ? 'fill-rose-500 text-rose-500' : 'text-slate-200'}"></i>`;
                 lucide.createIcons();
             },
 
             muatLevelArena() {
-                const arena = document.getElementById('arena-bermain'); arena.innerHTML = ''; 
+                const arena = document.getElementById('arena-bermain'); 
+                arena.innerHTML = ''; 
+                
                 const dataLevel = this.db.levels[this.levelSekarang];
                 document.getElementById('ui-level').innerText = this.levelSekarang + 1;
                 document.getElementById('teks-pertanyaan').innerText = dataLevel.pertanyaan;
@@ -164,13 +248,13 @@
             },
 
             mesinDrag(data, arena) {
-                // Bug fix: Menggunakan relative positioning yang kuat untuk arena drag
+                // Layout Flex-col yang aman: Kotak Target di atas, Item di bawah
                 arena.innerHTML = `
-                    <div id="zona-target" class="w-48 h-48 md:w-56 md:h-56 border-4 border-dashed border-sky-400 bg-white/50 backdrop-blur rounded-[2.5rem] flex flex-col items-center justify-center mt-2 mb-auto transition-all shadow-inner">
-                        <i data-lucide="package-open" class="w-20 h-20 text-sky-500/60 mb-2"></i>
-                        <span class="font-bold text-sky-700">Taruh di sini</span>
+                    <div id="zona-target" class="w-40 h-40 md:w-56 md:h-56 border-4 border-dashed border-sky-400 bg-white/50 backdrop-blur rounded-[2rem] flex flex-col items-center justify-center mb-6 transition-all shadow-inner flex-shrink-0 z-0">
+                        <i data-lucide="package-open" class="w-16 h-16 text-sky-500/60 mb-2"></i>
+                        <span class="font-bold text-sky-700 text-sm md:text-base">Taruh di sini</span>
                     </div>
-                    <div id="wadah-item" class="w-full flex justify-center flex-wrap gap-4 mt-8 pb-8 z-50"></div>
+                    <div id="wadah-item" class="w-full flex justify-center flex-wrap gap-3 md:gap-6 pb-10 z-10"></div>
                 `;
                 lucide.createIcons();
                 
@@ -180,82 +264,34 @@
                 itemsAcak.forEach(it => {
                     const el = document.createElement('div');
                     el.setAttribute('data-benar', it.isTarget ? 'ya' : 'tidak');
-                    // Tambahkan atribut data-x dan data-y awal
                     el.setAttribute('data-x', 0);
                     el.setAttribute('data-y', 0);
                     
-                    el.className = "kartu-drag w-28 h-28 md:w-36 md:h-36 bg-white rounded-3xl shadow-xl border-4 border-white cursor-grab touch-none flex items-center justify-center overflow-hidden anim-pop relative";
+                    // Ukuran disesuaikan agar muat banyak di layar HP
+                    el.className = "kartu-drag w-24 h-24 md:w-32 md:h-32 bg-white rounded-[1.5rem] shadow-lg border-4 border-white cursor-grab touch-none flex items-center justify-center overflow-hidden anim-pop relative";
                     
                     const urlPath = it.url_gambar ? `./public/${it.url_gambar}` : '';
                     el.innerHTML = `
-                        <div class="absolute inset-0 bg-slate-100 flex items-center justify-center text-slate-500 font-black text-xl text-center p-2 ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div>
+                        <div class="absolute inset-0 bg-slate-100 flex items-center justify-center text-slate-500 font-black text-sm md:text-lg text-center p-2 ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div>
                         <img src="${urlPath}" class="w-full h-full object-cover pointer-events-none" onerror="this.previousElementSibling.classList.remove('hidden'); this.style.display='none'" draggable="false" />
                     `;
                     
-                    el.addEventListener('pointerdown', () => AudioMgr.stopSoal());
                     wadahItem.appendChild(el);
-                });
-
-                // Inisialisasi Interact.js yang disempurnakan
-                interact('.kartu-drag').draggable({
-                    inertia: true,
-                    autoScroll: true,
-                    modifiers: [
-                        interact.modifiers.restrictRect({
-                            restriction: 'parent',
-                            endOnly: true
-                        })
-                    ],
-                    listeners: {
-                        start(e) { 
-                            e.target.classList.add('is-dragging'); 
-                        },
-                        move(e) {
-                            var target = e.target;
-                            // Hitung posisi baru
-                            var x = (parseFloat(target.getAttribute('data-x')) || 0) + e.dx;
-                            var y = (parseFloat(target.getAttribute('data-y')) || 0) + e.dy;
-
-                            // Terapkan transformasi CSS
-                            target.style.transform = `translate(${x}px, ${y}px) scale(1.15)`;
-
-                            // Simpan posisi
-                            target.setAttribute('data-x', x);
-                            target.setAttribute('data-y', y);
-                        },
-                        end(e) {
-                            e.target.classList.remove('is-dragging');
-                            // Kembali ke ukuran normal, biarkan di posisinya (atau reset jika ingin kembali)
-                            var x = parseFloat(e.target.getAttribute('data-x')) || 0;
-                            var y = parseFloat(e.target.getAttribute('data-y')) || 0;
-                            e.target.style.transform = `translate(${x}px, ${y}px) scale(1)`;
-                        }
-                    }
-                });
-
-                interact('#zona-target').dropzone({
-                    accept: '.kartu-drag', overlap: 0.5,
-                    ondragenter(e) { e.target.classList.add('drop-active'); },
-                    ondragleave(e) { e.target.classList.remove('drop-active'); },
-                    ondrop: (e) => {
-                        e.target.classList.remove('drop-active');
-                        this.cekJawaban(e.relatedTarget.getAttribute('data-benar') === 'ya', e.target);
-                    }
                 });
             },
 
             mesinKuis(data, arena) {
                 const grid = document.createElement('div');
-                grid.className = "grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-3xl mt-6 anim-pop pb-8";
+                grid.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-3xl pb-8 anim-pop mt-auto";
                 
                 let itemsAcak = [data.item_target, ...(data.item_pengecoh || [])].sort(() => Math.random() - 0.5);
                 
                 itemsAcak.forEach(it => {
                     const btn = document.createElement('button');
-                    btn.className = "bg-white hover:bg-sky-50 border-4 border-sky-100 text-sky-800 font-black text-2xl md:text-3xl py-8 px-6 rounded-[2.5rem] shadow-[0_8px_0_0_#bae6fd] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center justify-center gap-4 min-h-[160px]";
+                    btn.className = "bg-white hover:bg-sky-50 border-4 border-sky-100 text-sky-800 font-black text-xl md:text-2xl py-6 px-4 rounded-[2rem] shadow-[0_8px_0_0_#bae6fd] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center justify-center gap-3";
                     
                     let konten = '';
-                    if(it.url_gambar) konten += `<img src="./public/${it.url_gambar}" class="h-32 object-contain rounded-2xl" onerror="this.style.display='none'">`;
+                    if(it.url_gambar) konten += `<img src="./public/${it.url_gambar}" class="h-24 object-contain rounded-xl" onerror="this.style.display='none'" draggable="false">`;
                     if(it.nama) konten += `<span>${it.nama}</span>`;
                     
                     btn.innerHTML = konten || "Pilihan";
@@ -266,7 +302,8 @@
             },
 
             cekJawaban(isBenar, elemenAnimasi) {
-                document.querySelectorAll('.kartu-drag').forEach(e => interact(e).draggable(false));
+                // Kunci interaksi agar tidak dobel klik
+                document.querySelectorAll('.kartu-drag').forEach(e => e.style.pointerEvents = 'none');
                 document.querySelectorAll('button').forEach(e => e.disabled = true);
 
                 if(isBenar) {
@@ -281,9 +318,12 @@
             },
 
             munculLayarAkhir(status) {
-                const layar = document.getElementById('layar-pesan'); const ikon = document.getElementById('pesan-ikon');
-                const judul = document.getElementById('pesan-judul'); const sub = document.getElementById('pesan-sub');
+                const layar = document.getElementById('layar-pesan'); 
+                const ikon = document.getElementById('pesan-ikon');
+                const judul = document.getElementById('pesan-judul'); 
+                const sub = document.getElementById('pesan-sub');
                 const tombol = document.getElementById('pesan-tombol');
+                
                 layar.classList.remove('hidden');
 
                 if(status === 'benar') {
@@ -294,21 +334,21 @@
                         tombol.innerText = "Main Lagi"; tombol.className = "w-full relative z-10 bg-yellow-500 text-white font-black text-2xl py-4 rounded-[1.5rem] shadow-[0_8px_0_0_#ca8a04] active:translate-y-2 active:shadow-none transition-all";
                         tombol.onclick = () => { layar.classList.add('hidden'); this.resetProgress(); };
                     } else {
-                        sub.innerText = `Pertahankan skormu!`;
-                        tombol.innerText = "Lanjut Level"; tombol.className = "w-full relative z-10 bg-sky-500 text-white font-black text-2xl py-4 rounded-[1.5rem] shadow-[0_8px_0_0_#0284c7] active:translate-y-2 active:shadow-none transition-all";
+                        sub.innerText = `Lanjut terus!`;
+                        tombol.innerText = "Level Berikutnya"; tombol.className = "w-full relative z-10 bg-sky-500 text-white font-black text-2xl py-4 rounded-[1.5rem] shadow-[0_8px_0_0_#0284c7] active:translate-y-2 active:shadow-none transition-all";
                         tombol.onclick = () => { this.levelSekarang++; layar.classList.add('hidden'); this.muatLevelArena(); };
                     }
                 } else if(status === 'salah') {
                     ikon.innerHTML = `<i data-lucide="alert-triangle" class="w-32 h-32 text-orange-400"></i>`;
                     judul.innerText = "Aduh Salah"; judul.className = "text-5xl font-black mb-2 text-orange-500";
-                    sub.innerText = "Coba pikirkan lagi ya.";
+                    sub.innerText = "Kamu pasti bisa!";
                     tombol.innerText = "Ulangi"; tombol.className = "w-full relative z-10 bg-orange-500 text-white font-black text-2xl py-4 rounded-[1.5rem] shadow-[0_8px_0_0_#c2410c] active:translate-y-2 active:shadow-none transition-all";
                     tombol.onclick = () => { layar.classList.add('hidden'); this.muatLevelArena(); };
                 } else {
                     ikon.innerHTML = `<i data-lucide="heart-crack" class="w-32 h-32 text-rose-500"></i>`;
                     judul.innerText = "Game Over"; judul.className = "text-5xl font-black mb-2 text-rose-600";
                     sub.innerText = `Skor Terakhir: ${this.skor}`;
-                    tombol.innerText = "Dari Awal"; tombol.className = "w-full relative z-10 bg-rose-500 text-white font-black text-2xl py-4 rounded-[1.5rem] shadow-[0_8px_0_0_#be123c] active:translate-y-2 active:shadow-none transition-all";
+                    tombol.innerText = "Mulai Baru"; tombol.className = "w-full relative z-10 bg-rose-500 text-white font-black text-2xl py-4 rounded-[1.5rem] shadow-[0_8px_0_0_#be123c] active:translate-y-2 active:shadow-none transition-all";
                     tombol.onclick = () => { layar.classList.add('hidden'); this.resetProgress(); };
                 }
                 lucide.createIcons();
