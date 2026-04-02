@@ -1,1 +1,9 @@
-[]
+{
+  "global_settings": {
+    "bg_image": "",
+    "bgm_url": "",
+    "sfx_benar": "",
+    "sfx_salah": ""
+  },
+  "levels": []
+}
