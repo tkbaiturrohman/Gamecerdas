@@ -3,112 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CMS Admin Game</title>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&display=swap" rel="stylesheet">
+    <title>CMS Admin Pintar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body { font-family: 'Quicksand', sans-serif; background: #f1f5f9; }
+        body { font-family: 'Nunito', sans-serif; background: #f8fafc; }
         .app-container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 25px rgba(0,0,0,0.05); position: relative; }
     </style>
 </head>
 <body>
 
     <div class="app-container flex flex-col pb-28">
-        <!-- Header -->
         <header class="bg-indigo-700 text-white p-4 shadow-lg sticky top-0 z-50 flex justify-between items-center">
-            <h1 class="text-xl font-bold flex items-center gap-2"><i data-lucide="layout-dashboard"></i> CMS Game</h1>
+            <h1 class="text-xl font-black flex items-center gap-2"><i data-lucide="server"></i> Pusat Data Game</h1>
             <div class="flex gap-2">
-                <button onclick="window.location.href='index.html'" class="bg-indigo-800 p-2 rounded-lg hover:bg-indigo-900 shadow" title="Main Game"><i data-lucide="play" class="w-5 h-5"></i></button>
-                <button onclick="bukaModal('modal-config')" class="bg-amber-500 text-amber-950 p-2 rounded-lg hover:bg-amber-400 font-bold flex items-center gap-1"><i data-lucide="settings" class="w-5 h-5"></i> Repo</button>
+                <button onclick="window.location.href='index.html'" class="bg-indigo-800 p-2 rounded-xl hover:bg-indigo-900 transition"><i data-lucide="play" class="w-5 h-5"></i></button>
+                <button onclick="bukaModal('modal-config')" class="bg-amber-400 text-amber-950 p-2 rounded-xl hover:bg-amber-300 font-bold flex items-center gap-1 transition"><i data-lucide="settings" class="w-5 h-5"></i> Repo</button>
             </div>
         </header>
 
         <main class="flex-1 p-5 space-y-6">
-            <div id="admin-status" class="bg-yellow-50 border-2 border-yellow-200 text-yellow-800 p-4 rounded-xl text-sm font-bold flex items-center gap-3 shadow-sm">
+            <div id="admin-status" class="bg-yellow-50 border-2 border-yellow-200 text-yellow-800 p-4 rounded-2xl text-sm font-bold flex items-center gap-3 shadow-sm">
                 <i data-lucide="alert-circle" class="w-6 h-6 flex-shrink-0"></i> 
-                <span>Belum terhubung! Klik tombol kuning "Repo" di atas.</span>
+                <span>Klik tombol kuning "Repo" di atas untuk menghubungkan GitHub.</span>
             </div>
 
-            <!-- Daftar Level -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center mb-4 pb-2 border-b">
-                    <h2 class="font-black text-lg text-slate-800">Daftar Soal & Level</h2>
-                    <button onclick="bukaFormTambah()" class="bg-indigo-100 text-indigo-700 font-black px-4 py-2 rounded-xl text-sm flex gap-1 items-center transition"><i data-lucide="plus-circle" class="w-5 h-5"></i> TAMBAH</button>
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-4 pb-3 border-b-2 border-slate-100">
+                    <h2 class="font-black text-xl text-slate-800">Daftar Level</h2>
+                    <button onclick="bukaFormTambah()" class="bg-indigo-100 text-indigo-700 font-black px-4 py-2 rounded-xl text-sm flex gap-1 items-center hover:bg-indigo-200 transition"><i data-lucide="plus" class="w-5 h-5"></i> TAMBAH</button>
                 </div>
                 <div id="daftar-soal-admin" class="space-y-3"></div>
             </div>
         </main>
 
-        <!-- Tombol Publish -->
-        <div class="fixed bottom-0 w-full max-w-[600px] p-5 bg-white/90 backdrop-blur border-t z-40">
-            <button onclick="publishKeGitHub()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black text-lg py-4 rounded-2xl shadow-[0_6px_0_0_#059669] active:translate-y-2 active:shadow-none flex justify-center items-center gap-2 transition-all">
-                <i data-lucide="upload-cloud"></i> SIMPAN & PUBLISH KE GITHUB
+        <div class="fixed bottom-0 w-full max-w-[600px] p-5 bg-white/90 backdrop-blur border-t-2 z-40">
+            <button onclick="publishKeGitHub()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xl py-4 rounded-2xl shadow-[0_8px_0_0_#059669] active:translate-y-2 active:shadow-none flex justify-center items-center gap-2 transition-all">
+                <i data-lucide="upload-cloud"></i> SINKRONKAN KE GITHUB
             </button>
         </div>
 
-        <!-- Overlay Loading -->
-        <div id="modal-loading" class="hidden fixed inset-0 z-[100] bg-white/95 flex flex-col justify-center items-center p-6 text-center">
-            <div class="bg-indigo-100 p-4 rounded-full mb-6"><i data-lucide="loader" class="w-12 h-12 text-indigo-600 animate-spin"></i></div>
-            <h3 class="text-2xl font-black text-slate-800 mb-2">Menyinkronkan...</h3>
-            <p id="loading-teks" class="text-slate-500 font-bold text-lg">Menghubungi GitHub...</p>
+        <div id="modal-loading" class="hidden fixed inset-0 z-[100] bg-indigo-900/90 backdrop-blur flex flex-col justify-center items-center p-6 text-center transition-all">
+            <i data-lucide="loader" class="w-16 h-16 text-white animate-spin mb-6"></i>
+            <h3 class="text-3xl font-black text-white mb-2 tracking-widest uppercase">Menyinkronkan</h3>
+            <p id="loading-teks" class="text-indigo-200 font-bold text-lg">Mengupload aset...</p>
         </div>
 
-        <!-- Modal Repo -->
-        <div id="modal-config" class="hidden fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4">
+        <div id="modal-config" class="hidden fixed inset-0 z-[60] bg-slate-900/70 backdrop-blur-sm flex justify-center items-center p-4">
             <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl relative">
                 <h2 class="font-black text-xl mb-4 flex items-center gap-2 text-indigo-800"><i data-lucide="github"></i> Setup GitHub</h2>
                 
-                <label class="text-xs font-bold text-slate-700 block mb-1">Personal Access Token</label>
-                <input type="password" id="gh-token" placeholder="ghp_xxxx..." class="w-full p-3 border-2 border-slate-200 rounded-xl mb-4 bg-slate-50 font-mono text-sm">
+                <input type="password" id="gh-token" placeholder="Token (ghp_xxxx...)" class="w-full p-3 border-2 border-slate-200 rounded-xl mb-3 bg-slate-50 font-mono text-sm focus:border-indigo-400 outline-none">
+                <input type="text" id="gh-repo" placeholder="username/repo" class="w-full p-3 border-2 border-slate-200 rounded-xl mb-6 bg-slate-50 font-mono text-sm focus:border-indigo-400 outline-none">
                 
-                <label class="text-xs font-bold text-slate-700 block mb-1">Username/Nama-Repo</label>
-                <input type="text" id="gh-repo" placeholder="cth: budi/game" class="w-full p-3 border-2 border-slate-200 rounded-xl mb-6 bg-slate-50 font-mono text-sm">
-                
-                <button onclick="simpanConfigLokal()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-black text-lg shadow-md mb-2">Simpan Koneksi</button>
-                <button onclick="tutupModal('modal-config')" class="w-full text-slate-400 font-bold py-3 hover:text-slate-600">Batal</button>
+                <div class="bg-indigo-50 p-4 rounded-2xl mb-6 border border-indigo-100">
+                    <h3 class="font-black text-sm text-indigo-800 mb-2">Musik Latar Umum (BGM)</h3>
+                    <input type="file" id="f-bgm" accept="audio/*" class="w-full text-xs bg-white p-2 rounded-lg border border-indigo-200">
+                </div>
+
+                <button onclick="simpanConfigLokal()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-black text-lg shadow-md hover:bg-indigo-700 active:scale-95 transition">Hubungkan</button>
+                <button onclick="tutupModal('modal-config')" class="w-full text-slate-400 font-bold py-3 mt-2 hover:text-slate-600">Batal</button>
             </div>
         </div>
 
-        <!-- Modal Form Soal (Edit / Tambah) -->
-        <div id="modal-soal" class="hidden fixed inset-0 z-[60] bg-slate-100 flex flex-col max-w-[600px] mx-auto">
-            <header class="bg-white p-4 flex justify-between items-center shadow-sm border-b">
-                <h2 id="judul-modal-form" class="font-black text-xl text-slate-800">Buat Level Baru</h2>
-                <button onclick="tutupModal('modal-soal')" class="bg-slate-100 p-2 rounded-full text-slate-600"><i data-lucide="x"></i></button>
+        <div id="modal-soal" class="hidden fixed inset-0 z-[60] bg-slate-100 flex flex-col max-w-[600px] mx-auto overflow-y-auto">
+            <header class="bg-white p-5 flex justify-between items-center shadow-sm border-b">
+                <h2 id="judul-modal-form" class="font-black text-xl text-slate-800">Edit Level</h2>
+                <button onclick="tutupModal('modal-soal')" class="bg-slate-100 p-2 rounded-full text-slate-500 hover:bg-slate-200"><i data-lucide="x"></i></button>
             </header>
-            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+            
+            <div class="flex-1 p-5 space-y-6">
                 <input type="hidden" id="edit-index" value="-1">
 
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-                    <label class="font-black text-sm block mb-2 text-indigo-800">Mode Permainan</label>
-                    <select id="in-kategori" class="w-full p-3 border-2 border-indigo-100 rounded-xl bg-indigo-50 font-bold text-indigo-700 outline-none">
-                        <option value="drag">🕹️ Drag & Drop</option>
-                        <option value="kuis">📝 Kuis (Pilihan Ganda)</option>
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
+                    <label class="font-black text-sm block mb-2 text-indigo-800">Kategori Game</label>
+                    <select id="in-kategori" class="w-full p-3 border-2 border-indigo-100 rounded-xl bg-indigo-50 font-bold text-indigo-700 outline-none mb-4">
+                        <option value="drag">🕹️ Drag & Drop (Tarik)</option>
+                        <option value="kuis">📝 Kuis (Pilihan)</option>
                     </select>
+
+                    <label class="font-black text-sm block mb-2 text-slate-800">Pertanyaan / Instruksi</label>
+                    <textarea id="in-tanya" class="w-full p-3 border-2 border-slate-200 rounded-xl bg-slate-50 outline-none focus:border-indigo-400" rows="2" placeholder="Tarik gambar sapi!"></textarea>
                 </div>
 
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-                    <label class="font-black text-sm block mb-2 text-slate-800">Teks Pertanyaan</label>
-                    <textarea id="in-tanya" class="w-full p-3 border-2 border-slate-200 rounded-xl bg-slate-50 outline-none" rows="2" placeholder="Contoh pertanyaan..."></textarea>
+                <div class="bg-sky-50 p-5 rounded-3xl shadow-sm border-2 border-sky-200">
+                    <h3 class="font-black text-sky-800 mb-3 flex items-center gap-2"><i data-lucide="image"></i> Media Khusus Level Ini</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs font-bold text-sky-700">Gambar Latar Belakang (BG) Level</label>
+                            <input type="file" id="f-lvl-bg" accept="image/*" class="w-full text-xs bg-white p-2 rounded-lg border border-sky-300">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-sky-700">Audio Soal (Dibacakan)</label>
+                            <input type="file" id="f-lvl-soal" accept="audio/*" class="w-full text-xs bg-white p-2 rounded-lg border border-sky-300">
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="w-1/2">
+                                <label class="text-xs font-bold text-green-700">SFX Benar (Level ini)</label>
+                                <input type="file" id="f-lvl-benar" accept="audio/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-green-300">
+                            </div>
+                            <div class="w-1/2">
+                                <label class="text-xs font-bold text-red-700">SFX Salah (Level ini)</label>
+                                <input type="file" id="f-lvl-salah" accept="audio/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-red-300">
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-sky-600 font-bold">*Kosongkan jika ingin memakai media dari level sebelumnya / default.</p>
+                    </div>
                 </div>
 
-                <div class="bg-emerald-50 p-4 rounded-2xl border-2 border-emerald-200">
-                    <label class="font-black text-base block mb-3 text-emerald-800 flex items-center gap-2"><i data-lucide="check-circle-2"></i> JAWABAN BENAR</label>
-                    <input type="text" id="in-benar-nama" placeholder="Teks Jawaban" class="w-full p-3 border border-emerald-300 rounded-xl bg-white mb-3 font-bold text-slate-700">
-                    <label class="text-xs font-bold block text-emerald-700 mb-1">Gambar Baru (Kosongkan jika tak ingin ganti):</label>
-                    <input type="file" id="f-benar-img" accept="image/*" class="w-full text-sm bg-white p-2 rounded border border-emerald-200">
+                <div class="bg-emerald-50 p-5 rounded-3xl border-2 border-emerald-300">
+                    <label class="font-black text-lg block mb-3 text-emerald-800 flex items-center gap-2"><i data-lucide="check-circle-2"></i> TARGET BENAR</label>
+                    <input type="text" id="in-benar-nama" placeholder="Teks Jawaban" class="w-full p-3 border-2 border-emerald-300 rounded-xl bg-white mb-3 font-black text-slate-700 outline-none focus:border-emerald-500">
+                    <label class="text-xs font-bold block text-emerald-700 mb-1">Gambar Jawaban:</label>
+                    <input type="file" id="f-benar-img" accept="image/*" class="w-full text-sm bg-white p-2 rounded-xl border border-emerald-300">
                 </div>
 
-                <div class="bg-rose-50 p-4 rounded-2xl border-2 border-rose-200 mb-8">
-                    <label class="font-black text-base block mb-2 text-rose-800 flex items-center gap-2"><i data-lucide="x-circle"></i> PENGECOH / SALAH</label>
-                    <p class="text-[11px] text-rose-600 mb-3 font-bold bg-rose-100/50 p-2 rounded">Teks dipisah koma. Gambar bisa pilih banyak.</p>
-                    <input type="text" id="in-salah-nama" placeholder="Contoh: Sapi, Kucing" class="w-full p-3 border border-rose-300 rounded-xl bg-white mb-3 font-bold text-slate-700">
-                    <label class="text-xs font-bold block text-rose-700 mb-1">Gambar Pengecoh Baru:</label>
-                    <input type="file" id="f-salah-img" accept="image/*" multiple class="w-full text-sm bg-white p-2 rounded border border-rose-200">
+                <div class="bg-rose-50 p-5 rounded-3xl border-2 border-rose-300 mb-6">
+                    <label class="font-black text-lg block mb-2 text-rose-800 flex items-center gap-2"><i data-lucide="x-circle"></i> PENGECOH</label>
+                    <p class="text-[11px] text-rose-600 mb-3 font-bold bg-rose-100 p-2 rounded-lg">Pisahkan teks dengan koma. Gambar bisa pilih banyak file sekaligus.</p>
+                    <input type="text" id="in-salah-nama" placeholder="Cth: Meja, Kursi" class="w-full p-3 border-2 border-rose-300 rounded-xl bg-white mb-3 font-black text-slate-700 outline-none focus:border-rose-500">
+                    <label class="text-xs font-bold block text-rose-700 mb-1">Gambar Pengecoh:</label>
+                    <input type="file" id="f-salah-img" accept="image/*" multiple class="w-full text-sm bg-white p-2 rounded-xl border border-rose-300">
                 </div>
             </div>
-            <div class="bg-white p-5 border-t">
-                <button onclick="simpanLevelKeDaftar()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg py-4 rounded-2xl shadow-lg active:translate-y-1 transition-all flex justify-center items-center gap-2">
+
+            <div class="bg-white p-5 border-t z-10 sticky bottom-0">
+                <button onclick="simpanLevelKeDaftar()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xl py-4 rounded-2xl shadow-[0_6px_0_0_#4f46e5] active:translate-y-2 active:shadow-none transition-all flex justify-center items-center gap-2">
                     <i data-lucide="save"></i> SIMPAN LEVEL INI
                 </button>
             </div>
@@ -139,6 +160,14 @@
         function simpanConfigLokal() {
             localStorage.setItem('ghToken', document.getElementById('gh-token').value.trim());
             localStorage.setItem('ghRepo', document.getElementById('gh-repo').value.trim());
+            
+            // Simpan BGM Global jika ada
+            const fBgm = document.getElementById('f-bgm').files[0];
+            if(fBgm) {
+                dbLokal.global_settings.bgm_url = `assets/bgm.mp3`;
+                antreanFile.push({ path: `public/assets/bgm.mp3`, file: fBgm });
+            }
+
             tutupModal('modal-config');
             tarikDataGitHub();
         }
@@ -148,10 +177,8 @@
             const repo = localStorage.getItem('ghRepo');
             const statusEl = document.getElementById('admin-status');
 
-            statusEl.innerHTML = `<i data-lucide="refresh-cw" class="w-6 h-6 animate-spin text-blue-500"></i> <span class="text-blue-800">Menghubungkan ke GitHub...</span>`;
-            statusEl.className = "bg-blue-50 border-2 border-blue-200 p-4 rounded-xl text-sm font-bold flex items-center gap-3 shadow-sm";
-            lucide.createIcons();
-
+            statusEl.innerHTML = `<i data-lucide="refresh-cw" class="w-6 h-6 animate-spin text-indigo-500"></i> <span class="text-indigo-800">Menghubungkan...</span>`;
+            
             try {
                 const res = await fetch(`https://api.github.com/repos/${repo}/contents/public/data-soal.json?v=${Date.now()}`, {
                     headers: { 'Authorization': `token ${token}` }
@@ -163,20 +190,19 @@
                     dbLokal.global_settings = parsed.global_settings || {};
                     dbLokal.levels = parsed.levels || [];
                     
-                    statusEl.innerHTML = `<i data-lucide="check-circle-2" class="w-6 h-6 text-emerald-500"></i> <span class="text-emerald-800">Terhubung ke Repo: ${repo}</span>`;
+                    statusEl.innerHTML = `<i data-lucide="check-circle" class="w-6 h-6 text-emerald-500"></i> <span class="text-emerald-800">Terhubung: ${repo}</span>`;
                     statusEl.className = "bg-emerald-50 border-2 border-emerald-200 p-4 rounded-xl text-sm font-bold flex items-center gap-3 shadow-sm";
                 } else if (res.status === 404) {
                     dbLokal = { global_settings: {}, levels: [] };
-                    statusEl.innerHTML = `<i data-lucide="info" class="w-6 h-6 text-indigo-500"></i> <span class="text-indigo-800">JSON baru akan terbuat saat di-Publish.</span>`;
+                    statusEl.innerHTML = `<i data-lucide="info" class="w-6 h-6 text-indigo-500"></i> <span class="text-indigo-800">Mulai buat level baru.</span>`;
                     statusEl.className = "bg-indigo-50 border-2 border-indigo-200 p-4 rounded-xl text-sm font-bold flex items-center gap-3 shadow-sm";
                 } else {
                     throw new Error(`Akses Ditolak.`);
                 }
             } catch(e) {
-                statusEl.innerHTML = `<i data-lucide="x-circle" class="w-6 h-6 text-rose-500"></i> <span class="text-rose-800">Gagal: ${e.message}</span>`;
+                statusEl.innerHTML = `<i data-lucide="x-circle" class="w-6 h-6 text-rose-500"></i> <span class="text-rose-800">Error: ${e.message}</span>`;
                 statusEl.className = "bg-rose-50 border-2 border-rose-200 p-4 rounded-xl text-sm font-bold flex items-center gap-3 shadow-sm";
             }
-            
             lucide.createIcons();
             renderDaftarLevel();
         }
@@ -186,21 +212,21 @@
             wadah.innerHTML = '';
             
             if(!dbLokal.levels || dbLokal.levels.length === 0) {
-                wadah.innerHTML = `<div class="text-center p-8 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl"><p class="text-slate-500 font-bold">Belum ada Level dibuat.</p></div>`;
+                wadah.innerHTML = `<div class="text-center p-10 bg-slate-50 border-4 border-dashed border-slate-200 rounded-3xl"><p class="text-slate-500 font-bold text-lg">Belum ada Level.</p></div>`;
                 return;
             }
 
             dbLokal.levels.forEach((lvl, idx) => {
                 wadah.innerHTML += `
-                    <div class="border-2 border-slate-100 p-4 rounded-2xl flex justify-between items-center bg-white shadow-sm hover:border-indigo-200">
+                    <div class="border-2 border-slate-200 p-4 rounded-2xl flex justify-between items-center bg-white shadow-sm hover:border-indigo-300 transition group">
                         <div class="overflow-hidden">
-                            <span class="text-[10px] font-black text-indigo-600 uppercase px-2 py-1 bg-indigo-100 rounded-lg">${lvl.kategori}</span>
+                            <span class="text-[10px] font-black text-white uppercase px-2 py-1 bg-indigo-500 rounded-lg">${lvl.kategori}</span>
                             <span class="text-sm font-black text-slate-400 ml-2">Level ${idx + 1}</span>
-                            <h3 class="font-bold text-base text-slate-800 mt-2 truncate max-w-[200px]">${lvl.pertanyaan}</h3>
+                            <h3 class="font-bold text-base text-slate-800 mt-2 truncate w-48">${lvl.pertanyaan}</h3>
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="bukaFormEdit(${idx})" class="text-blue-500 bg-blue-50 p-3 rounded-xl hover:bg-blue-500 hover:text-white transition shadow-sm"><i data-lucide="edit-3" class="w-5 h-5"></i></button>
-                            <button onclick="hapusLevel(${idx})" class="text-rose-500 bg-rose-50 p-3 rounded-xl hover:bg-rose-500 hover:text-white transition shadow-sm"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                            <button onclick="bukaFormEdit(${idx})" class="text-indigo-600 bg-indigo-50 p-3 rounded-xl hover:bg-indigo-600 hover:text-white transition shadow-sm"><i data-lucide="edit-3" class="w-5 h-5"></i></button>
+                            <button onclick="hapusLevel(${idx})" class="text-rose-600 bg-rose-50 p-3 rounded-xl hover:bg-rose-600 hover:text-white transition shadow-sm"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
                         </div>
                     </div>
                 `;
@@ -209,7 +235,7 @@
         }
 
         function hapusLevel(idx) {
-            if(confirm("Yakin hapus level ini? (Pastikan klik tombol Publish di bawah setelah menghapus!)")) {
+            if(confirm("Hapus level ini? Pastikan klik tombol Publish di bawah setelah menghapus!")) {
                 dbLokal.levels.splice(idx, 1);
                 renderDaftarLevel();
             }
@@ -217,32 +243,25 @@
 
         function bukaFormTambah() {
             document.getElementById('judul-modal-form').innerText = "Buat Level Baru";
-            document.getElementById('edit-index').value = "-1";
+            document.getElementById('edit-index').value = "-1"; 
             
-            document.getElementById('in-tanya').value = '';
-            document.getElementById('in-benar-nama').value = '';
-            document.getElementById('in-salah-nama').value = '';
-            document.getElementById('f-benar-img').value = '';
-            document.getElementById('f-salah-img').value = '';
+            // Kosongkan form
+            document.querySelectorAll('input[type="text"], textarea').forEach(el => el.value = '');
+            document.querySelectorAll('input[type="file"]').forEach(el => el.value = '');
             bukaModal('modal-soal');
         }
 
         function bukaFormEdit(idx) {
             const data = dbLokal.levels[idx];
             document.getElementById('judul-modal-form').innerText = `Edit Level ${idx + 1}`;
-            document.getElementById('edit-index').value = idx;
+            document.getElementById('edit-index').value = idx; 
             
             document.getElementById('in-kategori').value = data.kategori;
             document.getElementById('in-tanya').value = data.pertanyaan;
             document.getElementById('in-benar-nama').value = data.item_target.nama || "";
+            document.getElementById('in-salah-nama').value = (data.item_pengecoh || []).map(p => p.nama).join(', ');
             
-            // Gabungkan nama pengecoh untuk ditampilkan di form
-            let teksPengecoh = "";
-            if (data.item_pengecoh) {
-                teksPengecoh = data.item_pengecoh.map(p => p.nama).join(', ');
-            }
-            document.getElementById('in-salah-nama').value = teksPengecoh;
-            
+            document.querySelectorAll('input[type="file"]').forEach(el => el.value = '');
             bukaModal('modal-soal');
         }
 
@@ -256,31 +275,37 @@
 
             if(!dbLokal.levels) dbLokal.levels = [];
 
-            // Jika Mode Edit, pakai data lama sebagai dasar. Jika Tambah, buat baru.
-            let objLevel = (idxEdit > -1) ? {...dbLokal.levels[idxEdit]} : {
-                id: `L_${ts}`, audio_soal: null,
-                item_target: { nama: benarNama, isTarget: true, url_gambar: null },
-                item_pengecoh: []
+            // Jika edit, copy objek lama.
+            let objLevel = (idxEdit > -1) ? JSON.parse(JSON.stringify(dbLokal.levels[idxEdit])) : {
+                id: `L_${ts}`, item_target: { isTarget: true }, item_pengecoh: []
             };
 
             objLevel.kategori = document.getElementById('in-kategori').value;
             objLevel.pertanyaan = tanya;
             objLevel.item_target.nama = benarNama;
 
-            // Proses Target Image
-            const fTarget = document.getElementById('f-benar-img').files[0];
-            if(fTarget) {
-                objLevel.item_target.url_gambar = `assets/tgt_${ts}.${fTarget.name.split('.').pop()}`;
-                antreanFile.push({ path: `public/${objLevel.item_target.url_gambar}`, file: fTarget });
-            }
+            // 1. Proses Kustomisasi Media Per-Level
+            const fBgLevel = document.getElementById('f-lvl-bg').files[0];
+            if(fBgLevel) { objLevel.bg_image = `assets/bg_lvl_${ts}.${fBgLevel.name.split('.').pop()}`; antreanFile.push({path: `public/${objLevel.bg_image}`, file: fBgLevel}); }
+            
+            const fAudioSoal = document.getElementById('f-lvl-soal').files[0];
+            if(fAudioSoal) { objLevel.audio_soal = `assets/a_soal_${ts}.mp3`; antreanFile.push({path: `public/${objLevel.audio_soal}`, file: fAudioSoal}); }
+            
+            const fSfxBenar = document.getElementById('f-lvl-benar').files[0];
+            if(fSfxBenar) { objLevel.sfx_benar = `assets/a_bnr_${ts}.mp3`; antreanFile.push({path: `public/${objLevel.sfx_benar}`, file: fSfxBenar}); }
+            
+            const fSfxSalah = document.getElementById('f-lvl-salah').files[0];
+            if(fSfxSalah) { objLevel.sfx_salah = `assets/a_slh_${ts}.mp3`; antreanFile.push({path: `public/${objLevel.sfx_salah}`, file: fSfxSalah}); }
 
-            // Proses Pengecoh
+            // 2. Proses Target & Pengecoh (Sama seperti sebelumnya)
+            const fTarget = document.getElementById('f-benar-img').files[0];
+            if(fTarget) { objLevel.item_target.url_gambar = `assets/tgt_${ts}.${fTarget.name.split('.').pop()}`; antreanFile.push({ path: `public/${objLevel.item_target.url_gambar}`, file: fTarget }); }
+
             const textPengecoh = document.getElementById('in-salah-nama').value.split(',').map(s => s.trim()).filter(s => s);
             const filePengecoh = document.getElementById('f-salah-img').files;
 
-            // Jika ada input baru di form Pengecoh, kita timpa array lamanya
             if (textPengecoh.length > 0 || filePengecoh.length > 0) {
-                objLevel.item_pengecoh = []; // Reset pengecoh lama
+                objLevel.item_pengecoh = []; 
                 let maxLen = Math.max(textPengecoh.length, filePengecoh.length);
                 for(let i=0; i<maxLen; i++) {
                     let pgc = { nama: textPengecoh[i] || "Pilihan", isTarget: false, url_gambar: null };
@@ -292,50 +317,30 @@
                 }
             }
 
-            // Simpan Perubahan (Edit / Tambah)
-            if (idxEdit > -1) {
-                dbLokal.levels[idxEdit] = objLevel;
-            } else {
-                dbLokal.levels.push(objLevel);
-            }
+            if (idxEdit > -1) dbLokal.levels[idxEdit] = objLevel; 
+            else dbLokal.levels.push(objLevel);
 
             renderDaftarLevel();
             tutupModal('modal-soal');
         }
 
-        // --- ENGINE API GITHUB ---
+        // --- ENGINE UPLOAD GITHUB API ---
         const ubahFileKeBase64 = (file) => new Promise((resolve) => { 
-            const r = new FileReader(); 
-            r.readAsDataURL(file); 
-            r.onload = () => { 
-                let b64 = r.result.replace(/^data:(.*,)?/, ''); 
-                if(b64.length % 4 > 0) b64 += '='.repeat(4 - (b64.length % 4)); 
-                resolve(b64); 
-            }; 
+            const r = new FileReader(); r.readAsDataURL(file); 
+            r.onload = () => { let b64 = r.result.replace(/^data:(.*,)?/, ''); if(b64.length % 4 > 0) b64 += '='.repeat(4 - (b64.length % 4)); resolve(b64); }; 
         });
 
         async function githubPutRequest(token, repo, path, base64Content) {
             const url = `https://api.github.com/repos/${repo}/contents/${path}`;
             let sha = null;
-            try {
-                const getRes = await fetch(url, { headers: { 'Authorization': `token ${token}` } });
-                if(getRes.ok) sha = (await getRes.json()).sha;
-            } catch(e) {} 
-
-            const bodyData = { message: `CMS Update: ${path}`, content: base64Content };
-            if (sha) bodyData.sha = sha;
-
-            const putRes = await fetch(url, {
-                method: 'PUT',
-                headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify(bodyData)
-            });
-            if(!putRes.ok) throw new Error(`API Gagal di path: ${path}`);
+            try { const getRes = await fetch(url, { headers: { 'Authorization': `token ${token}` } }); if(getRes.ok) sha = (await getRes.json()).sha; } catch(e) {} 
+            const bodyData = { message: `CMS Update: ${path}`, content: base64Content }; if (sha) bodyData.sha = sha;
+            const putRes = await fetch(url, { method: 'PUT', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(bodyData) });
+            if(!putRes.ok) throw new Error(`Upload Gagal: ${path}`);
         }
 
         async function publishKeGitHub() {
-            const token = localStorage.getItem('ghToken');
-            const repo = localStorage.getItem('ghRepo');
+            const token = localStorage.getItem('ghToken'); const repo = localStorage.getItem('ghRepo');
             if(!token || !repo) return alert("Silakan hubungkan Token GitHub terlebih dahulu!");
 
             const modLoad = document.getElementById('modal-loading');
@@ -344,22 +349,22 @@
 
             try {
                 for(let i=0; i<antreanFile.length; i++) {
-                    tLoad.innerText = `Menyimpan Gambar ${i+1}/${antreanFile.length}...`;
+                    tLoad.innerText = `Mengunggah file ${i+1} dari ${antreanFile.length}...`;
                     const b64 = await ubahFileKeBase64(antreanFile[i].file);
                     await githubPutRequest(token, repo, antreanFile[i].path, b64);
                 }
 
-                tLoad.innerText = `Mengupdate Database Soal...`;
+                tLoad.innerText = `Menyinkronkan Database...`;
                 const jsonStr = JSON.stringify(dbLokal, null, 2);
                 const jsonB64 = window.btoa(unescape(encodeURIComponent(jsonStr)));
                 await githubPutRequest(token, repo, 'public/data-soal.json', jsonB64);
 
-                tLoad.innerText = `Selesai!`;
-                antreanFile = []; // Reset Antrean
+                tLoad.innerText = `SELESAI!`;
+                antreanFile = []; 
                 
                 setTimeout(() => {
                     modLoad.classList.add('hidden');
-                    alert("Berhasil! Silakan klik tombol Putar (ikon ▶️) di kanan atas untuk bermain.\nCatatan: GitHub butuh waktu sekitar 1 menit untuk menerapkan pembaruan.");
+                    alert("Berhasil! Perubahan sudah disimpan. Tunggu 1 menit lalu coba mainkan gamenya.");
                 }, 1000);
 
             } catch(e) {
