@@ -5,7 +5,7 @@
       "id": "L_1775160409808",
       "kategori": "drag",
       "pertanyaan": "Apa yang kamu suka",
-      "audio_soal": null,
+      "audio_soal": "assets/a_soal_1775163512725.mp3",
       "item_target": {
         "nama": "Ok",
         "isTarget": true,
@@ -15,9 +15,10 @@
         {
           "nama": "No",
           "isTarget": false,
-          "url_gambar": "assets/pgc_1775161855787_0.jpg"
+          "url_gambar": null
         }
-      ]
+      ],
+      "bg_image": "assets/bg_lvl_1775163512725.jpg"
     }
   ]
 }
