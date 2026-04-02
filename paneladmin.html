@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin Panel Mobile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { background-color: #f1f5f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        /* Simulasi Layar HP di Desktop */
+        .app-container { max-width: 480px; margin: 0 auto; background: white; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .tab-aktif { border-bottom: 3px solid #4f46e5; color: #4f46e5; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="app-container flex flex-col">
+        
+        <!-- Header -->
+        <header class="bg-indigo-600 text-white p-4 shadow-md sticky top-0 z-50 flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2"><i data-lucide="gamepad-2"></i> CMS Edukasi</h1>
+            <button onclick="bukaModalPengaturan()" class="p-2 bg-indigo-700 rounded-full"><i data-lucide="settings" class="w-5 h-5"></i></button>
+        </header>
+
+        <!-- Loading Overlay -->
+        <div id="loading" class="hidden absolute inset-0 bg-white/90 z-[100] flex flex-col justify-center items-center">
+            <i data-lucide="loader-2" class="w-10 h-10 text-indigo-600 animate-spin mb-2"></i>
+            <p id="loading-teks" class="text-indigo-800 font-bold text-center px-4">Memproses data dengan GitHub...</p>
+        </div>
+
+        <main class="flex-1 p-4 pb-24 overflow-y-auto bg-slate-50">
+            
+            <!-- Pengaturan Global (Audio & BG Latar) -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6">
+                <h2 class="font-bold text-slate-800 flex items-center gap-2 mb-3"><i data-lucide="globe"></i> Pengaturan Global Game</h2>
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <label class="block font-semibold text-slate-600 text-xs">Gambar Latar Belakang (BG) - JPG/GIF</label>
+                        <input type="file" id="file-bg" accept="image/*" class="w-full text-xs p-1 border rounded">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 text-xs">Audio BGM (Latar) - MP3</label>
+                        <input type="file" id="file-bgm" accept="audio/mp3, audio/mpeg" class="w-full text-xs p-1 border rounded">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-semibold text-slate-600 text-xs">SFX Benar (MP3)</label>
+                            <input type="file" id="file-sfx-benar" accept="audio/*" class="w-full text-xs p-1 border rounded">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 text-xs">SFX Salah (MP3)</label>
+                            <input type="file" id="file-sfx-salah" accept="audio/*" class="w-full text-xs p-1 border rounded">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daftar Soal -->
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="font-bold text-slate-800 text-lg">Daftar Soal / Level</h2>
+                <button onclick="bukaModalSoal()" class="bg-indigo-100 text-indigo-700 text-sm font-bold px-3 py-1 rounded-lg flex items-center gap-1">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Tambah
+                </button>
+            </div>
+
+            <!-- List Soal yang di-fetch dari JSON -->
+            <div id="daftar-soal" class="space-y-3">
+                <p class="text-center text-slate-400 text-sm py-10">Memuat data dari GitHub...</p>
+            </div>
+        </main>
+
+        <!-- Tombol Publish Mengambang -->
+        <div class="absolute bottom-0 left-0 w-full p-4 bg-white border-t border-slate-200 z-40">
+            <button onclick="simpanKeGitHub()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg flex justify-center items-center gap-2 transition-transform active:scale-95">
+                <i data-lucide="cloud-upload"></i> UPDATE KE GITHUB & VERCEL
+            </button>
+        </div>
+
+        <!-- ================= MODAL TAMBAH/EDIT SOAL ================= -->
+        <div id="modal-soal" class="hidden absolute inset-0 z-50 bg-slate-50 flex flex-col h-full">
+            <header class="bg-white p-4 shadow-sm flex justify-between items-center">
+                <h2 id="judul-modal-soal" class="font-bold text-lg">Tambah Soal</h2>
+                <button onclick="tutupModalSoal()" class="text-slate-500"><i data-lucide="x"></i></button>
+            </header>
+            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                <input type="hidden" id="edit-id" value="">
+                
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Kategori Game</label>
+                    <select id="in-kategori" class="w-full p-3 bg-white border border-slate-300 rounded-xl font-bold text-indigo-700">
+                        <option value="drag">🕹️ Tarik & Cocokkan (Drag)</option>
+                        <option value="kuis">📝 Tebak Kata / Kuis</option>
+                        <option value="bubble" disabled>🎈 Bubble Shoot (Segera)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Pertanyaan Teks</label>
+                    <textarea id="in-pertanyaan" class="w-full p-3 border border-slate-300 rounded-xl" rows="2" placeholder="Cth: Tarik gambar Singa!"></textarea>
+                </div>
+
+                <div class="bg-blue-50 p-3 rounded-xl border border-blue-100">
+                    <label class="block text-sm font-bold text-blue-800 mb-1"><i data-lucide="mic" class="inline w-4 h-4"></i> Audio Soal (Dibacakan)</label>
+                    <p class="text-xs text-blue-600 mb-2">Akan di-looping lalu berhenti setelah 10 detik</p>
+                    <input type="file" id="file-audio-soal" accept="audio/mp3" class="w-full text-xs p-2 bg-white rounded">
+                </div>
+
+                <!-- Area Target (Jawaban Benar) -->
+                <div class="border-2 border-green-200 bg-green-50 p-4 rounded-xl">
+                    <label class="block text-sm font-bold text-green-700 mb-2">Jawaban Benar</label>
+                    <input type="text" id="in-target-nama" placeholder="Teks Jawaban" class="w-full p-2 mb-2 border rounded">
+                    <label class="block text-xs font-semibold text-slate-600">Gambar/GIF Jawaban Benar:</label>
+                    <input type="file" id="file-target-img" accept="image/*" class="w-full text-xs p-1">
+                </div>
+
+                <!-- Area Pengecoh (Salah) -->
+                <div class="border-2 border-red-200 bg-red-50 p-4 rounded-xl">
+                    <label class="block text-sm font-bold text-red-700 mb-2">Jawaban Pengecoh / Salah</label>
+                    <p class="text-xs text-slate-500 mb-2">Untuk kuis pisahkan dengan koma. Untuk Drag pilih banyak gambar.</p>
+                    <input type="text" id="in-pengecoh-nama" placeholder="Teks Pengecoh (Cth: Kucing, Sapi)" class="w-full p-2 mb-2 border rounded">
+                    <label class="block text-xs font-semibold text-slate-600">Gambar Pengecoh (Bisa pilih > 1):</label>
+                    <input type="file" id="file-pengecoh-img" accept="image/*" multiple class="w-full text-xs p-1">
+                </div>
+
+                <button onclick="simpanKeAntrean()" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl mt-4">Simpan Perubahan ke Daftar</button>
+            </div>
+        </div>
+
+        <!-- ================= MODAL KONEKSI GITHUB ================= -->
+        <div id="modal-pengaturan" class="hidden absolute inset-0 z-50 bg-black/50 flex justify-center items-center p-4">
+            <div class="bg-white rounded-2xl w-full p-6">
+                <h2 class="font-bold text-lg mb-4">Koneksi GitHub</h2>
+                <input type="password" id="gh-token" placeholder="GitHub Token (ghp_...)" class="w-full p-2 border rounded mb-3">
+                <input type="text" id="gh-repo" placeholder="username/repo" class="w-full p-2 border rounded mb-3">
+                <button onclick="simpanConfig(); tutupModalPengaturan()" class="w-full bg-slate-800 text-white py-2 rounded font-bold">Tutup & Terapkan</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Data Inti Aplikasi
+        let dbJSON = {
+            global_settings: { bg_image: "", bgm_url: "", sfx_benar: "", sfx_salah: "" },
+            levels: []
+        };
+        let antreanUploadFile = []; // Menyimpan file untuk dikirim ke github
+
+        // Konfigurasi GitHub Sementara (Gunakan localStorage agar tidak perlu ketik terus)
+        document.getElementById('gh-token').value = localStorage.getItem('ghToken') || '';
+        document.getElementById('gh-repo').value = localStorage.getItem('ghRepo') || '';
+
+        function simpanConfig() {
+            localStorage.setItem('ghToken', document.getElementById('gh-token').value);
+            localStorage.setItem('ghRepo', document.getElementById('gh-repo').value);
+            fetchDataDariGitHub();
+        }
+
+        // ==========================================
+        // FUNGSI GITHUB & PEMROSESAN DATA
+        // ==========================================
+        const fileToBase64 = (file) => new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                let encoded = reader.result.toString().replace(/^data:(.*,)?/, '');
+                if ((encoded.length % 4) > 0) encoded += '='.repeat(4 - (encoded.length % 4));
+                resolve(encoded);
+            };
+        });
+
+        async function fetchDataDariGitHub() {
+            const token = localStorage.getItem('ghToken');
+            const repo = localStorage.getItem('ghRepo');
+            if(!token || !repo) return document.getElementById('daftar-soal').innerHTML = '<p class="text-center text-red-500 text-sm">Harap isi pengaturan GitHub dulu.</p>';
+
+            try {
+                const res = await fetch(`https://api.github.com/repos/${repo}/contents/public/data-soal.json`, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+                if(res.ok) {
+                    const data = await res.json();
+                    dbJSON = JSON.parse(decodeURIComponent(escape(window.atob(data.content))));
+                    renderDaftarSoal();
+                } else {
+                    document.getElementById('daftar-soal').innerHTML = '<p class="text-center text-slate-500 text-sm">JSON belum ada. Silakan buat soal baru.</p>';
+                }
+            } catch(e) { console.error("Gagal fetch"); }
+        }
+
+        // ==========================================
+        // FUNGSI CRUD (TAMPIL, TAMBAH, EDIT, HAPUS)
+        // ==========================================
+        function renderDaftarSoal() {
+            const wadah = document.getElementById('daftar-soal');
+            wadah.innerHTML = '';
+            
+            if(dbJSON.levels.length === 0) {
+                wadah.innerHTML = '<p class="text-center text-slate-400 text-sm">Belum ada soal.</p>';
+                return;
+            }
+
+            dbJSON.levels.forEach((soal, index) => {
+                wadah.innerHTML += `
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
+                    <div>
+                        <span class="text-xs font-bold text-indigo-500 uppercase">${soal.kategori} - Lvl ${index + 1}</span>
+                        <h3 class="font-bold text-slate-800 text-sm mt-1 truncate w-48">${soal.pertanyaan}</h3>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="editSoal('${soal.id}')" class="p-2 bg-yellow-100 text-yellow-700 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                        <button onclick="hapusSoal('${soal.id}')" class="p-2 bg-red-100 text-red-700 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+                </div>`;
+            });
+            lucide.createIcons();
+        }
+
+        function hapusSoal(id) {
+            if(confirm("Yakin hapus soal ini?")) {
+                dbJSON.levels = dbJSON.levels.filter(s => s.id !== id);
+                renderDaftarSoal();
+            }
+        }
+
+        // Memasukkan input form ke Data State Lokal sebelum di-upload
+        async function simpanKeAntrean() {
+            const idEdit = document.getElementById('edit-id').value;
+            const kategori = document.getElementById('in-kategori').value;
+            const pertanyaan = document.getElementById('in-pertanyaan').value;
+            const targetNama = document.getElementById('in-target-nama').value;
+            const pengecohNama = document.getElementById('in-pengecoh-nama').value;
+            
+            const ts = Date.now();
+            const idSoal = idEdit || `lvl_${ts}`;
+
+            // Handle File Uploads (Menyimpan referensi file untuk di-push nanti)
+            let objSoal = {
+                id: idSoal,
+                kategori: kategori,
+                pertanyaan: pertanyaan,
+                audio_soal: null,
+                item_target: { nama: targetNama, isTarget: true, url_gambar: null },
+                item_pengecoh: []
+            };
+
+            // Mengambil file audio
+            const fileAudioSoal = document.getElementById('file-audio-soal').files[0];
+            if(fileAudioSoal) {
+                const path = `assets/audio_${ts}.mp3`;
+                antreanUploadFile.push({ path: `public/${path}`, file: fileAudioSoal });
+                objSoal.audio_soal = path;
+            }
+
+            // Mengambil file gambar target
+            const fileTargetImg = document.getElementById('file-target-img').files[0];
+            if(fileTargetImg) {
+                const ext = fileTargetImg.name.split('.').pop();
+                const path = `assets/tgt_${ts}.${ext}`;
+                antreanUploadFile.push({ path: `public/${path}`, file: fileTargetImg });
+                objSoal.item_target.url_gambar = path;
+            }
+
+            // Mengambil pengecoh (teks dan gambar)
+            let arrPengecohNama = pengecohNama.split(',').map(s => s.trim()).filter(s => s);
+            const filesPengecohImg = document.getElementById('file-pengecoh-img').files;
+            
+            if (filesPengecohImg.length > 0) {
+                Array.from(filesPengecohImg).forEach((file, i) => {
+                    const ext = file.name.split('.').pop();
+                    const path = `assets/pgc_${ts}_${i}.${ext}`;
+                    antreanUploadFile.push({ path: `public/${path}`, file: file });
+                    objSoal.item_pengecoh.push({ nama: arrPengecohNama[i] || "Pengecoh", isTarget: false, url_gambar: path });
+                });
+            } else if (arrPengecohNama.length > 0) {
+                arrPengecohNama.forEach(nama => {
+                    objSoal.item_pengecoh.push({ nama: nama, isTarget: false, url_gambar: null });
+                });
+            }
+
+            // Simpan ke State
+            if (idEdit) {
+                const index = dbJSON.levels.findIndex(s => s.id === idEdit);
+                // Jika mengedit, pertahankan file lama jika form file kosong
+                if(!objSoal.audio_soal) objSoal.audio_soal = dbJSON.levels[index].audio_soal;
+                if(!objSoal.item_target.url_gambar) objSoal.item_target.url_gambar = dbJSON.levels[index].item_target.url_gambar;
+                if(objSoal.item_pengecoh.length === 0) objSoal.item_pengecoh = dbJSON.levels[index].item_pengecoh;
+                
+                dbJSON.levels[index] = objSoal;
+            } else {
+                dbJSON.levels.push(objSoal);
+            }
+
+            renderDaftarSoal();
+            tutupModalSoal();
+        }
+
+        // ==========================================
+        // PROSES UPLOAD MASSAL KE GITHUB API
+        // ==========================================
+        async function uploadFileKeGitHub(token, repo, path, base64Content) {
+            const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
+            let sha = null;
+            try {
+                const getRes = await fetch(apiUrl, { headers: { 'Authorization': `token ${token}` } });
+                if(getRes.ok) sha = (await getRes.json()).sha;
+            } catch(e) {}
+
+            const bodyData = { message: `CMS Auto-Update: ${path}`, content: base64Content };
+            if (sha) bodyData.sha = sha;
+
+            const putRes = await fetch(apiUrl, {
+                method: 'PUT',
+                headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(bodyData)
+            });
+            if(!putRes.ok) throw new Error("Gagal upload file");
+        }
+
+        async function simpanKeGitHub() {
+            const token = localStorage.getItem('ghToken');
+            const repo = localStorage.getItem('ghRepo');
+            if(!token || !repo) return alert("Cek koneksi GitHub!");
+
+            const overlay = document.getElementById('loading');
+            const teks = document.getElementById('loading-teks');
+            overlay.classList.remove('hidden');
+
+            try {
+                // 1. Cek & Proses File Global (BG, BGM, SFX)
+                const fileBg = document.getElementById('file-bg').files[0];
+                if(fileBg) { const path = `assets/bg_game.${fileBg.name.split('.').pop()}`; antreanUploadFile.push({ path: `public/${path}`, file: fileBg }); dbJSON.global_settings.bg_image = path; }
+                
+                const fileBgm = document.getElementById('file-bgm').files[0];
+                if(fileBgm) { antreanUploadFile.push({ path: `public/assets/bgm.mp3`, file: fileBgm }); dbJSON.global_settings.bgm_url = "assets/bgm.mp3"; }
+                
+                const fileSfxBenar = document.getElementById('file-sfx-benar').files[0];
+                if(fileSfxBenar) { antreanUploadFile.push({ path: `public/assets/benar.mp3`, file: fileSfxBenar }); dbJSON.global_settings.sfx_benar = "assets/benar.mp3"; }
+
+                const fileSfxSalah = document.getElementById('file-sfx-salah').files[0];
+                if(fileSfxSalah) { antreanUploadFile.push({ path: `public/assets/salah.mp3`, file: fileSfxSalah }); dbJSON.global_settings.sfx_salah = "assets/salah.mp3"; }
+
+                // 2. Upload Semua File Fisik
+                for(let i=0; i < antreanUploadFile.length; i++) {
+                    teks.innerText = `Mengunggah media ${i+1} dari ${antreanUploadFile.length}...`;
+                    const b64 = await fileToBase64(antreanUploadFile[i].file);
+                    await uploadFileKeGitHub(token, repo, antreanUploadFile[i].path, b64);
+                }
+
+                // 3. Upload JSON Akhir
+                teks.innerText = "Menyimpan konfigurasi Level...";
+                const jsonBase64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(dbJSON, null, 2))));
+                await uploadFileKeGitHub(token, repo, 'public/data-soal.json', jsonBase64);
+
+                teks.innerText = "Selesai! Vercel sedang memproses.";
+                antreanUploadFile = []; // Bersihkan antrean
+                setTimeout(() => overlay.classList.add('hidden'), 2000);
+
+            } catch(e) {
+                alert("Error: " + e.message);
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // Navigasi Modal
+        const elModalSoal = document.getElementById('modal-soal');
+        const elModalPengaturan = document.getElementById('modal-pengaturan');
+        function bukaModalSoal() { 
+            document.getElementById('edit-id').value = ''; 
+            document.getElementById('judul-modal-soal').innerText = "Tambah Soal Baru";
+            elModalSoal.classList.remove('hidden'); 
+        }
+        function tutupModalSoal() { elModalSoal.classList.add('hidden'); }
+        function bukaModalPengaturan() { elModalPengaturan.classList.remove('hidden'); }
+        function tutupModalPengaturan() { elModalPengaturan.classList.add('hidden'); }
+        function editSoal(id) {
+            const soal = dbJSON.levels.find(s => s.id === id);
+            document.getElementById('edit-id').value = soal.id;
+            document.getElementById('in-kategori').value = soal.kategori;
+            document.getElementById('in-pertanyaan').value = soal.pertanyaan;
+            document.getElementById('in-target-nama').value = soal.item_target.nama;
+            document.getElementById('in-pengecoh-nama').value = soal.item_pengecoh.map(p=>p.nama).join(', ');
+            document.getElementById('judul-modal-soal').innerText = "Edit Soal (Isi file jika ingin ganti media)";
+            elModalSoal.classList.remove('hidden');
+        }
+
+        // Inisiasi awal jika ada token
+        if(localStorage.getItem('ghToken')) fetchDataDariGitHub();
+    </script>
+</body>
+</html>
