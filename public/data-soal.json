@@ -1,1 +1,45 @@
-{}
+{
+  "global_settings": {},
+  "levels": [
+    {
+      "id": "L_1775167910432",
+      "item_target": {
+        "isTarget": true,
+        "nama": "Kk",
+        "url_gambar": "assets/tgt_1775167910432.png"
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Tt",
+          "isTarget": false,
+          "url_gambar": "assets/pgc_1775167910432_0.jpg"
+        }
+      ],
+      "kategori": "drag",
+      "pertanyaan": "Mari",
+      "bg_image": "assets/bg_lvl_1775167910432.jpg",
+      "audio_soal": "assets/a_soal_1775167910432.mp3",
+      "sfx_benar": "assets/a_bnr_1775167910432.mp3"
+    },
+    {
+      "id": "L_1775167987329",
+      "item_target": {
+        "isTarget": true,
+        "nama": "Vv",
+        "url_gambar": "assets/tgt_1775167987329.jpg"
+      },
+      "item_pengecoh": [
+        {
+          "nama": "F",
+          "isTarget": false,
+          "url_gambar": "assets/pgc_1775167987329_0.jpg"
+        }
+      ],
+      "kategori": "kuis",
+      "pertanyaan": "Yy",
+      "bg_image": "assets/bg_lvl_1775167987329.jpg",
+      "audio_soal": "assets/a_soal_1775167987329.mp3",
+      "sfx_salah": "assets/a_slh_1775167987329.mp3"
+    }
+  ]
+}
