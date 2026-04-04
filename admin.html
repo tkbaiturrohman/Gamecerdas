@@ -3,131 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Game Pintar Premium</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <title>CMS Admin Pintar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body { font-family: 'Nunito', sans-serif; margin: 0; background: #f8fafc; touch-action: none; overflow: hidden; -webkit-tap-highlight-color: transparent; }
-        #view-game { background-size: cover; background-position: center; transition: background-image 0.5s ease-in-out; }
+        body { font-family: 'Nunito', sans-serif; background: #f8fafc; }
+        .app-container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 25px rgba(0,0,0,0.05); position: relative; }
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
-        .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,1); box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,1); box-shadow: 0 8px 25px -5px rgba(0,0,0,0.05); }
-        
-        .btn-pilihan { transition: transform 0.2s; } .btn-pilihan:active { transform: scale(0.92); border-color: #3b82f6; }
-        
-        /* MESIN DRAG MURNI (ANTI MACET) */
-        .kartu-drag { touch-action: none; user-select: none; position: relative; z-index: 10; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s; will-change: transform; cursor: grab; }
-        .kartu-drag:active { cursor: grabbing; }
-        .is-dragging { opacity: 0.95; z-index: 99999 !important; transition: none !important; box-shadow: 0 25px 50px rgba(0,0,0,0.35); transform: scale(1.15) !important; }
-        
-        /* KOTAK TARGET */
-        .zona-drop { transition: all 0.2s; border: 2px dashed #38bdf8; background: rgba(240, 249, 255, 0.7); }
-        .drop-hover { border-color: #0ea5e9 !important; background-color: #e0f2fe !important; box-shadow: inset 0 0 0 4px #bae6fd; transform: scale(1.05); }
-        .terkunci { pointer-events: none !important; opacity: 1 !important; transform: translate3d(0,0,0) scale(1) !important; box-shadow: none !important; transition: none !important; }
-
-        /* KARTU MEMORI */
-        .mem-card { perspective: 1000px; cursor: pointer; }
-        .mem-inner { position: relative; width: 100%; height: 100%; transition: transform 0.5s; transform-style: preserve-3d; }
-        .mem-card.flipped .mem-inner { transform: rotateY(180deg); }
-        .mem-front, .mem-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .mem-front { background: #38bdf8; display: flex; align-items: center; justify-content: center; border: 4px solid #fff; }
-        .mem-back { background: #fff; transform: rotateY(180deg); border: 4px solid #fff; overflow: hidden; }
-
-        /* BUBBLE & MELAYANG */
-        .objek-terbang { position: absolute; cursor: pointer; user-select: none; transition: transform 0.1s; will-change: transform; }
-        .objek-terbang:active { transform: scale(0.9); }
-
-        /* SILUET */
-        .bayangan-hitam { filter: brightness(0) drop-shadow(0 4px 4px rgba(0,0,0,0.3)); opacity: 0.7; }
-
-        /* PUKUL TIKUS */
-        .lubang-pukul { overflow: hidden; position: relative; background: #e2e8f0; border-radius: 50%; border-bottom: 8px solid #94a3b8; }
-        .benda-pukul { position: absolute; bottom: -100%; left: 10%; right: 10%; height: 90%; transition: bottom 0.2s ease-out; cursor: pointer; }
-        .benda-pukul.muncul { bottom: 0; }
-
         /* TOAST NOTIF */
-        .toast-enter { animation: slideInDown 0.3s forwards; } .toast-leave { animation: slideOutUp 0.3s forwards; }
+        .toast-enter { animation: slideInDown 0.3s forwards; }
+        .toast-leave { animation: slideOutUp 0.3s forwards; }
         @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         @keyframes slideOutUp { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, -100%); opacity: 0; } }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .anim-fade { animation: fadeIn 0.4s ease-out forwards; }
-        @keyframes pulseSoft { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        .anim-pulse-soft { animation: pulseSoft 2s infinite ease-in-out; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
-        .anim-shake { animation: shake 0.4s ease-in-out; }
     </style>
 </head>
 <body>
 
+    <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
-    <div id="view-game" class="h-[100dvh] w-screen flex flex-col relative overflow-hidden bg-slate-50">
-        
-        <div id="layar-mulai" class="absolute inset-0 z-[100] bg-gradient-to-br from-sky-400 to-indigo-500 flex flex-col items-center justify-center p-6 text-center transition-all duration-500">
-            <div class="bg-white/20 p-6 rounded-3xl backdrop-blur-sm mb-6 anim-pulse-soft shadow-xl border border-white/30">
-                <i data-lucide="gamepad-2" class="w-16 h-16 text-white"></i>
-            </div>
-            <h1 class="text-4xl md:text-5xl font-black text-white mb-2 tracking-tight">Belajar Cerdas</h1>
-            
-            <div id="loading-bar-container" class="w-full max-w-xs bg-white/30 rounded-full h-4 mb-6 mt-4 overflow-hidden relative">
-                <div id="loading-bar-fill" class="bg-yellow-400 h-full w-0 transition-all duration-100 ease-linear"></div>
-                <div id="loading-text" class="absolute inset-0 flex items-center justify-center text-[10px] font-black text-indigo-900">0%</div>
-            </div>
-            
-            <button id="btn-mulai" onclick="Game.mulai()" class="hidden bg-white text-indigo-600 hover:bg-slate-50 font-black text-2xl py-4 px-12 rounded-full shadow-[0_6px_0_0_rgba(255,255,255,0.3)] active:translate-y-1 active:shadow-[0_0px_0_0_rgba(255,255,255,0)] transition-all w-full max-w-[250px]">
-                MULAI MAIN
-            </button>
-        </div>
-
-        <div id="layar-pilih-level" class="hidden absolute inset-0 z-[90] bg-slate-50/95 backdrop-blur flex flex-col items-center justify-start overflow-y-auto pb-10">
-            <div class="w-full bg-white px-6 pt-10 pb-4 shadow-sm sticky top-0 z-10 flex items-center justify-between">
-                <h2 class="text-xl font-black text-slate-800 flex items-center gap-2">Peta Level</h2>
-                <div class="flex gap-2">
-                    <button onclick="Game.tarikDataBaru()" class="bg-emerald-100 text-emerald-600 p-2 rounded-xl active:scale-90 shadow-sm flex items-center gap-1" title="Tarik Data Terbaru"><i data-lucide="refresh-cw" id="ikon-sync" class="w-4 h-4"></i> <span class="text-xs font-bold">Update</span></button>
-                    <button onclick="Game.tutupPilihLevel()" id="btn-tutup-level" class="hidden p-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
-                </div>
-            </div>
-            <div id="sync-progress" class="hidden w-full bg-slate-200 h-1"><div id="sync-bar" class="bg-emerald-500 h-full w-0 transition-all duration-100"></div></div>
-            <div class="w-full max-w-lg p-6">
-                <div id="grid-level" class="grid grid-cols-4 sm:grid-cols-5 gap-3 sm:gap-4 content-start"></div>
+    <!-- Custom Confirm Modal -->
+    <div id="modal-confirm" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2rem] p-6 max-w-sm w-full text-center shadow-2xl relative overflow-hidden">
+            <div class="mx-auto flex justify-center mb-3"><div class="bg-rose-100 p-3 rounded-full"><i data-lucide="alert-triangle" class="w-8 h-8 text-rose-500"></i></div></div>
+            <h2 class="text-xl font-black mb-2 text-slate-800">Konfirmasi</h2>
+            <p id="confirm-text" class="text-slate-500 font-bold mb-6 text-sm">Apakah kamu yakin?</p>
+            <div class="flex gap-2">
+                <button id="btn-confirm-no" class="flex-1 bg-slate-100 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-200">Batal</button>
+                <button id="btn-confirm-yes" class="flex-1 bg-rose-500 text-white font-bold py-3 rounded-xl shadow-sm hover:bg-rose-600">Ya</button>
             </div>
         </div>
+    </div>
 
-        <header class="absolute top-3 left-3 right-3 z-20 flex justify-between items-center glass-nav rounded-full px-2 py-2">
-            <div class="flex items-center gap-2">
-                <button onclick="Game.bukaPilihLevel()" class="w-10 h-10 flex items-center justify-center bg-slate-100/50 text-slate-700 rounded-full active:scale-90 transition"><i data-lucide="map" class="w-5 h-5"></i></button>
-                <div class="flex gap-0.5 px-2" id="ui-nyawa"></div>
-            </div>
-            <div class="font-black text-lg text-slate-800 absolute left-1/2 -translate-x-1/2">LVL <span id="ui-level" class="text-sky-500">1</span></div>
-            <div class="flex items-center gap-2">
-                <div class="flex items-center gap-1 bg-amber-100/70 px-3 py-1.5 rounded-full text-amber-600 font-black text-xs md:text-sm"><i data-lucide="star" class="w-3.5 h-3.5 fill-amber-500"></i><span id="ui-skor">0</span></div>
-                <button onclick="AudioMgr.toggleMute()" id="btn-mute" class="w-10 h-10 flex items-center justify-center bg-slate-100/50 text-slate-700 rounded-full active:scale-90 transition"><i data-lucide="volume-2" id="ikon-suara" class="w-5 h-5"></i></button>
+    <div class="app-container flex flex-col pb-28">
+        <header class="bg-indigo-700 text-white p-4 shadow-lg sticky top-0 z-50 flex justify-between items-center">
+            <h1 class="text-xl font-black flex items-center gap-2"><i data-lucide="server"></i> Admin Data Game</h1>
+            <div class="flex gap-2">
+                <button onclick="window.location.href='index.html'" class="bg-indigo-800 p-2 rounded-xl hover:bg-indigo-900 transition" title="Main Game"><i data-lucide="play" class="w-5 h-5"></i></button>
+                <button onclick="bukaModal('modal-config')" class="bg-amber-400 text-amber-950 p-2 rounded-xl hover:bg-amber-300 font-bold flex items-center gap-1 transition"><i data-lucide="settings" class="w-5 h-5"></i> Repo</button>
             </div>
         </header>
 
-        <main class="flex-1 overflow-visible flex flex-col items-center justify-start px-4 pt-20 pb-6 w-full max-w-2xl mx-auto z-10 relative">
-            <div class="glass-card rounded-[1.5rem] p-4 w-full flex flex-col items-center mb-2 anim-fade flex-shrink-0 z-20 pointer-events-auto">
-                <div class="w-full flex items-center justify-between gap-3">
-                    <button onclick="AudioMgr.putarUlangSoal()" id="btn-suara-soal" class="hidden flex-shrink-0 w-12 h-12 flex items-center justify-center bg-sky-100 text-sky-600 rounded-full active:scale-90 transition-transform shadow-sm"><i data-lucide="volume-2" id="ikon-baca-soal" class="w-6 h-6"></i></button>
-                    <h2 id="teks-pertanyaan" class="text-base md:text-lg font-bold text-slate-800 leading-snug flex-1 text-center">Memuat...</h2>
+        <main class="flex-1 p-5 space-y-4">
+            <div id="admin-status" class="bg-yellow-50 border-2 border-yellow-200 text-yellow-800 p-4 rounded-2xl text-sm font-bold flex items-center justify-between shadow-sm transition-colors duration-300">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="alert-circle" class="w-6 h-6 flex-shrink-0" id="icon-status"></i> 
+                    <span id="text-status">Klik tombol kuning "Repo".</span>
                 </div>
-                <div id="media-soal" class="w-full max-h-24 mt-2 rounded-xl overflow-hidden hidden flex justify-center bg-slate-100">
-                    <img id="img-soal" src="" class="h-full object-contain">
-                </div>
+                <button onclick="tarikDataGitHub(true)" class="bg-white/50 p-2 rounded-lg hover:bg-white transition" title="Tarik Paksa Data Github"><i data-lucide="refresh-cw" id="icon-sync" class="w-4 h-4"></i></button>
             </div>
-            
-            <div id="arena-bermain" class="w-full flex-1 flex flex-col items-center justify-center min-h-0 relative"></div>
+
+            <!-- FITUR IMPORT EXPORT -->
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="document.getElementById('file-import').click()" class="bg-white border-2 border-slate-200 hover:border-indigo-400 text-slate-700 p-3 rounded-xl font-bold flex items-center justify-center gap-2 text-sm transition shadow-sm">
+                    <i data-lucide="download" class="w-4 h-4"></i> Import JSON
+                </button>
+                <input type="file" id="file-import" accept=".json" class="hidden" onchange="importJSON(event)">
+                
+                <button onclick="exportJSON()" class="bg-white border-2 border-slate-200 hover:border-indigo-400 text-slate-700 p-3 rounded-xl font-bold flex items-center justify-center gap-2 text-sm transition shadow-sm">
+                    <i data-lucide="upload" class="w-4 h-4"></i> Export Backup
+                </button>
+            </div>
+
+            <button onclick="ProceduralGenerator.buat5Soal()" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-black p-4 rounded-2xl flex justify-center items-center gap-2 transition-all shadow-md active:scale-95">
+                <i data-lucide="wand-2" class="w-6 h-6"></i> BIKIN 5 SOAL OTOMATIS
+            </button>
+
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 mt-4">
+                <div class="flex justify-between items-center mb-4 pb-3 border-b-2 border-slate-100">
+                    <h2 class="font-black text-xl text-slate-800">Daftar Level (<span id="total-level">0</span>)</h2>
+                    <button onclick="bukaFormTambah()" class="bg-indigo-100 text-indigo-700 font-black px-4 py-2 rounded-xl text-sm flex gap-1 items-center hover:bg-indigo-200 transition"><i data-lucide="plus" class="w-5 h-5"></i> TAMBAH</button>
+                </div>
+                <div id="daftar-soal-admin" class="space-y-3"></div>
+            </div>
         </main>
 
-        <div id="layar-pesan" class="hidden absolute inset-0 z-[80] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
-            <div class="bg-white rounded-[2rem] p-8 max-w-xs w-full text-center shadow-2xl anim-fade relative overflow-hidden">
-                <div id="pesan-ikon" class="mx-auto flex justify-center mb-4"></div>
-                <h1 id="pesan-judul" class="text-3xl font-black mb-1 text-slate-800">...</h1>
-                <p id="pesan-sub" class="text-slate-500 font-bold mb-8 text-sm">...</p>
-                <div id="wadah-tombol-pesan" class="space-y-3"></div>
+        <div class="fixed bottom-0 w-full max-w-[600px] p-5 bg-white/90 backdrop-blur border-t-2 z-40 flex gap-2">
+            <button onclick="publishKeGitHub()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xl py-4 rounded-2xl shadow-[0_8px_0_0_#059669] active:translate-y-2 active:shadow-none flex justify-center items-center gap-2 transition-all">
+                <i data-lucide="upload-cloud"></i> SIMPAN & PUBLISH
+            </button>
+        </div>
+
+        <div id="modal-loading" class="hidden fixed inset-0 z-[100] bg-indigo-900/95 backdrop-blur flex flex-col justify-center items-center p-6 text-center transition-all">
+            <i data-lucide="loader" class="w-16 h-16 text-white animate-spin mb-4"></i>
+            <div class="w-full max-w-xs bg-indigo-800 rounded-full h-2 mb-2 overflow-hidden">
+                <div id="publish-bar" class="bg-sky-400 h-full w-0 transition-all duration-300"></div>
+            </div>
+            <p id="loading-teks" class="text-indigo-200 font-bold text-sm">Memproses...</p>
+        </div>
+
+        <!-- Modal Config Repo -->
+        <div id="modal-config" class="hidden fixed inset-0 z-[60] bg-slate-900/70 backdrop-blur-sm flex justify-center items-center p-4">
+            <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl relative">
+                <h2 class="font-black text-xl mb-4 flex items-center gap-2 text-indigo-800"><i data-lucide="github"></i> Setup GitHub</h2>
+                <input type="password" id="gh-token" placeholder="Token (ghp_xxxx...)" class="w-full p-3 border-2 border-slate-200 rounded-xl mb-3 bg-slate-50 font-mono text-sm focus:border-indigo-400 outline-none">
+                <input type="text" id="gh-repo" placeholder="username/repo" class="w-full p-3 border-2 border-slate-200 rounded-xl mb-6 bg-slate-50 font-mono text-sm focus:border-indigo-400 outline-none">
+                
+                <div class="bg-indigo-50 p-4 rounded-2xl mb-6 border border-indigo-100">
+                    <h3 class="font-black text-sm text-indigo-800 mb-2">BGM Global (Lagu Bawaan)</h3>
+                    <div class="flex gap-2 mb-2">
+                        <input type="text" id="path-bgm-global" class="w-full text-xs p-2 border border-indigo-200 rounded bg-white text-indigo-700 font-bold" placeholder="Pilih dari Galeri ->" readonly>
+                        <button onclick="Galeri.bukaUtama('path-bgm-global', 'audio')" class="bg-indigo-200 text-indigo-800 p-2 rounded"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
+                    </div>
+                    <label class="text-[10px] font-bold text-slate-500">Atau upload baru:</label>
+                    <input type="file" id="f-bgm" accept="audio/*" class="w-full text-xs bg-white p-2 rounded-lg border border-indigo-200">
+                </div>
+
+                <button onclick="simpanConfigLokal()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-black text-lg shadow-md hover:bg-indigo-700 active:scale-95 transition">Hubungkan</button>
+                <button onclick="tutupModal('modal-config')" class="w-full text-slate-400 font-bold py-3 mt-2 hover:text-slate-600">Batal</button>
+            </div>
+        </div>
+
+        <!-- MODAL GALERI -->
+        <div id="modal-galeri" class="hidden fixed inset-0 z-[80] bg-slate-100 flex flex-col max-w-[600px] mx-auto overflow-hidden">
+            <header class="bg-indigo-800 p-4 flex justify-between items-center shadow-md">
+                <h2 class="font-black text-lg text-white flex items-center gap-2"><i data-lucide="library"></i> Galeri Aset GitHub</h2>
+                <button onclick="Galeri.tutup()" class="bg-indigo-900 p-2 rounded-full text-white hover:bg-indigo-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </header>
+            <div id="galeri-loading" class="p-8 text-center hidden">
+                <i data-lucide="loader" class="w-8 h-8 text-indigo-500 animate-spin mx-auto mb-2"></i>
+                <p class="text-sm font-bold text-slate-500">Membaca file...</p>
+            </div>
+            <div id="galeri-grid" class="flex-1 overflow-y-auto p-4 grid grid-cols-3 gap-3 content-start"></div>
+        </div>
+
+        <!-- Modal Form Level Dinamis -->
+        <div id="modal-soal" class="hidden fixed inset-0 z-[60] bg-slate-100 flex flex-col max-w-[600px] mx-auto overflow-hidden">
+            <header class="bg-white p-5 flex justify-between items-center shadow-sm border-b">
+                <h2 id="judul-modal-form" class="font-black text-xl text-slate-800">Edit Level</h2>
+                <button onclick="tutupModal('modal-soal')" class="bg-slate-100 p-2 rounded-full text-slate-500 hover:bg-slate-200"><i data-lucide="x"></i></button>
+            </header>
+            
+            <div class="flex-1 p-5 space-y-6 overflow-y-auto">
+                <input type="hidden" id="edit-index" value="-1">
+
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
+                    <label class="font-black text-sm block mb-2 text-indigo-800">Kategori Game</label>
+                    <select id="in-kategori" onchange="UbahTampilanForm()" class="w-full p-3 border border-indigo-200 rounded-xl bg-indigo-50 font-bold text-indigo-700 outline-none mb-4">
+                        <option value="kuis">📝 Kuis (Pilihan Berganda)</option>
+                        <option value="drag">🕹️ Drag & Drop (Tarik ke 1 Kotak)</option>
+                        <option value="siluet">👤 Tebak Bayangan (Tarik ke Siluet)</option>
+                        <option value="urutan">🔄 Urutan Gambar (Maks 6)</option>
+                        <option value="memory">🃏 Kartu Memori (Cocokkan Gambar)</option>
+                        <option value="tebak_kata">🔤 Tebak Kata (Susun Huruf)</option>
+                        <option value="bubble">🫧 Bubble Shoot (Gelembung Air Terjun)</option>
+                        <option value="melayang">🦋 Gambar Melayang (Pencet Sesuai Urutan)</option>
+                        <option value="pukul">🔨 Pukul Tikus (Whack-a-Mole)</option>
+                    </select>
+
+                    <label class="font-black text-sm block mb-2 text-slate-800">Teks Instruksi / Pertanyaan</label>
+                    <textarea id="in-tanya" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 outline-none focus:border-indigo-400" rows="2" placeholder="Contoh: Manakah yang buah apel?"></textarea>
+                
+                    <label class="font-black text-sm block mt-4 mb-2 text-slate-800 flex items-center gap-1"><i data-lucide="image" class="w-4 h-4 text-sky-500"></i> Gambar Petunjuk / Media Soal</label>
+                    <div class="flex gap-2 mb-1">
+                        <input type="text" id="path-media-soal" class="w-full text-xs p-2 border border-slate-200 rounded bg-slate-50" placeholder="Galeri ->" readonly>
+                        <button onclick="Galeri.bukaUtama('path-media-soal', 'image')" class="bg-sky-100 text-sky-700 p-2 rounded"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
+                    </div>
+                    <input type="file" id="f-media-soal" accept="image/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-slate-200">
+                </div>
+
+                <div id="wadah-speed" class="hidden bg-orange-50 p-5 rounded-3xl border border-orange-200 shadow-sm">
+                    <label class="font-black text-sm block mb-2 text-orange-800">Kecepatan Gerakan Benda</label>
+                    <select id="in-speed" class="w-full p-3 border border-orange-300 rounded-xl bg-white font-bold outline-none">
+                        <option value="lambat">🐢 Lambat</option>
+                        <option value="normal" selected>🚶 Normal</option>
+                        <option value="cepat">🚀 Cepat</option>
+                    </select>
+                </div>
+
+                <div class="bg-sky-50 p-5 rounded-3xl shadow-sm border border-sky-200">
+                    <h3 class="font-black text-sky-800 mb-3 flex items-center gap-2"><i data-lucide="music"></i> Latar & Audio Khusus Level Ini</h3>
+                    <div class="space-y-4">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-bold text-sky-700">Audio Soal (Dibacakan)</label>
+                            <input type="text" id="path-lvl-soal" class="w-full text-xs p-2 border border-sky-300 rounded bg-white" placeholder="path file lama">
+                            <input type="file" id="f-lvl-soal" accept="audio/*" class="w-full text-xs bg-white p-1 rounded-lg">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-bold text-sky-700">Background (BG) Level</label>
+                            <input type="text" id="path-lvl-bg" class="w-full text-xs p-2 border border-sky-300 rounded bg-white" placeholder="path file lama">
+                            <input type="file" id="f-lvl-bg" accept="image/*" class="w-full text-xs bg-white p-1 rounded-lg">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-bold text-sky-700">Musik BGM Level</label>
+                            <input type="text" id="path-lvl-bgm" class="w-full text-xs p-2 border border-sky-300 rounded bg-white" placeholder="path file lama">
+                            <input type="file" id="f-lvl-bgm" accept="audio/*" class="w-full text-xs bg-white p-1 rounded-lg">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="wadah-kuis-drag">
+                    <div class="bg-emerald-50 p-5 rounded-3xl border border-emerald-300 shadow-sm mb-4">
+                        <label class="font-black text-lg block mb-3 text-emerald-800 flex items-center gap-2"><i data-lucide="check-circle-2"></i> GAMBAR UTAMA / TARGET</label>
+                        <p class="text-[10px] text-emerald-600 font-bold mb-2">Untuk Siluet: Gambar ini dihitamkan. Untuk Tebak Kata: Isi teks dg HURUF kapital.</p>
+                        <input type="text" id="in-benar-nama" placeholder="Teks Jawaban Benar" class="w-full p-3 border border-emerald-300 rounded-xl bg-white mb-2 font-bold outline-none uppercase">
+                        <input type="text" id="path-benar-img" class="w-full text-xs p-2 border border-emerald-300 rounded bg-white font-mono text-emerald-700 mb-1" placeholder="path file" readonly>
+                        <input type="file" id="f-benar-img" accept="image/*" class="w-full text-sm bg-white p-2 rounded-xl border border-emerald-300">
+                    </div>
+
+                    <div class="bg-rose-50 p-5 rounded-3xl border border-rose-300 shadow-sm mb-6">
+                        <label class="font-black text-lg block mb-3 text-rose-800 flex items-center gap-2"><i data-lucide="x-circle"></i> PENGECOH / HURUF EKSTRA</label>
+                        <div class="mb-4 bg-white/50 p-3 rounded-xl border border-rose-200">
+                            <input type="text" id="in-p1-nama" placeholder="Teks Pengecoh 1" class="w-full p-2 border border-rose-200 rounded mb-1 text-sm font-bold uppercase">
+                            <input type="text" id="path-p1-img" class="hidden" readonly>
+                            <input type="file" id="f-p1-img" accept="image/*" class="w-full text-xs bg-white p-1 rounded">
+                        </div>
+                        <div class="mb-4 bg-white/50 p-3 rounded-xl border border-rose-200">
+                            <input type="text" id="in-p2-nama" placeholder="Teks Pengecoh 2" class="w-full p-2 border border-rose-200 rounded mb-1 text-sm font-bold uppercase">
+                            <input type="text" id="path-p2-img" class="hidden" readonly>
+                            <input type="file" id="f-p2-img" accept="image/*" class="w-full text-xs bg-white p-1 rounded">
+                        </div>
+                        <div class="mb-2 bg-white/50 p-3 rounded-xl border border-rose-200">
+                            <input type="text" id="in-p3-nama" placeholder="Teks Pengecoh 3" class="w-full p-2 border border-rose-200 rounded mb-1 text-sm font-bold uppercase">
+                            <input type="text" id="path-p3-img" class="hidden" readonly>
+                            <input type="file" id="f-p3-img" accept="image/*" class="w-full text-xs bg-white p-1 rounded">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="wadah-urutan" class="hidden">
+                    <div class="bg-indigo-50 p-5 rounded-3xl border border-indigo-300 shadow-sm mb-6">
+                        <label class="font-black text-lg block mb-3 text-indigo-800 flex items-center gap-2"><i data-lucide="list-ordered"></i> ITEM URUTAN</label>
+                        <div class="space-y-3" id="wadah-slot-urutan"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="bg-white p-5 border-t z-10 sticky bottom-0">
+                <button onclick="simpanLevelKeDaftar()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xl py-4 rounded-2xl shadow-[0_6px_0_0_#4f46e5] active:translate-y-2 active:shadow-none transition-all flex justify-center items-center gap-2">
+                    <i data-lucide="save"></i> SIMPAN LEVEL INI
+                </button>
             </div>
         </div>
     </div>
@@ -135,662 +243,274 @@
     <script>
         lucide.createIcons();
 
+        let dbLokal = { global_settings: {}, levels: [] };
+        let antreanFile = []; let fileYangHarusDihapus = []; 
+
+        // ==========================================
+        // UI COMPONENTS (Toast & Custom Confirm)
+        // ==========================================
         function uiToast(msg, type='success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `toast-enter px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 ${type==='success' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`;
-            toast.innerHTML = `<i data-lucide="${type==='success' ? 'check-circle' : 'alert-circle'}" class="w-5 h-5"></i> ${msg}`;
+            toast.className = `toast-enter px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 ${type==='success' ? 'bg-emerald-500 text-white' : (type==='error' ? 'bg-rose-500 text-white' : 'bg-sky-500 text-white')}`;
+            toast.innerHTML = `<i data-lucide="${type==='success' ? 'check-circle' : (type==='error' ? 'alert-circle' : 'info')}" class="w-5 h-5"></i> ${msg}`;
             container.appendChild(toast); lucide.createIcons();
             setTimeout(() => { toast.classList.replace('toast-enter', 'toast-leave'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        // =========================================================================
-        // MESIN DRAG & DROP MURNI (Vanilla JS - 100% Anti Macet)
-        // =========================================================================
-        const DragEngine = {
-            activeEl: null, startX: 0, startY: 0, initX: 0, initY: 0,
-            
-            init() {
-                document.addEventListener('touchstart', this.onStart.bind(this), {passive: false});
-                document.addEventListener('touchmove', this.onMove.bind(this), {passive: false});
-                document.addEventListener('touchend', this.onEnd.bind(this));
-                document.addEventListener('mousedown', this.onStart.bind(this), {passive: false});
-                document.addEventListener('mousemove', this.onMove.bind(this), {passive: false});
-                document.addEventListener('mouseup', this.onEnd.bind(this));
-            },
-            
-            getPos(e) { return e.touches ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : { x: e.clientX, y: e.clientY }; },
+        function uiConfirm(msg) {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('modal-confirm');
+                document.getElementById('confirm-text').innerText = msg;
+                modal.classList.remove('hidden');
+                document.getElementById('btn-confirm-yes').onclick = () => { modal.classList.add('hidden'); resolve(true); };
+                document.getElementById('btn-confirm-no').onclick = () => { modal.classList.add('hidden'); resolve(false); };
+            });
+        }
 
-            onStart(e) {
-                const el = e.target.closest('.kartu-drag');
-                if (!el || el.classList.contains('terkunci')) return;
-                
-                this.activeEl = el;
-                this.activeEl.classList.add('is-dragging');
-                AudioMgr.stopSoal();
+        function bukaModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function tutupModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-                const pos = this.getPos(e);
-                this.startX = pos.x; this.startY = pos.y;
-                this.initX = parseFloat(this.activeEl.getAttribute('data-x')) || 0;
-                this.initY = parseFloat(this.activeEl.getAttribute('data-y')) || 0;
-            },
-
-            onMove(e) {
-                if (!this.activeEl) return;
-                e.preventDefault(); // Mencegah scrolling layar saat drag berjalan
-                
-                const pos = this.getPos(e);
-                const newX = this.initX + (pos.x - this.startX);
-                const newY = this.initY + (pos.y - this.startY);
-                
-                this.activeEl.style.transform = `translate3d(${newX}px, ${newY}px, 0) scale(1.15)`;
-                this.activeEl.setAttribute('data-x', newX);
-                this.activeEl.setAttribute('data-y', newY);
-
-                // Cek Tabrakan dengan Zona Drop
-                const rect = this.activeEl.getBoundingClientRect();
-                const cx = rect.left + rect.width / 2; const cy = rect.top + rect.height / 2;
-
-                document.querySelectorAll('.zona-drop').forEach(z => {
-                    const zRect = z.getBoundingClientRect();
-                    if(cx > zRect.left && cx < zRect.right && cy > zRect.top && cy < zRect.bottom) z.classList.add('drop-hover');
-                    else z.classList.remove('drop-hover');
-                });
-            },
-
-            onEnd(e) {
-                if (!this.activeEl) return;
-                const el = this.activeEl;
-                el.classList.remove('is-dragging');
-                this.activeEl = null;
-
-                let isDropped = false;
-                const rect = el.getBoundingClientRect();
-                const cx = rect.left + rect.width / 2; const cy = rect.top + rect.height / 2;
-
-                document.querySelectorAll('.zona-drop').forEach(z => {
-                    z.classList.remove('drop-hover');
-                    const zRect = z.getBoundingClientRect();
-                    if(!isDropped && cx > zRect.left && cx < zRect.right && cy > zRect.top && cy < zRect.bottom) {
-                        isDropped = true; Game.prosesDropItem(el, z);
-                    }
-                });
-
-                // Snapback jika dilepas di luar kotak
-                if(!isDropped && !el.classList.contains('terkunci')) {
-                    el.style.transform = 'translate3d(0,0,0) scale(1)';
-                    el.setAttribute('data-x', 0); el.setAttribute('data-y', 0);
-                }
+        function renderSlotUrutan() {
+            const wadah = document.getElementById('wadah-slot-urutan'); let html = '';
+            for(let i=1; i<=6; i++) {
+                html += `<div class="bg-white p-3 rounded-xl border border-indigo-200 flex gap-2 items-center"><div class="font-black text-indigo-400 text-xl px-2 w-6">${i}</div><div class="flex-1"><input type="text" id="in-u${i}-nama" placeholder="Teks Urutan ${i}" class="w-full p-2 border border-indigo-100 rounded mb-1 text-sm font-bold"><div class="flex gap-1 mb-1"><input type="text" id="path-u${i}-img" class="w-full text-[10px] p-1 border rounded bg-slate-50" placeholder="Galeri" readonly><button onclick="Galeri.bukaUtama('path-u${i}-img', 'image')" class="bg-indigo-100 text-indigo-600 px-2 rounded"><i data-lucide="folder-search" class="w-3 h-3"></i></button></div><input type="file" id="f-u${i}-img" accept="image/*" class="w-full text-xs"></div></div>`;
             }
-        };
-        DragEngine.init();
+            wadah.innerHTML = html;
+        }
+        renderSlotUrutan();
 
-        // ==========================================
-        // AUDIO MANAGER 
-        // ==========================================
-        const AudioMgr = {
-            bgm: new Audio(), sfxBenar: new Audio(), sfxSalah: new Audio(), soal: new Audio(), 
-            isMuted: false, urlSoalSaatIni: null,
-            volumeNormalBGM: 0.3, volumePelanBGM: 0.05, 
-            
-            defBenar: 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3',
-            defSalah: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3',
-            
-            getAmanPath(url) { if(!url) return null; if(url.startsWith('http') || url.startsWith('data:')) return url; return `public/${url}`; },
-            initGlobal(cfg) {
-                if(cfg && cfg.bgm_url) { this.bgm.src = this.getAmanPath(cfg.bgm_url); this.bgm.loop = true; this.bgm.volume = this.volumeNormalBGM; }
-                this.soal.onended = () => { this.fadeVolume(this.bgm, this.volumeNormalBGM, 800); const ikon = document.getElementById('ikon-baca-soal'); if(ikon) ikon.classList.remove('animate-pulse', 'text-sky-400'); };
-            },
-            setAudioLevel(dataLevel) {
-                if (!dataLevel) return;
-                if(dataLevel.bgm_level) {
-                    const lBgm = this.getAmanPath(dataLevel.bgm_level);
-                    if(!this.bgm.src.endsWith(lBgm.replace('public/',''))) { this.bgm.src = lBgm; if(!this.isMuted) this.bgm.play().catch(()=>{}); }
-                }
-                this.sfxBenar.src = dataLevel.sfx_benar ? this.getAmanPath(dataLevel.sfx_benar) : this.defBenar;
-                this.sfxSalah.src = dataLevel.sfx_salah ? this.getAmanPath(dataLevel.sfx_salah) : this.defSalah;
-                this.urlSoalSaatIni = dataLevel.audio_soal ? this.getAmanPath(dataLevel.audio_soal) : null;
-                const btnSoal = document.getElementById('btn-suara-soal');
-                if (this.urlSoalSaatIni) btnSoal.classList.remove('hidden'); else btnSoal.classList.add('hidden');
-            },
-            toggleMute() {
-                this.isMuted = !this.isMuted; this.bgm.muted = this.isMuted; this.sfxBenar.muted = this.isMuted; this.sfxSalah.muted = this.isMuted; this.soal.muted = this.isMuted;
-                const ikon = document.getElementById('ikon-suara'); const btn = document.getElementById('btn-mute');
-                if(this.isMuted) { ikon.setAttribute('data-lucide', 'volume-x'); btn.classList.replace('bg-slate-100/50', 'bg-red-100'); btn.classList.replace('text-slate-700', 'text-red-500'); this.stopSoal(); 
-                } else { ikon.setAttribute('data-lucide', 'volume-2'); btn.classList.replace('bg-red-100', 'bg-slate-100/50'); btn.classList.replace('text-red-500', 'text-slate-700'); if (this.bgm.src) { this.bgm.volume = this.volumeNormalBGM; this.bgm.play().catch(()=>{}); } }
-                lucide.createIcons();
-            },
-            playBGM() { if(!this.isMuted && this.bgm.src) { this.bgm.volume = this.volumeNormalBGM; this.bgm.play().catch(()=>{}); } },
-            playBenar() { this.stopSoal(); if(!this.isMuted && this.sfxBenar.src) { this.sfxBenar.currentTime=0; this.sfxBenar.play().catch(()=>{}); } },
-            playSalah() { this.stopSoal(); if(!this.isMuted && this.sfxSalah.src) { this.sfxSalah.currentTime=0; this.sfxSalah.play().catch(()=>{}); } },
-            playSoal() {
-                this.soal.pause(); if(!this.urlSoalSaatIni || this.isMuted) return;
-                this.soal.src = this.urlSoalSaatIni;
-                this.soal.play().then(() => {
-                    this.fadeVolume(this.bgm, this.volumePelanBGM, 400);
-                    const ikon = document.getElementById('ikon-baca-soal'); if(ikon) ikon.classList.add('animate-pulse', 'text-sky-400');
-                }).catch(()=>{});
-            },
-            putarUlangSoal() { this.playSoal(); },
-            stopSoal() {
-                this.soal.pause(); this.soal.currentTime = 0; this.fadeVolume(this.bgm, this.volumeNormalBGM, 300);
-                const ikon = document.getElementById('ikon-baca-soal'); if(ikon) ikon.classList.remove('animate-pulse', 'text-sky-400');
-            },
-            fadeVolume(audioEl, targetVolume, durationMs) {
-                if(!audioEl || isNaN(audioEl.duration)) return;
-                const steps = 10; const stepTime = durationMs / steps; const volumeStep = (targetVolume - audioEl.volume) / steps; let currentStep = 0;
-                const fadeInterval = setInterval(() => {
-                    currentStep++; let newVol = audioEl.volume + volumeStep;
-                    if(newVol > 1) newVol = 1; if(newVol < 0) newVol = 0; audioEl.volume = newVol;
-                    if(currentStep >= steps) { audioEl.volume = targetVolume; clearInterval(fadeInterval); }
-                }, stepTime);
+        function UbahTampilanForm() {
+            const val = document.getElementById('in-kategori').value;
+            if(val === 'urutan' || val === 'melayang') {
+                document.getElementById('wadah-kuis-drag').classList.add('hidden'); document.getElementById('wadah-urutan').classList.remove('hidden');
+            } else {
+                document.getElementById('wadah-kuis-drag').classList.remove('hidden'); document.getElementById('wadah-urutan').classList.add('hidden');
             }
-        };
+            if(val === 'bubble' || val === 'melayang' || val === 'pukul') document.getElementById('wadah-speed').classList.remove('hidden');
+            else document.getElementById('wadah-speed').classList.add('hidden');
+        }
 
-        // ==========================================
-        // ENGINE GAME FISIKA (Bubble & Melayang)
-        // ==========================================
-        const PhysicsEngine = {
-            rafId: null, objects: [], arena: null, mode: null,
-            start(mode, kecepatan, itemAcak, arenaEl) {
-                this.stop(); this.arena = arenaEl; this.mode = mode; this.objects = [];
-                let speedMult = kecepatan === 'cepat' ? 3.5 : (kecepatan === 'lambat' ? 1.5 : 2.5);
-                const rect = this.arena.getBoundingClientRect();
+        function exportJSON() {
+            if(dbLokal.levels.length === 0) return uiToast("Database masih kosong!", "error");
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dbLokal, null, 2));
+            const dlAnchorElem = document.createElement('a'); dlAnchorElem.setAttribute("href", dataStr); dlAnchorElem.setAttribute("download", "backup-soal-tk.json"); dlAnchorElem.click();
+            uiToast("File backup berhasil diunduh.");
+        }
 
-                const totalItems = mode === 'bubble' ? 15 : itemAcak.length; 
-
-                for(let i=0; i<totalItems; i++) {
-                    let it = itemAcak[i % itemAcak.length]; 
-                    if(mode === 'bubble' && i%4===0) it = itemAcak.find(a => a.isTarget) || itemAcak[0];
-
-                    const el = document.createElement('div');
-                    el.className = `objek-terbang flex flex-col items-center justify-center shadow-lg overflow-hidden transition-transform ${mode==='bubble' ? 'bg-white/80 backdrop-blur border border-white rounded-full p-2' : 'bg-white border-2 border-indigo-200 rounded-2xl p-1'}`;
-                    
-                    const size = mode === 'bubble' ? (Math.random() * 30 + 60) : 80;
-                    el.style.width = `${size}px`; el.style.height = `${size}px`;
-                    
-                    let px = Math.random() * (rect.width - size);
-                    let py = mode === 'bubble' ? -(Math.random() * 1000) - size : Math.random() * (rect.height - size);
-                    
-                    el.style.left = `0px`; el.style.top = `0px`; 
-
-                    const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                    if(urlPath) el.innerHTML = `<img src="${urlPath}" class="w-full h-full object-contain pointer-events-none" draggable="false">`;
-                    else el.innerHTML = `<span class="text-xs font-black text-slate-700 text-center pointer-events-none leading-tight">${it.nama}</span>`;
-
-                    el.onclick = () => { AudioMgr.stopSoal(); Game.prosesKetuk(it, el, mode); };
-                    arena.appendChild(el);
-                    
-                    const angle = Math.random() * Math.PI * 2;
-                    this.objects.push({
-                        el: el, size: size,
-                        x: px, y: py,
-                        vx: mode === 'bubble' ? 0 : Math.cos(angle) * speedMult,
-                        vy: mode === 'bubble' ? (Math.random() * 1.5 + 1) * speedMult : Math.sin(angle) * speedMult,
-                        sinC: Math.random() * 100, sinS: Math.random() * 0.05 + 0.02
-                    });
-                }
-                this.loop();
-            },
-            loop() {
-                if(!this.arena) return;
-                const rect = this.arena.getBoundingClientRect();
-                this.objects.forEach(obj => {
-                    if (this.mode === 'bubble') {
-                        obj.y += obj.vy; obj.sinC += obj.sinS;
-                        obj.x += Math.sin(obj.sinC) * 1.5;
-                        if(obj.y > rect.height) { obj.y = -obj.size - 100; obj.x = Math.random() * (rect.width - obj.size); }
-                        obj.x = Math.max(0, Math.min(obj.x, rect.width - obj.size));
-                    } else if (this.mode === 'melayang') {
-                        obj.x += obj.vx; obj.y += obj.vy;
-                        if(obj.x <= 0 || obj.x >= rect.width - obj.size) obj.vx *= -1;
-                        if(obj.y <= 0 || obj.y >= rect.height - obj.size) obj.vy *= -1;
-                        obj.x = Math.max(0, Math.min(obj.x, rect.width - obj.size));
-                        obj.y = Math.max(0, Math.min(obj.y, rect.height - obj.size));
-                    }
-                    obj.el.style.transform = `translate3d(${obj.x}px, ${obj.y}px, 0)`;
-                });
-                this.rafId = requestAnimationFrame(this.loop.bind(this));
-            },
-            stop() { if(this.rafId) cancelAnimationFrame(this.rafId); this.objects = []; }
-        };
-
-        // ==========================================
-        // ENGINE GAME UTAMA
-        // ==========================================
-        const Game = {
-            db: { global: {}, levels: [] }, levelSekarang: 0, skor: 0, nyawa: 3, 
-            levelTerbuka: parseInt(localStorage.getItem('maxUnlockedLevel')) || 0,
-            jawabanSaatIni: 0, totalJawaban: 0, memoriFlipped: [], memoriMatched: 0,
-
-            // FITUR FAILSAFE LOADING (Pasti muncul tombol Mulai walau koneksi jelek)
-            initPreload() {
-                const bCont = document.getElementById('loading-bar-container'); 
-                const bFill = document.getElementById('loading-bar-fill'); 
-                const bTxt = document.getElementById('loading-text');
-                const btnMulai = document.getElementById('btn-mulai');
-
-                bCont.classList.remove('hidden'); btnMulai.classList.add('hidden');
-
-                let cnt = 0; 
-                let intv = setInterval(() => { 
-                    cnt += Math.floor(Math.random()*15)+5; 
-                    if(cnt > 90) cnt = 90; 
-                    bFill.style.width = `${cnt}%`; bTxt.innerText = `${cnt}%`; 
-                }, 100);
-
-                // Tarik data
-                fetch(`public/data-soal.json?v=${Date.now()}`, { cache: 'no-store' })
-                .then(res => {
-                    if(!res.ok) throw new Error("Gagal mengambil data");
-                    return res.json();
-                })
-                .then(data => {
-                    this.db.global = data.global_settings || {}; this.db.levels = data.levels || [];
-                    AudioMgr.initGlobal(this.db.global);
-                    clearInterval(intv);
-                    bFill.style.width = `100%`; bTxt.innerText = `Siap!`; 
-                    setTimeout(()=>{bCont.classList.add('hidden'); btnMulai.classList.remove('hidden');}, 500);
-                })
-                .catch(e => {
-                    console.warn("DB Kosong / Gagal Tarik Data", e);
-                    clearInterval(intv);
-                    this.db.levels = [{ kategori: "kuis", pertanyaan: "Sistem belum mendeteksi soal. Jika kamu Admin, buatlah soal di Panel Admin!", item_target: { nama: "Mengerti", isTarget: true }, item_pengecoh: [] }];
-                    bCont.classList.add('hidden'); btnMulai.classList.remove('hidden');
-                });
-
-                // FALLBACK ABSOLUT: 2.5 Detik tombol pasti muncul
-                setTimeout(() => {
-                    if(btnMulai.classList.contains('hidden')) {
-                        clearInterval(intv);
-                        bCont.classList.add('hidden'); btnMulai.classList.remove('hidden');
-                    }
-                }, 2500);
-            },
-
-            async tarikDataBaru() {
-                const syncProg = document.getElementById('sync-progress'); const syncBar = document.getElementById('sync-bar'); const iSync = document.getElementById('ikon-sync');
-                syncProg.classList.remove('hidden'); syncBar.style.width = '0%'; if(iSync) iSync.classList.add('animate-spin');
-
-                let cnt = 0; let intv = setInterval(() => { cnt+=10; if(cnt>90) cnt=90; syncBar.style.width=`${cnt}%`; }, 100);
-
+        function importJSON(event) {
+            const file = event.target.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
                 try {
-                    const res = await fetch(`public/data-soal.json?v=${Date.now()}`, { cache: 'no-store' });
-                    if (!res.ok) throw new Error("Gagal");
-                    const data = await res.json();
-                    this.db.global = data.global_settings || {}; this.db.levels = data.levels || [];
-                    AudioMgr.initGlobal(this.db.global);
-                    
-                    clearInterval(intv);
-                    syncBar.style.width = `100%`; 
-                    setTimeout(()=>{syncProg.classList.add('hidden'); if(iSync) iSync.classList.remove('animate-spin'); this.bukaPilihLevel(false); uiToast('Data level terbaru ditarik!'); }, 500);
-                } catch(e) { 
-                    clearInterval(intv);
-                    syncProg.classList.add('hidden'); if(iSync) iSync.classList.remove('animate-spin'); uiToast('Gagal menarik data', 'error');
+                    const parsed = JSON.parse(e.target.result);
+                    if(parsed.levels) { dbLokal = parsed; renderDaftarLevel(); uiToast("Berhasil Import!"); } else { uiToast("Format JSON tidak valid.", "error"); }
+                } catch(err) { uiToast("File bukan JSON yang valid.", "error"); }
+            }; reader.readAsText(file);
+        }
+
+        window.onload = () => {
+            const token = localStorage.getItem('ghToken'); const repo = localStorage.getItem('ghRepo');
+            if(token && repo) { document.getElementById('gh-token').value = token; document.getElementById('gh-repo').value = repo; tarikDataGitHub(false); } 
+            else { bukaModal('modal-config'); }
+        };
+
+        function simpanConfigLokal() {
+            localStorage.setItem('ghToken', document.getElementById('gh-token').value.trim()); localStorage.setItem('ghRepo', document.getElementById('gh-repo').value.trim());
+            const fBgm = document.getElementById('f-bgm').files[0]; const pBgm = document.getElementById('path-bgm-global').value;
+            if(fBgm) { dbLokal.global_settings.bgm_url = `assets/bgm_glbl.${fBgm.name.split('.').pop()}`; antreanFile.push({ path: `public/${dbLokal.global_settings.bgm_url}`, file: fBgm }); } else if(pBgm) { dbLokal.global_settings.bgm_url = pBgm; }
+            tutupModal('modal-config'); tarikDataGitHub(true);
+        }
+
+        const ProceduralGenerator = {
+            buah: ["Apel 🍎", "Pisang 🍌", "Jeruk 🍊"], hewan: ["Kucing 🐱", "Anjing 🐶", "Ikan 🐟"],
+            ambilAcak(arr, n) { const shuffled = [...arr].sort(() => 0.5 - Math.random()); return shuffled.slice(0, n); },
+            bikinSoalTebakKata() { const kata = this.ambilAcak(this.buah, 1)[0].split(' ')[0].toUpperCase(); return { kategori: "tebak_kata", pertanyaan: `Susun kata: ${this.buah.find(b => b.includes(kata))}`, item_target: { nama: kata, isTarget: true }, item_pengecoh: [{ nama: "X", isTarget: false }] }; },
+            bikinSoalBubble() { const b = this.ambilAcak(this.buah, 2); return { kategori: "bubble", speed: "normal", pertanyaan: `Tekan gelembung ${b[0]}!`, item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }] }; },
+            bikinSoalSiluet() { const b = this.ambilAcak(this.hewan, 2); return { kategori: "siluet", pertanyaan: `Tarik ${b[0]} ke bayangannya!`, item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }] }; },
+            bikinSoalPukul() { const b = this.ambilAcak(this.buah, 2); return { kategori: "pukul", speed: "normal", pertanyaan: `Pukul Tikus: Tangkap 3 ${b[0]}!`, item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }] }; },
+            bikinSoalMatematika() { const a = Math.floor(Math.random() * 5) + 1; let b = Math.floor(Math.random() * 5) + 1; return { kategori: "kuis", pertanyaan: `Berapa ${a} + ${b}?`, item_target: { nama: (a+b).toString(), isTarget: true }, item_pengecoh: [{ nama: (a+b+1).toString(), isTarget: false }] }; },
+            async buat5Soal() {
+                const isYes = await uiConfirm("Buat 5 soal otomatis dengan berbagai mode acak?"); if(!isYes) return;
+                const tsBase = Date.now();
+                for(let i=0; i<5; i++) {
+                    const rnd = Math.random(); let sb;
+                    if(rnd < 0.2) sb = this.bikinSoalMatematika(); else if(rnd < 0.4) sb = this.bikinSoalTebakKata(); else if(rnd < 0.6) sb = this.bikinSoalBubble(); else if(rnd < 0.8) sb = this.bikinSoalSiluet(); else sb = this.bikinSoalPukul();
+                    sb.id = `L_AUTO_${tsBase}_${i}`; dbLokal.levels.push(sb);
                 }
-            },
-
-            mulai() {
-                document.getElementById('layar-mulai').style.opacity = '0'; setTimeout(() => document.getElementById('layar-mulai').classList.add('hidden'), 400);
-                AudioMgr.playBGM(); this.levelTerbuka = Math.min(this.levelTerbuka, Math.max(0, this.db.levels.length - 1)); this.bukaPilihLevel(true);
-            },
-
-            bukaPilihLevel(isBaruBuka = false) {
-                const layar = document.getElementById('layar-pilih-level'); const grid = document.getElementById('grid-level'); const btnTutup = document.getElementById('btn-tutup-level');
-                AudioMgr.stopSoal(); PhysicsEngine.stop(); grid.innerHTML = '';
-                if(isBaruBuka) btnTutup.classList.add('hidden'); else btnTutup.classList.remove('hidden');
-
-                if (!Array.isArray(this.db.levels)) this.db.levels = [];
-                this.db.levels.forEach((lvl, idx) => {
-                    const isUnlocked = idx <= this.levelTerbuka; const btn = document.createElement('button');
-                    if(isUnlocked) {
-                        btn.className = "bg-white border-2 border-slate-200 text-slate-700 font-black text-xl py-5 rounded-[1.2rem] shadow-sm hover:border-sky-400 active:scale-95 transition-all flex flex-col items-center justify-center gap-1";
-                        btn.innerHTML = `<span>${idx + 1}</span>${idx < this.levelTerbuka ? '<i data-lucide="star" class="w-3 h-3 fill-amber-400 text-amber-400"></i>' : '<div class="w-3 h-3"></div>'}`;
-                        btn.onclick = () => { this.mainkanLevel(idx); };
-                    } else {
-                        btn.className = "bg-slate-100 border border-slate-200 text-slate-400 font-bold text-xl py-5 rounded-[1.2rem] flex flex-col items-center justify-center cursor-not-allowed gap-1";
-                        btn.innerHTML = `<i data-lucide="lock" class="w-4 h-4 opacity-50"></i><span>${idx + 1}</span>`;
-                    }
-                    grid.appendChild(btn);
-                });
-                lucide.createIcons(); layar.classList.remove('hidden');
-            },
-
-            tutupPilihLevel() { document.getElementById('layar-pilih-level').classList.add('hidden'); },
-
-            mainkanLevel(idx) {
-                this.tutupPilihLevel(); this.levelSekarang = idx; this.nyawa = 3; this.jawabanSaatIni = 0;
-                PhysicsEngine.stop(); this.renderUI(); this.muatArena();
-            },
-
-            simpanProgres() {
-                if (this.levelSekarang >= this.levelTerbuka) { this.levelTerbuka = Math.min(this.levelSekarang + 1, this.db.levels.length - 1); localStorage.setItem('maxUnlockedLevel', this.levelTerbuka); }
-            },
-
-            renderUI() {
-                document.getElementById('ui-skor').innerText = this.skor;
-                const wadahNyawa = document.getElementById('ui-nyawa'); wadahNyawa.innerHTML = '';
-                for(let i=0; i<3; i++) wadahNyawa.innerHTML += `<i data-lucide="heart" class="w-4 h-4 ${i < this.nyawa ? 'fill-rose-500 text-rose-500' : 'text-slate-300'}"></i>`;
-                lucide.createIcons();
-            },
-
-            muatArena() {
-                const arena = document.getElementById('arena-bermain'); arena.innerHTML = ''; 
-                const dataLevel = this.db.levels[this.levelSekarang]; if (!dataLevel) return;
-
-                document.getElementById('ui-level').innerText = this.levelSekarang + 1;
-                document.getElementById('teks-pertanyaan').innerText = dataLevel.pertanyaan || "Soal";
-
-                const imgSoal = document.getElementById('img-soal'); const mediaWadah = document.getElementById('media-soal');
-                if(dataLevel.media_soal) { imgSoal.src = AudioMgr.getAmanPath(dataLevel.media_soal); mediaWadah.classList.remove('hidden'); } 
-                else { mediaWadah.classList.add('hidden'); }
-
-                const bgLayar = dataLevel.bg_image || this.db.global.bg_image;
-                document.getElementById('view-game').style.backgroundImage = bgLayar ? `url('${AudioMgr.getAmanPath(bgLayar)}')` : 'none';
-                
-                AudioMgr.setAudioLevel(dataLevel);
-                if(dataLevel.audio_soal) { setTimeout(() => AudioMgr.playSoal(), 500); }
-
-                const kat = dataLevel.kategori;
-                if(kat === 'drag') this.mesinDrag(dataLevel, arena);
-                else if (kat === 'siluet') this.mesinSiluet(dataLevel, arena);
-                else if (kat === 'urutan') this.mesinUrutan(dataLevel, arena);
-                else if (kat === 'tebak_kata') this.mesinTebakKata(dataLevel, arena);
-                else if (kat === 'memory') this.mesinMemory(dataLevel, arena);
-                else if (kat === 'bubble') this.mesinBubble(dataLevel, arena);
-                else if (kat === 'melayang') this.mesinMelayang(dataLevel, arena);
-                else if (kat === 'pukul') this.mesinPukul(dataLevel, arena);
-                else this.mesinKuis(dataLevel, arena);
-            },
-
-            // --- PROSES DRAG & DROP CUSTOM ---
-            prosesDropItem(el, zone) {
-                const tipe = el.getAttribute('data-tipe');
-                
-                if (tipe === 'drag-tunggal' || tipe === 'drag-siluet') {
-                    const isBenar = el.getAttribute('data-benar') === 'ya';
-                    if(isBenar) { this.kunciBenda(el, zone); this.prosesKuis(true, zone); } 
-                    else { this.prosesSalahDrag(zone, el); }
-                } 
-                else if (tipe === 'drag-urutan' || tipe === 'drag-tebak') {
-                    const idDrop = parseInt(zone.getAttribute('data-index'));
-                    let isBenar = false;
-                    
-                    if(tipe === 'drag-urutan') { isBenar = parseInt(el.getAttribute('data-index-asli')) === idDrop; } 
-                    else { const validIds = JSON.parse(el.getAttribute('data-valid-indexes') || '[]'); isBenar = validIds.includes(idDrop) && zone.innerHTML === ''; }
-
-                    if(isBenar) {
-                        this.kunciBenda(el, zone);
-                        AudioMgr.sfxBenar.currentTime=0; AudioMgr.sfxBenar.play().catch(()=>{});
-                        this.jawabanSaatIni++;
-                        if(this.jawabanSaatIni >= this.totalJawaban) {
-                            this.skor += 100; this.simpanProgres(); this.renderUI();
-                            setTimeout(() => this.munculLayarAkhir('benar'), 800);
-                        }
-                    } else { this.prosesSalahDrag(zone, el); }
-                }
-            },
-
-            kunciBenda(el, zone) {
-                el.classList.add('terkunci'); el.style.transform = 'translate3d(0,0,0) scale(1)';
-                el.setAttribute('data-x', 0); el.setAttribute('data-y', 0);
-                if(zone.classList.contains('zona-target-drag') || zone.classList.contains('zona-siluet')) zone.innerHTML = '';
-                zone.appendChild(el);
-                el.style.width = '100%'; el.style.height = '100%'; el.style.border = 'none'; el.style.borderRadius = 'inherit';
-            },
-
-            prosesSalahDrag(zone, el) {
-                AudioMgr.playSalah(); this.nyawa--; this.renderUI();
-                zone.classList.add('anim-shake', 'bg-red-100', 'border-red-400');
-                setTimeout(() => zone.classList.remove('anim-shake', 'bg-red-100', 'border-red-400'), 500);
-                el.style.transform = 'translate3d(0,0,0) scale(1)'; el.setAttribute('data-x', 0); el.setAttribute('data-y', 0);
-                if(this.nyawa <= 0) setTimeout(() => this.munculLayarAkhir('kalah'), 500);
-            },
-
-            // --- PROSES KETUK (KUIS, BUBBLE, DLL) ---
-            prosesKetuk(item, el, mode) {
-                if(mode === 'bubble') {
-                    this.prosesKuis(item.isTarget, el);
-                } else if (mode === 'melayang') {
-                    if(item.indexAsli === this.jawabanSaatIni) {
-                        el.style.display = 'none'; 
-                        AudioMgr.sfxBenar.currentTime=0; AudioMgr.sfxBenar.play().catch(()=>{});
-                        this.jawabanSaatIni++;
-                        if(this.jawabanSaatIni >= this.totalJawaban) {
-                            this.skor += 100; this.simpanProgres(); this.renderUI();
-                            setTimeout(() => this.munculLayarAkhir('benar'), 500);
-                        }
-                    } else {
-                        AudioMgr.playSalah(); this.nyawa--; this.renderUI();
-                        el.classList.add('bg-red-100', 'anim-shake');
-                        setTimeout(() => el.classList.remove('bg-red-100', 'anim-shake'), 500);
-                        if(this.nyawa <= 0) setTimeout(() => this.munculLayarAkhir('kalah'), 500);
-                    }
-                }
-            },
-
-            prosesKuis(isBenar, el) {
-                document.querySelectorAll('.kartu-drag').forEach(e => e.style.pointerEvents = 'none');
-                document.querySelectorAll('button.btn-pilihan').forEach(e => e.disabled = true);
-
-                if(isBenar) {
-                    AudioMgr.playBenar(); this.skor += 100; this.simpanProgres(); this.renderUI();
-                    el.classList.add('bg-emerald-50', 'border-emerald-400');
-                    setTimeout(() => this.munculLayarAkhir('benar'), 1000);
-                } else {
-                    AudioMgr.playSalah(); this.nyawa--; this.renderUI();
-                    el.classList.add('bg-rose-50', 'border-rose-400', 'anim-shake');
-                    setTimeout(() => this.munculLayarAkhir(this.nyawa <= 0 ? 'kalah' : 'salah'), 1000);
-                }
-            },
-
-            // --- FUNGSI GENERATOR ARENA ---
-            mesinKuis(data, arena) {
-                const target = data.item_target || { nama: "Jawaban Benar", isTarget: true }; const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
-                let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
-                const gridClass = itemsAcak.length > 2 ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2";
-                const grid = document.createElement('div'); grid.className = `grid ${gridClass} gap-3 w-full mt-auto pb-4 anim-fade`;
-                itemsAcak.forEach(it => {
-                    const btn = document.createElement('button');
-                    btn.className = "btn-pilihan bg-white border-2 border-slate-100 text-slate-700 font-bold text-sm md:text-base p-3 rounded-2xl shadow-sm hover:border-sky-300 flex flex-col items-center justify-center gap-2 min-h-[100px] w-full";
-                    let konten = ''; const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                    if(urlPath) konten += `<img src="${urlPath}" class="h-16 object-contain rounded-lg" draggable="false">`;
-                    if(it.nama) konten += `<span class="leading-tight text-center w-full">${it.nama}</span>`;
-                    btn.innerHTML = konten || "Pilihan";
-                    btn.onclick = () => { AudioMgr.stopSoal(); this.prosesKuis(it.isTarget, btn); };
-                    grid.appendChild(btn);
-                });
-                arena.appendChild(grid);
-            },
-
-            mesinDrag(data, arena) {
-                arena.innerHTML = `<div class="zona-drop zona-target-drag w-32 h-32 md:w-40 md:h-40 border-2 border-dashed border-sky-400 bg-sky-50/70 backdrop-blur-sm rounded-[1.5rem] flex flex-col items-center justify-center mb-auto mt-2 transition-colors z-0"><i data-lucide="download" class="w-8 h-8 text-sky-400 mb-1"></i><span class="font-bold text-sky-600 text-xs">Taruh Sini</span></div><div id="wadah-item" class="w-full flex justify-center flex-wrap gap-3 pb-6 mt-8 anim-fade z-10"></div>`;
-                lucide.createIcons(); const wadahItem = document.getElementById('wadah-item');
-                const target = data.item_target || { nama: "Target", isTarget: true }; const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
-                let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
-                itemsAcak.forEach(it => {
-                    const el = document.createElement('div'); el.setAttribute('data-tipe', 'drag-tunggal'); el.setAttribute('data-benar', it.isTarget ? 'ya' : 'tidak');
-                    el.className = "kartu-drag w-20 h-20 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden relative";
-                    const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                    el.innerHTML = `<div class="absolute inset-0 bg-slate-50 flex items-center justify-center text-slate-600 font-bold text-xs text-center p-1 leading-tight ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div><img src="${urlPath}" class="w-full h-full object-cover pointer-events-none" draggable="false" />`;
-                    wadahItem.appendChild(el);
-                });
-            },
-
-            mesinSiluet(data, arena) {
-                const target = data.item_target || { nama: "Target", isTarget: true }; const targetUrl = target.url_gambar ? AudioMgr.getAmanPath(target.url_gambar) : '';
-                arena.innerHTML = `<div class="zona-drop zona-siluet w-32 h-32 md:w-40 md:h-40 mb-auto mt-2 transition-colors z-0 flex items-center justify-center bg-slate-200/50 rounded-3xl border-2 border-dashed border-slate-400 p-2"><img src="${targetUrl}" class="w-full h-full object-contain bayangan-hitam pointer-events-none" draggable="false" onerror="this.outerHTML='<div class=\\'text-xs font-bold text-slate-500\\'>Target Sini</div>'"></div><div id="wadah-item" class="w-full flex justify-center flex-wrap gap-3 pb-6 mt-8 anim-fade z-10"></div>`;
-                const wadahItem = document.getElementById('wadah-item');
-                const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : []; let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
-                itemsAcak.forEach(it => {
-                    const el = document.createElement('div'); el.setAttribute('data-tipe', 'drag-siluet'); el.setAttribute('data-benar', it.isTarget ? 'ya' : 'tidak');
-                    el.className = "kartu-drag w-20 h-20 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden relative p-1";
-                    const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                    el.innerHTML = `<div class="absolute inset-0 bg-slate-50 flex items-center justify-center text-slate-600 font-bold text-xs text-center p-1 leading-tight ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div><img src="${urlPath}" class="w-full h-full object-contain pointer-events-none" draggable="false" />`;
-                    wadahItem.appendChild(el);
-                });
-            },
-
-            mesinUrutan(data, arena) {
-                const arrUrutan = data.item_urutan || []; this.totalJawaban = arrUrutan.length;
-                const boxSize = this.totalJawaban > 4 ? 'w-12 h-12 md:w-16 md:h-16 text-[10px]' : 'w-16 h-16 md:w-20 md:h-20 text-xs';
-                let htmlZona = `<div class="flex flex-wrap justify-center gap-2 mb-auto mt-4 w-full px-1">`;
-                for(let i=0; i<this.totalJawaban; i++) htmlZona += `<div data-index="${i}" class="zona-drop zona-urutan ${boxSize} border-2 border-dashed border-sky-400 bg-sky-50/50 rounded-xl flex items-center justify-center transition-colors relative z-0"><span class="absolute -top-2 -left-2 bg-sky-500 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold shadow text-[10px]">${i+1}</span></div>`;
-                htmlZona += `</div><div id="wadah-item-urutan" class="w-full flex justify-center flex-wrap gap-2 pb-6 mt-8 anim-slide-up z-10"></div>`;
-                arena.innerHTML = htmlZona;
-
-                const wadahItem = document.getElementById('wadah-item-urutan');
-                let itemsAcak = [...arrUrutan].sort(() => Math.random() - 0.5);
-                itemsAcak.forEach(it => {
-                    const el = document.createElement('div'); el.setAttribute('data-tipe', 'drag-urutan'); el.setAttribute('data-index-asli', it.indexAsli);
-                    el.className = `kartu-drag ${boxSize} bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden relative`;
-                    const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                    el.innerHTML = `<div class="absolute inset-0 flex items-center justify-center p-1 text-center font-bold text-slate-600 leading-tight ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div><img src="${urlPath}" class="w-full h-full object-cover pointer-events-none" draggable="false" />`;
-                    wadahItem.appendChild(el);
-                });
-            },
-
-            mesinTebakKata(data, arena) {
-                const kataTarget = (data.item_target.nama || "APEL").toUpperCase(); const hurufTarget = kataTarget.split('');
-                this.totalJawaban = hurufTarget.length;
-                let hurufEkstra = []; if(data.item_pengecoh) data.item_pengecoh.forEach(p => { if(p.nama) hurufEkstra.push(...p.nama.toUpperCase().split('')); });
-                let semuaHuruf = [...hurufTarget, ...hurufEkstra].sort(() => Math.random() - 0.5);
-
-                let htmlZona = `<div class="flex flex-wrap justify-center gap-1.5 md:gap-2 mb-auto mt-4 w-full">`;
-                hurufTarget.forEach((h, i) => { htmlZona += `<div data-index="${i}" class="zona-drop zona-tebak w-10 h-12 md:w-14 md:h-16 border-2 border-slate-300 bg-white/50 rounded-lg flex items-center justify-center transition-colors relative z-0 shadow-inner"></div>`; });
-                htmlZona += `</div><div id="wadah-item-tebak" class="w-full flex justify-center flex-wrap gap-2 pb-6 mt-8 anim-slide-up z-10"></div>`;
-                arena.innerHTML = htmlZona;
-
-                const wadahItem = document.getElementById('wadah-item-tebak');
-                semuaHuruf.forEach((huruf, i) => {
-                    const el = document.createElement('div');
-                    let validIndexes = []; hurufTarget.forEach((ht, idx) => { if(ht === huruf) validIndexes.push(idx); });
-                    el.setAttribute('data-tipe', 'drag-tebak'); el.setAttribute('data-valid-indexes', JSON.stringify(validIndexes));
-                    el.className = `kartu-drag w-10 h-12 md:w-14 md:h-16 bg-white rounded-lg shadow border border-slate-200 flex items-center justify-center overflow-hidden relative text-lg md:text-2xl font-black text-indigo-600`;
-                    el.innerText = huruf; wadahItem.appendChild(el);
-                });
-            },
-
-            mesinMemory(data, arena) {
-                this.memoriFlipped = []; this.memoriMatched = 0; let itemUnik = [];
-                if (data.item_target && (data.item_target.url_gambar || data.item_target.nama)) itemUnik.push(data.item_target);
-                if (data.item_pengecoh) data.item_pengecoh.forEach(p => { if(p.url_gambar || p.nama) itemUnik.push(p); });
-                if(itemUnik.length < 2) return arena.innerHTML = `<div class="text-rose-500 font-bold p-4 bg-rose-50 rounded-xl">Admin: Butuh minimal 2 gambar berbeda!</div>`;
-
-                let pasangan = [...itemUnik, ...itemUnik].sort(() => Math.random() - 0.5); const totalPairs = itemUnik.length;
-                const gridClass = pasangan.length > 6 ? "grid-cols-4" : "grid-cols-3";
-                const grid = document.createElement('div'); grid.className = `grid ${gridClass} gap-2 w-full mt-auto pb-4 anim-fade max-w-sm`;
-
-                pasangan.forEach((it) => {
-                    const card = document.createElement('div'); card.className = "mem-card w-full aspect-square";
-                    const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : ''; const namaAsli = it.nama || '';
-                    card.innerHTML = `<div class="mem-inner" data-id="${namaAsli}-${urlPath}"><div class="mem-front"><i data-lucide="help-circle" class="w-6 h-6 md:w-8 md:h-8 text-white"></i></div><div class="mem-back flex items-center justify-center p-1 bg-slate-50"><img src="${urlPath}" class="w-full h-full object-cover rounded-md ${urlPath ? '' : 'hidden'}"><span class="text-[9px] md:text-xs font-bold text-slate-700 text-center leading-tight ${urlPath ? 'hidden' : ''}">${namaAsli}</span></div></div>`;
-                    card.onclick = () => this.flipMemoryCard(card.querySelector('.mem-inner'), totalPairs);
-                    grid.appendChild(card);
-                });
-                arena.appendChild(grid); lucide.createIcons();
-            },
-
-            flipMemoryCard(cardInner, totalPairs) {
-                if(cardInner.parentElement.classList.contains('flipped') || this.memoriFlipped.length >= 2) return;
-                AudioMgr.stopSoal(); cardInner.parentElement.classList.add('flipped'); this.memoriFlipped.push(cardInner);
-                if(this.memoriFlipped.length === 2) {
-                    const id1 = this.memoriFlipped[0].getAttribute('data-id'); const id2 = this.memoriFlipped[1].getAttribute('data-id');
-                    if(id1 === id2) {
-                        AudioMgr.sfxBenar.currentTime = 0; AudioMgr.sfxBenar.play().catch(()=>{}); this.memoriMatched++; this.memoriFlipped = [];
-                        if(this.memoriMatched >= totalPairs) { this.skor += 100; this.simpanProgres(); this.renderUI(); setTimeout(() => this.munculLayarAkhir('benar'), 1000); }
-                    } else {
-                        AudioMgr.playSalah(); this.nyawa--; this.renderUI();
-                        setTimeout(() => { this.memoriFlipped[0].parentElement.classList.remove('flipped'); this.memoriFlipped[1].parentElement.classList.remove('flipped'); this.memoriFlipped = []; if(this.nyawa <= 0) setTimeout(() => this.munculLayarAkhir('kalah'), 500); }, 1000);
-                    }
-                }
-            },
-
-            mesinBubble(data, arena) {
-                const target = data.item_target || { nama: "Benar", isTarget: true }; const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
-                let itemAcak = [target, ...pengecoh]; const kecepatan = data.speed || 'normal';
-                arena.innerHTML = `<p class="text-xs text-sky-600 font-bold mb-2 z-10 bg-white/70 px-3 py-1 rounded-full pointer-events-none">Tekan Gelembung yang Benar!</p>`;
-                PhysicsEngine.start('bubble', kecepatan, itemAcak, arena);
-            },
-
-            mesinMelayang(data, arena) {
-                const arrUrutan = data.item_urutan || []; this.totalJawaban = arrUrutan.length; const kecepatan = data.speed || 'normal';
-                arena.innerHTML = `<p class="text-xs text-sky-600 font-bold mb-2 z-10 bg-white/70 px-3 py-1 rounded-full pointer-events-none">Tekan sesuai urutan (1, 2, 3..)</p>`;
-                PhysicsEngine.start('melayang', kecepatan, arrUrutan, arena);
-            },
-
-            mesinPukul(data, arena) {
-                const target = data.item_target || { nama: "Benar", isTarget: true }; const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
-                let itemAcak = [target, ...pengecoh]; const kecepatan = data.speed || 'normal';
-                let speedMs = kecepatan === 'cepat' ? 800 : (kecepatan === 'lambat' ? 1800 : 1200);
-                this.totalJawaban = 3; 
-
-                arena.innerHTML = `<p class="text-xs text-sky-600 font-bold mb-2 z-10 bg-white/70 px-3 py-1 rounded-full">Pukul gambar yang benar 3x!</p><div class="grid grid-cols-3 gap-3 w-full max-w-sm mt-auto pb-10" id="wadah-lubang"></div>`;
-                const wadahLubang = document.getElementById('wadah-lubang'); let lubangs = [];
-                for(let i=0; i<6; i++) {
-                    const lubang = document.createElement('div'); lubang.className = "lubang-pukul aspect-square w-full";
-                    const benda = document.createElement('div'); benda.className = "benda-pukul flex flex-col items-center justify-center bg-white border-2 border-indigo-200 rounded-t-full shadow-inner p-1";
-                    
-                    benda.onclick = () => {
-                        const isTarget = benda.getAttribute('data-is-target') === 'true'; benda.classList.remove('muncul');
-                        if(isTarget) {
-                            AudioMgr.playBenar(); this.jawabanSaatIni++; this.skor += 50; this.renderUI();
-                            if(this.jawabanSaatIni >= 3) { PhysicsEngine.stop(); setTimeout(() => this.munculLayarAkhir('benar'), 500); }
-                        } else {
-                            AudioMgr.playSalah(); this.nyawa--; this.renderUI();
-                            if(this.nyawa <= 0) { PhysicsEngine.stop(); setTimeout(() => this.munculLayarAkhir('kalah'), 500); }
-                        }
-                    };
-                    lubang.appendChild(benda); wadahLubang.appendChild(lubang); lubangs.push(benda);
-                }
-
-                PhysicsEngine.stop();
-                PhysicsEngine.rafId = setInterval(() => { 
-                    lubangs.forEach(b => b.classList.remove('muncul'));
-                    const numToPop = Math.random() > 0.5 ? 2 : 1;
-                    const shuffledLubang = [...lubangs].sort(() => 0.5 - Math.random()).slice(0, numToPop);
-                    shuffledLubang.forEach((benda, idx) => {
-                        let it = itemAcak[Math.floor(Math.random() * itemAcak.length)];
-                        if(idx === 0 && Math.random() > 0.3) it = target; 
-                        const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                        if(urlPath) benda.innerHTML = `<img src="${urlPath}" class="w-full h-full object-cover rounded-full pointer-events-none">`;
-                        else benda.innerHTML = `<span class="text-[10px] font-bold text-slate-700 pointer-events-none">${it.nama}</span>`;
-                        benda.setAttribute('data-is-target', it.isTarget ? 'true' : 'false'); benda.classList.add('muncul');
-                    });
-                }, speedMs);
-            },
-
-            munculLayarAkhir(status) {
-                PhysicsEngine.stop(); 
-                const layar = document.getElementById('layar-pesan'); const ikon = document.getElementById('pesan-ikon'); const judul = document.getElementById('pesan-judul'); const sub = document.getElementById('pesan-sub'); const wadahTombol = document.getElementById('wadah-tombol-pesan');
-                layar.classList.remove('hidden'); wadahTombol.innerHTML = '';
-
-                if(status === 'benar') {
-                    ikon.innerHTML = `<div class="bg-amber-100 p-3 rounded-full mb-1 inline-block"><i data-lucide="star" class="w-12 h-12 text-amber-500 fill-amber-400"></i></div>`;
-                    judul.innerText = "Luar Biasa!"; judul.className = "text-2xl font-black mb-0.5 text-slate-800";
-                    if(this.levelSekarang >= this.db.levels.length - 1) {
-                        sub.innerText = `Skor Total: ${this.skor}\nSemua level selesai!`;
-                        wadahTombol.innerHTML = `<button onclick="document.getElementById('layar-pesan').classList.add('hidden'); Game.bukaPilihLevel();" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold text-lg py-3.5 rounded-xl shadow-sm transition-all">Pilih Level Lain</button>`;
-                    } else {
-                        sub.innerText = `Lanjut ke level berikutnya!`;
-                        wadahTombol.innerHTML = `<button onclick="document.getElementById('layar-pesan').classList.add('hidden'); Game.mainkanLevel(Game.levelSekarang + 1);" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold text-lg py-3.5 rounded-xl shadow-sm transition-all mb-2">Lanjut Level</button>
-                                                 <button onclick="document.getElementById('layar-pesan').classList.add('hidden'); Game.bukaPilihLevel();" class="w-full bg-slate-100 text-slate-600 font-bold text-sm py-2.5 rounded-xl hover:bg-slate-200">Peta Level</button>`;
-                    }
-                } else if(status === 'salah') {
-                    ikon.innerHTML = `<div class="bg-orange-100 p-3 rounded-full mb-1 inline-block"><i data-lucide="refresh-ccw" class="w-10 h-10 text-orange-500"></i></div>`;
-                    judul.innerText = "Aduh Salah"; judul.className = "text-2xl font-black mb-0.5 text-slate-800"; sub.innerText = "Tidak apa-apa, ayo coba lagi!";
-                    wadahTombol.innerHTML = `<button onclick="document.getElementById('layar-pesan').classList.add('hidden'); Game.muatArena();" class="w-full bg-sky-500 text-white font-bold text-lg py-3.5 rounded-xl shadow-sm transition-all">Coba Lagi</button>`;
-                } else {
-                    ikon.innerHTML = `<div class="bg-rose-100 p-3 rounded-full mb-1 inline-block"><i data-lucide="heart-crack" class="w-12 h-12 text-rose-500"></i></div>`;
-                    judul.innerText = "Game Over"; judul.className = "text-2xl font-black mb-0.5 text-slate-800"; sub.innerText = `Skor Terakhir: ${this.skor}`;
-                    wadahTombol.innerHTML = `<button onclick="document.getElementById('layar-pesan').classList.add('hidden'); Game.bukaPilihLevel();" class="w-full bg-slate-800 text-white font-bold text-base py-3 rounded-xl active:scale-95 transition-transform">Kembali ke Menu</button>`;
-                }
-                lucide.createIcons();
+                renderDaftarLevel(); uiToast("5 Soal ditambahkan! Klik SIMPAN & PUBLISH.");
             }
         };
 
-        // Tunggu DOM selesai, lalu paksa load (Anti Stuck 0%)
-        document.addEventListener('DOMContentLoaded', () => { Game.initPreload(); });
+        async function tarikDataGitHub(forceRefresh = false) {
+            const token = localStorage.getItem('ghToken'); const repo = localStorage.getItem('ghRepo'); const statusEl = document.getElementById('admin-status'); const icon = document.getElementById('icon-status'); const text = document.getElementById('text-status'); const btnSync = document.getElementById('icon-sync');
+            icon.setAttribute('data-lucide', 'refresh-cw'); icon.classList.add('animate-spin', 'text-indigo-500'); if(btnSync) btnSync.classList.add('animate-spin');
+            text.innerText = "Menarik data 0%..."; text.className = "text-indigo-800";
+            statusEl.className = "bg-indigo-50 border-2 border-indigo-200 p-4 rounded-2xl text-sm font-bold flex items-center justify-between shadow-sm transition-colors";
+            lucide.createIcons();
+
+            let counter = 0; let intv = setInterval(() => { counter+=10; if(counter>90) counter=90; text.innerText = `Menarik data ${counter}%...`; }, 100);
+
+            try {
+                const reqOpt = forceRefresh ? { headers: { 'Authorization': `token ${token}` }, cache: 'no-store' } : { headers: { 'Authorization': `token ${token}` } };
+                const res = await fetch(`https://api.github.com/repos/${repo}/contents/public/data-soal.json?v=${Date.now()}`, reqOpt);
+                clearInterval(intv);
+                if(res.ok) {
+                    const data = await res.json(); const parsed = JSON.parse(decodeURIComponent(escape(window.atob(data.content))));
+                    dbLokal.global_settings = parsed.global_settings || {}; dbLokal.levels = parsed.levels || []; document.getElementById('total-level').innerText = dbLokal.levels.length;
+                    icon.setAttribute('data-lucide', 'check-circle'); icon.classList.remove('animate-spin', 'text-indigo-500'); icon.classList.add('text-emerald-500');
+                    text.innerText = "Terhubung: " + repo; text.className = "text-emerald-800";
+                    statusEl.className = "bg-emerald-50 border-2 border-emerald-200 p-4 rounded-2xl text-sm font-bold flex items-center justify-between shadow-sm transition-colors";
+                    if(forceRefresh) uiToast("Berhasil menarik data!");
+                } else if (res.status === 404) {
+                    dbLokal = { global_settings: {}, levels: [] }; document.getElementById('total-level').innerText = 0;
+                    icon.setAttribute('data-lucide', 'info'); icon.classList.remove('animate-spin', 'text-indigo-500'); icon.classList.add('text-sky-500');
+                    text.innerText = "Repo Kosong."; text.className = "text-sky-800";
+                    statusEl.className = "bg-sky-50 border-2 border-sky-200 p-4 rounded-2xl text-sm font-bold flex items-center justify-between shadow-sm transition-colors";
+                } else throw new Error(`Akses Ditolak.`);
+            } catch(e) { 
+                clearInterval(intv); icon.setAttribute('data-lucide', 'x-circle'); icon.classList.remove('animate-spin', 'text-indigo-500'); icon.classList.add('text-rose-500');
+                text.innerText = "Error: " + e.message; text.className = "text-rose-800";
+                statusEl.className = "bg-rose-50 border-2 border-rose-200 p-4 rounded-2xl text-sm font-bold flex items-center justify-between shadow-sm transition-colors";
+                if(forceRefresh) uiToast("Gagal menarik data", "error");
+            }
+            if(btnSync) btnSync.classList.remove('animate-spin'); lucide.createIcons(); renderDaftarLevel();
+        }
+
+        function renderDaftarLevel() {
+            const wadah = document.getElementById('daftar-soal-admin'); wadah.innerHTML = ''; document.getElementById('total-level').innerText = dbLokal.levels ? dbLokal.levels.length : 0;
+            if(!dbLokal.levels || dbLokal.levels.length === 0) return wadah.innerHTML = `<div class="text-center p-10"><p>Belum ada Level.</p></div>`;
+            dbLokal.levels.forEach((lvl, idx) => {
+                wadah.innerHTML += `
+                    <div class="border border-slate-200 p-4 rounded-2xl flex justify-between items-center bg-white shadow-sm hover:border-indigo-300">
+                        <div class="overflow-hidden"><span class="text-[10px] font-black text-white uppercase px-2 py-1 bg-indigo-500 rounded-lg">${lvl.kategori}</span><span class="text-sm font-black text-slate-400 ml-2">Level ${idx + 1}</span><h3 class="font-bold text-base text-slate-800 mt-1 truncate w-48 sm:w-64">${lvl.pertanyaan}</h3></div>
+                        <div class="flex gap-2"><button onclick="bukaFormEdit(${idx})" class="text-indigo-600 bg-indigo-50 p-3 rounded-xl hover:bg-indigo-600 hover:text-white transition"><i data-lucide="edit-3" class="w-5 h-5"></i></button><button onclick="hapusLevel(${idx})" class="text-rose-600 bg-rose-50 p-3 rounded-xl hover:bg-rose-600 hover:text-white transition"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div>
+                    </div>`;
+            }); lucide.createIcons();
+        }
+
+        async function hapusLevel(idx) { 
+            const isYes = await uiConfirm("Hapus level ini?");
+            if(isYes) { dbLokal.levels.splice(idx, 1); renderDaftarLevel(); uiToast("Level dihapus. Klik Publish untuk permanen.");} 
+        }
+
+        function bukaFormTambah() {
+            document.getElementById('judul-modal-form').innerText = "Buat Level Baru"; document.getElementById('edit-index').value = "-1"; 
+            document.querySelectorAll('#modal-soal input[type="text"], #modal-soal textarea').forEach(el => el.value = ''); document.querySelectorAll('#modal-soal input[type="file"]').forEach(el => el.value = '');
+            document.getElementById('in-kategori').value = 'kuis'; document.getElementById('in-speed').value = 'normal'; UbahTampilanForm(); bukaModal('modal-soal');
+        }
+
+        function bukaFormEdit(idx) {
+            const data = dbLokal.levels[idx];
+            document.getElementById('judul-modal-form').innerText = `Edit Level ${idx + 1}`; document.getElementById('edit-index').value = idx; 
+            document.getElementById('in-kategori').value = data.kategori || 'kuis'; document.getElementById('in-speed').value = data.speed || 'normal'; UbahTampilanForm();
+            document.getElementById('in-tanya').value = data.pertanyaan; document.getElementById('path-media-soal').value = data.media_soal || "";
+
+            if (data.kategori === 'urutan' || data.kategori === 'melayang') {
+                if(data.item_urutan) { for(let i=0; i<6; i++) { if(data.item_urutan[i]) { document.getElementById(`in-u${i+1}-nama`).value = data.item_urutan[i].nama; document.getElementById(`path-u${i+1}-img`).value = data.item_urutan[i].url_gambar||""; } } }
+            } else {
+                document.getElementById('in-benar-nama').value = data.item_target ? data.item_target.nama : ""; document.getElementById('path-benar-img').value = data.item_target ? data.item_target.url_gambar : "";
+                if(data.item_pengecoh) { for(let i=0; i<3; i++) { if(data.item_pengecoh[i]) { document.getElementById(`in-p${i+1}-nama`).value = data.item_pengecoh[i].nama; document.getElementById(`path-p${i+1}-img`).value = data.item_pengecoh[i].url_gambar||""; } } }
+            }
+            document.querySelectorAll('#modal-soal input[type="file"]').forEach(el => el.value = ''); bukaModal('modal-soal');
+        }
+
+        function simpanLevelKeDaftar() {
+            const ts = Date.now(); const idxEdit = parseInt(document.getElementById('edit-index').value); const kategori = document.getElementById('in-kategori').value; const tanya = document.getElementById('in-tanya').value.trim(); const speed = document.getElementById('in-speed').value;
+            if(!tanya) return uiToast("Pertanyaan WAJIB diisi!", "error");
+            if(!dbLokal.levels) dbLokal.levels = [];
+            let objLevel = { id: `L_${ts}`, kategori: kategori, pertanyaan: tanya, speed: speed };
+
+            const cekM = (idF, idP, prp, prx) => {
+                const f = document.getElementById(idF).files[0]; const p = document.getElementById(idP).value;
+                if(f) { objLevel[prp] = `assets/${prx}_${ts}.${f.name.split('.').pop()}`; antreanFile.push({path: `public/${objLevel[prp]}`, file: f}); } else if(p) { objLevel[prp] = p; } else { objLevel[prp] = null; }
+            };
+            cekM('f-media-soal', 'path-media-soal', 'media_soal', 'msoal');
+
+            if (kategori === 'urutan' || kategori === 'melayang') {
+                objLevel.item_urutan = [];
+                for(let i=1; i<=6; i++) {
+                    const nm = document.getElementById(`in-u${i}-nama`).value; const fU = document.getElementById(`f-u${i}-img`).files[0]; const pU = document.getElementById(`path-u${i}-img`).value;
+                    if(nm || fU || pU) {
+                        let uObj = { indexAsli: objLevel.item_urutan.length, nama: nm || `Ke-${i}` };
+                        if(fU) { uObj.url_gambar = `assets/u${i}_${ts}.${fU.name.split('.').pop()}`; antreanFile.push({path: `public/${uObj.url_gambar}`, file: fU}); } else if(pU) { uObj.url_gambar = pU; }
+                        objLevel.item_urutan.push(uObj);
+                    }
+                }
+            } else {
+                objLevel.item_target = { isTarget: true }; objLevel.item_target.nama = document.getElementById('in-benar-nama').value || "Benar";
+                const fB = document.getElementById('f-benar-img').files[0]; const pB = document.getElementById('path-benar-img').value;
+                if(fB) { objLevel.item_target.url_gambar = `assets/tgt_${ts}.${fB.name.split('.').pop()}`; antreanFile.push({path: `public/${objLevel.item_target.url_gambar}`, file: fB}); } else if(pB) { objLevel.item_target.url_gambar = pB; }
+                objLevel.item_pengecoh = [];
+                for(let i=1; i<=3; i++) {
+                    const nm = document.getElementById(`in-p${i}-nama`).value; const fP = document.getElementById(`f-p${i}-img`).files[0]; const pP = document.getElementById(`path-p${i}-img`).value;
+                    if(nm || fP || pP) {
+                        let pObj = { nama: nm || "Pilihan", isTarget: false };
+                        if(fP) { pObj.url_gambar = `assets/p${i}_${ts}.${fP.name.split('.').pop()}`; antreanFile.push({path: `public/${pObj.url_gambar}`, file: fP}); } else if(pP) { pObj.url_gambar = pP; }
+                        objLevel.item_pengecoh.push(pObj);
+                    }
+                }
+            }
+            if (idxEdit > -1) dbLokal.levels[idxEdit] = objLevel; else dbLokal.levels.push(objLevel);
+            renderDaftarLevel(); tutupModal('modal-soal'); uiToast("Level disimpan.");
+        }
+
+        const Galeri = {
+            targetInputId: null, filterType: 'all', 
+            bukaUtama(inputId, type) { this.targetInputId = inputId; this.filterType = type; document.getElementById('modal-galeri').classList.remove('hidden'); this.fetchDataGitHub(); },
+            tutup() { document.getElementById('modal-galeri').classList.add('hidden'); },
+            async fetchDataGitHub() {
+                const token = localStorage.getItem('ghToken'); const repo = localStorage.getItem('ghRepo');
+                const grid = document.getElementById('galeri-grid'); const loader = document.getElementById('galeri-loading');
+                grid.innerHTML = ''; loader.classList.remove('hidden');
+                try {
+                    const res = await fetch(`https://api.github.com/repos/${repo}/contents/public/assets?v=${Date.now()}`, { headers: { 'Authorization': `token ${token}` } });
+                    loader.classList.add('hidden');
+                    if(res.ok) {
+                        const files = await res.json();
+                        if(files.length === 0) return grid.innerHTML = `<p class="col-span-3 text-center">Belum ada aset.</p>`;
+                        files.forEach(file => {
+                            const isImage = file.name.match(/\.(jpg|jpeg|png|gif|webp)$/i); const isAudio = file.name.match(/\.(mp3|wav|ogg|m4a)$/i);
+                            if (this.filterType === 'image' && !isImage) return; if (this.filterType === 'audio' && !isAudio) return;
+                            const btn = document.createElement('div'); btn.className = "bg-white p-2 rounded-xl shadow-sm border border-slate-200 cursor-pointer text-center"; btn.onclick = () => this.pilihAset(`assets/${file.name}`);
+                            if (isImage) btn.innerHTML = `<img src="https://raw.githubusercontent.com/${repo}/main/public/assets/${file.name}" class="w-full h-16 object-cover rounded-lg mb-1"><span class="text-[9px] truncate w-full">${file.name}</span>`;
+                            else btn.innerHTML = `<div class="w-full h-16 bg-amber-50 rounded-lg mb-1 flex items-center justify-center"><i data-lucide="music" class="w-8 h-8 text-amber-300"></i></div><span class="text-[9px] truncate w-full">${file.name}</span>`;
+                            grid.appendChild(btn);
+                        }); lucide.createIcons();
+                    } else throw new Error();
+                } catch(e) { loader.classList.add('hidden'); grid.innerHTML = `<p class="col-span-3 text-center">Folder Aset kosong.</p>`; }
+            },
+            pilihAset(pathStr) { if (this.targetInputId) document.getElementById(this.targetInputId).value = pathStr; this.tutup(); }
+        };
+
+        const ubahFileKeBase64 = (file) => new Promise((r) => { const rd = new FileReader(); rd.readAsDataURL(file); rd.onload = () => { let b64 = rd.result.replace(/^data:(.*,)?/, ''); if(b64.length%4>0) b64 += '='.repeat(4-(b64.length%4)); r(b64); }; });
+        async function githubPutRequest(token, repo, path, base64Content) {
+            const url = `https://api.github.com/repos/${repo}/contents/${path}`; let sha = null;
+            try { const getRes = await fetch(url, { headers: { 'Authorization': `token ${token}` } }); if(getRes.ok) sha = (await getRes.json()).sha; } catch(e) {} 
+            const bodyData = { message: `CMS Update: ${path}`, content: base64Content }; if (sha) bodyData.sha = sha;
+            const putRes = await fetch(url, { method: 'PUT', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(bodyData) });
+            if(!putRes.ok) throw new Error(`Upload Gagal: ${path}`);
+        }
+        
+        async function publishKeGitHub() {
+            const token = localStorage.getItem('ghToken'); const repo = localStorage.getItem('ghRepo');
+            if(!token || !repo) return uiToast("Hubungkan Token GitHub!", "error");
+            const modLoad = document.getElementById('modal-loading'); const tLoad = document.getElementById('loading-teks'); const pubBar = document.getElementById('publish-bar');
+            modLoad.classList.remove('hidden'); pubBar.style.width = '10%';
+
+            try {
+                let currentProg = 10; const totalFiles = antreanFile.length + fileYangHarusDihapus.length + 1; const step = 90 / totalFiles;
+                for(let i=0; i<fileYangHarusDihapus.length; i++) { tLoad.innerText = `Membersihkan sampah ${i+1}...`; currentProg += step; pubBar.style.width = `${currentProg}%`; }
+                for(let i=0; i<antreanFile.length; i++) { tLoad.innerText = `Upload media ${i+1}/${antreanFile.length}...`; await githubPutRequest(token, repo, antreanFile[i].path, await ubahFileKeBase64(antreanFile[i].file)); currentProg += step; pubBar.style.width = `${currentProg}%`; }
+                
+                tLoad.innerText = `Menyinkronkan Database...`; pubBar.style.width = `95%`;
+                const jsonStr = JSON.stringify(dbLokal, null, 2); const jsonB64 = window.btoa(unescape(encodeURIComponent(jsonStr)));
+                await githubPutRequest(token, repo, 'public/data-soal.json', jsonB64);
+                
+                pubBar.style.width = `100%`; tLoad.innerText = `SELESAI!`; antreanFile = []; fileYangHarusDihapus = []; 
+                setTimeout(() => { modLoad.classList.add('hidden'); uiToast("Data berhasil dipublish!"); }, 1000);
+            } catch(e) { uiToast("ERROR: " + e.message, "error"); modLoad.classList.add('hidden'); }
+        }
     </script>
 </body>
 </html>
