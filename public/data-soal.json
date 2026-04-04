@@ -478,6 +478,90 @@
         }
       ],
       "id": "L_AUTO_1775323263068_4"
+    },
+    {
+      "kategori": "kuis",
+      "pertanyaan": "Berapa 3 + 2?",
+      "item_target": {
+        "nama": "5",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "6",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775325050357_0"
+    },
+    {
+      "kategori": "kuis",
+      "pertanyaan": "Berapa 4 + 1?",
+      "item_target": {
+        "nama": "5",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "6",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775325050357_1"
+    },
+    {
+      "kategori": "bubble",
+      "speed": "normal",
+      "pertanyaan": "Tekan gelembung Anggur 🍇 sebelum jatuh!",
+      "item_target": {
+        "nama": "Anggur 🍇",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Apel 🍎",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775325050357_2"
+    },
+    {
+      "kategori": "tebak_kata",
+      "pertanyaan": "Susun kata dari gambar ini: undefined",
+      "item_target": {
+        "nama": "APEL",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "X",
+          "isTarget": false
+        },
+        {
+          "nama": "Y",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775325050357_3"
+    },
+    {
+      "kategori": "tebak_kata",
+      "pertanyaan": "Susun kata dari gambar ini: undefined",
+      "item_target": {
+        "nama": "JERUK",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "X",
+          "isTarget": false
+        },
+        {
+          "nama": "Y",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775325050357_4"
     }
   ]
 }
