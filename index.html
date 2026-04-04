@@ -34,29 +34,25 @@
 
     <div id="view-game" class="h-[100dvh] w-screen flex flex-col relative overflow-hidden">
         
-        <!-- 1. Layar Mulai Utama -->
         <div id="layar-mulai" class="absolute inset-0 z-[100] bg-sky-500 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-500">
             <div class="bg-white p-6 rounded-[2rem] shadow-2xl mb-8 anim-wobble border-8 border-sky-300">
                 <i data-lucide="puzzle" class="w-24 h-24 text-sky-500"></i>
             </div>
             <h1 class="text-5xl md:text-7xl font-black text-white mb-12 drop-shadow-xl">Game Pintar!</h1>
-            <button onclick="Game.mulaiPilihLevel()" class="bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-black text-4xl py-6 px-16 rounded-[2.5rem] shadow-[0_12px_0_0_#b45309] active:translate-y-3 active:shadow-none transition-all">
-                MAIN
+            
+            <button id="btn-main" onclick="Game.mulaiPilihLevel()" disabled class="opacity-50 bg-yellow-400 text-yellow-900 font-black text-4xl py-6 px-16 rounded-[2.5rem] shadow-[0_12px_0_0_#b45309] transition-all">
+                Memuat...
             </button>
         </div>
 
-        <!-- 2. Layar Pemilihan Level -->
         <div id="layar-pilih-level" class="hidden absolute inset-0 z-[90] bg-sky-900/90 backdrop-blur-md flex flex-col items-center justify-start pt-20 p-6 overflow-y-auto">
             <h2 class="text-4xl font-black text-white mb-8 drop-shadow-md">Pilih Level</h2>
-            <div id="grid-level" class="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-2xl mb-10 pb-20">
-                <!-- Tombol level dirender di sini -->
-            </div>
+            <div id="grid-level" class="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-2xl mb-10 pb-20"></div>
             <button onclick="Game.tutupPilihLevel()" class="absolute top-6 left-6 bg-white/20 text-white p-3 rounded-2xl hover:bg-white/30 backdrop-blur transition hidden" id="btn-tutup-level">
                 <i data-lucide="arrow-left" class="w-8 h-8"></i>
             </button>
         </div>
 
-        <!-- 3. Header Game -->
         <header class="w-full p-4 z-20 flex justify-between items-center glass-ui shadow-lg rounded-b-[2rem] flex-shrink-0">
             <div class="flex gap-2">
                 <button onclick="Game.bukaPilihLevel()" class="bg-sky-100 text-sky-700 p-3 rounded-2xl shadow hover:bg-sky-200 transition active:scale-95">
@@ -74,7 +70,6 @@
             </div>
         </header>
 
-        <!-- 4. Area Bermain -->
         <main class="flex-1 overflow-y-auto overflow-x-hidden flex flex-col items-center justify-start p-4 w-full max-w-4xl mx-auto z-10 relative">
             <div class="glass-ui rounded-[2rem] p-6 shadow-xl w-full text-center mb-6 anim-pop flex-shrink-0">
                 <h2 id="teks-pertanyaan" class="text-2xl md:text-4xl font-black text-slate-800 leading-tight">...</h2>
@@ -85,7 +80,6 @@
             <div id="arena-bermain" class="w-full flex-1 flex flex-col items-center justify-center min-h-0"></div>
         </main>
 
-        <!-- 5. Layar Pesan -->
         <div id="layar-pesan" class="hidden absolute inset-0 z-[80] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
             <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full text-center shadow-2xl border-8 border-white anim-pop relative overflow-hidden">
                 <div id="pesan-ikon" class="mx-auto flex justify-center mb-4 relative z-10"></div>
@@ -99,7 +93,6 @@
     <script>
         lucide.createIcons();
 
-        // LOGIKA DRAG & DROP
         interact('.kartu-drag').draggable({
             inertia: true,
             listeners: {
@@ -143,7 +136,6 @@
             defBenar: 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3',
             defSalah: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3',
             
-            // JURUS PATH AMAN: Memakai jalur relatif murni yang kompatibel dengan Github Pages & Local
             getAmanPath(url) {
                 if(!url) return null;
                 if(url.startsWith('http') || url.startsWith('data:')) return url;
@@ -192,12 +184,18 @@
                     ikon.setAttribute('data-lucide', 'volume-2');
                     btn.classList.replace('text-red-600', 'text-indigo-700');
                     btn.classList.replace('bg-red-100', 'bg-indigo-100');
-                    if (this.bgm.src) { this.bgm.volume = this.volumeNormalBGM; this.bgm.play().catch(e => console.log("BGM butuh klik layar")); }
+                    if (this.bgm.src) { this.bgm.volume = this.volumeNormalBGM; this.bgm.play().catch(()=>{}); }
                 }
                 lucide.createIcons();
             },
 
-            playBGM() { if(!this.isMuted && this.bgm.src) { this.bgm.volume = this.volumeNormalBGM; this.bgm.play().catch(e => console.log("BGM diblokir otomatis oleh browser. Harus unmute/klik layar.")); } },
+            playBGM() { 
+                // Karena dipanggil langsung dari onclick tombol MAIN, ini 100% PASTI BUNYI di semua browser!
+                if(!this.isMuted && this.bgm.src) { 
+                    this.bgm.volume = this.volumeNormalBGM; 
+                    this.bgm.play().catch(e => console.log("BGM butuh klik layar")); 
+                } 
+            },
             playBenar() { this.stopSoal(); if(!this.isMuted && this.sfxBenar.src) { this.sfxBenar.currentTime=0; this.sfxBenar.play().catch(()=>{}); } },
             playSalah() { this.stopSoal(); if(!this.isMuted && this.sfxSalah.src) { this.sfxSalah.currentTime=0; this.sfxSalah.play().catch(()=>{}); } },
             
@@ -252,43 +250,43 @@
             levelSekarang: 0, skor: 0, nyawa: 3, 
             levelTerbuka: parseInt(localStorage.getItem('maxUnlockedLevel')) || 0,
 
-            getAmanPath(url) {
-                if(!url) return null;
-                if(url.startsWith('http') || url.startsWith('data:')) return url;
-                return `public/${url}`;
-            },
-
-            async mulaiPilihLevel() {
-                document.getElementById('layar-mulai').classList.add('opacity-0');
-                setTimeout(() => document.getElementById('layar-mulai').classList.add('hidden'), 500);
-                
+            // PRE-LOAD DATA (Berjalan diam-diam saat layar dibuka)
+            async preLoadData() {
                 try {
-                    // JURUS PATH AMAN: Menggunakan relative path yang bersih dan kompatibel
                     const jsonUrl = `public/data-soal.json?v=${Date.now()}`;
-                    
                     const res = await fetch(jsonUrl);
                     if (!res.ok) throw new Error("Gagal mengambil data.json");
                     const data = await res.json();
                     
                     this.db.global = data.global_settings || {};
                     this.db.levels = data.levels || [];
-                    
-                    if(this.db.levels.length === 0) throw new Error("Data Level Kosong");
+                    if(this.db.levels.length === 0) throw new Error("Data Kosong");
                     
                     AudioMgr.initGlobal(this.db.global);
                 } catch(e) {
-                    // Catatan: Error "Failed to fetch" wajar terjadi jika kamu membuka file index.html
-                    // langsung di komputermu tanpa server (karena keamanan browser).
-                    console.warn("Menggunakan data cadangan. Jika kamu melihat ini, pastikan file data-soal.json sudah ada, atau jalankan via GitHub Pages.", e.message);
+                    console.warn("Mode Demo Aktif:", e.message);
                     this.db.levels = [{ 
-                        kategori: "kuis", 
-                        pertanyaan: "Belum ada soal, atau sistem gagal membacanya. Pastikan masuk ke Panel Admin!", 
-                        item_target: { nama: "Mengerti", isTarget: true }, 
-                        item_pengecoh: [] 
+                        kategori: "kuis", pertanyaan: "Belum ada soal dibuat di Admin.", 
+                        item_target: { nama: "Mengerti", isTarget: true }, item_pengecoh: [] 
                     }];
                 }
 
-                AudioMgr.playBGM();
+                // Nyalakan tombol MAIN setelah data siap!
+                const btnMain = document.getElementById('btn-main');
+                btnMain.disabled = false;
+                btnMain.classList.remove('opacity-50');
+                btnMain.innerText = "MAIN";
+                btnMain.classList.add('hover:bg-yellow-300', 'cursor-pointer');
+            },
+
+            // Dieksekusi secara sinkronus lewat tombol MAIN
+            mulaiPilihLevel() {
+                document.getElementById('layar-mulai').classList.add('opacity-0');
+                setTimeout(() => document.getElementById('layar-mulai').classList.add('hidden'), 500);
+                
+                // KARENA DIPANGGIL LANGSUNG DARI KLIK, AUDIO PASTI BERHASIL!
+                AudioMgr.playBGM(); 
+                
                 this.levelTerbuka = Math.min(this.levelTerbuka, Math.max(0, this.db.levels.length - 1));
                 this.bukaPilihLevel(true);
             },
@@ -359,7 +357,7 @@
                 document.getElementById('teks-pertanyaan').innerText = dataLevel.pertanyaan || "Soal tanpa teks";
 
                 const bgLayar = dataLevel.bg_image || this.db.global.bg_image;
-                document.getElementById('view-game').style.backgroundImage = bgLayar ? `url('${this.getAmanPath(bgLayar)}')` : 'none';
+                document.getElementById('view-game').style.backgroundImage = bgLayar ? `url('${AudioMgr.getAmanPath(bgLayar)}')` : 'none';
                 
                 AudioMgr.setAudioLevel(dataLevel);
                 
@@ -393,7 +391,7 @@
                     el.setAttribute('data-benar', it.isTarget ? 'ya' : 'tidak');
                     el.className = "kartu-drag w-24 h-24 md:w-32 md:h-32 bg-white rounded-[1.5rem] shadow-xl border-4 border-white cursor-grab touch-none flex items-center justify-center overflow-hidden relative";
                     
-                    const urlPath = it.url_gambar ? this.getAmanPath(it.url_gambar) : '';
+                    const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
                     el.innerHTML = `
                         <div class="absolute inset-0 bg-slate-100 flex items-center justify-center text-slate-500 font-black text-sm md:text-lg text-center p-2 ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div>
                         <img src="${urlPath}" class="w-full h-full object-cover pointer-events-none" onerror="this.previousElementSibling.classList.remove('hidden'); this.style.display='none'" draggable="false" />
@@ -416,7 +414,7 @@
                     btn.className = "bg-white hover:bg-sky-50 border-4 border-sky-200 text-sky-800 font-black text-xl md:text-2xl py-6 px-4 rounded-[2rem] shadow-[0_8px_0_0_#bae6fd] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center justify-center gap-3";
                     
                     let konten = '';
-                    const urlPath = it.url_gambar ? this.getAmanPath(it.url_gambar) : '';
+                    const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
                     if(urlPath) konten += `<img src="${urlPath}" class="h-24 object-contain rounded-xl" onerror="this.style.display='none'" draggable="false">`;
                     if(it.nama) konten += `<span>${it.nama}</span>`;
                     
@@ -489,6 +487,9 @@
                 lucide.createIcons();
             }
         };
+
+        // PANGGIL PRE-LOAD SAAT WEB DIBUKA
+        window.onload = () => Game.preLoadData();
     </script>
 </body>
 </html>
