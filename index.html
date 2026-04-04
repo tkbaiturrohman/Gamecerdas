@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        /* MENGUNCI LAYAR AGAR TIDAK SCROLL SAAT BERMAIN */
+        /* MENCEGAH LAYAR HP SCROLLING / PULL TO REFRESH SAAT MAIN */
         body { font-family: 'Nunito', sans-serif; margin: 0; background: #f8fafc; touch-action: none; overscroll-behavior: none; overflow: hidden; -webkit-tap-highlight-color: transparent; }
         #view-game { background-size: cover; background-position: center; transition: background-image 0.5s ease-in-out; }
         
@@ -20,33 +20,27 @@
         .btn-pilihan { transition: transform 0.1s; cursor: pointer; } .btn-pilihan:active { transform: scale(0.92); border-color: #3b82f6; }
         
         /* ======================================================= */
-        /* DRAG & DROP MURNI (JAMINAN 100000% ANTI MACET)          */
+        /* DRAG & DROP MURNI ALA CANVA (BEBAS MELAYANG ANTI MACET) */
         /* ======================================================= */
         .kartu-drag { 
-            touch-action: none; 
-            user-select: none; 
-            position: relative; 
-            z-index: 10; 
-            cursor: grab; 
-            /* Transisi ini akan bekerja indah saat SNAP BACK (kembali) */
+            touch-action: none; user-select: none; position: relative; z-index: 10; cursor: grab; 
+            /* Animasi hanya jalan saat benda dilepas (snap back) */
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s; 
             will-change: transform;
         }
         .kartu-drag:active { cursor: grabbing; }
         .is-dragging { 
-            opacity: 0.95; 
-            z-index: 99999 !important; 
-            /* Transisi DIMATIKAN saat diseret agar responsif instan dengan jari */
+            opacity: 0.95; z-index: 99999 !important; 
+            /* Transisi dimatikan agar pergerakan nempel 100% dengan jari di HP */
             transition: none !important; 
-            box-shadow: 0 25px 50px rgba(0,0,0,0.35); 
-            transform: scale(1.15) !important; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.35); transform: scale(1.15) !important; 
         }
         
         .zona-drop { transition: all 0.2s; }
         .drop-hover { border-color: #0ea5e9 !important; background-color: #e0f2fe !important; box-shadow: inset 0 0 0 4px #bae6fd; transform: scale(1.05); }
         .terkunci { pointer-events: none !important; opacity: 1 !important; transform: translate3d(0,0,0) scale(1) !important; box-shadow: none !important; transition: none !important; }
 
-        /* KARTU MEMORI */
+        /* KARTU MEMORI (3D FLIP) */
         .mem-card { perspective: 1000px; cursor: pointer; }
         .mem-inner { position: relative; width: 100%; height: 100%; transition: transform 0.5s; transform-style: preserve-3d; }
         .mem-card.flipped .mem-inner { transform: rotateY(180deg); }
@@ -59,13 +53,13 @@
         .objek-terbang:active { transform: scale(0.9) !important; }
 
         /* SILUET & PUKUL TIKUS */
-        .bayangan-hitam { filter: brightness(0) drop-shadow(0 4px 4px rgba(0,0,0,0.3)); opacity: 0.8; pointer-events: none; }
+        .bayangan-hitam { filter: brightness(0) drop-shadow(0 4px 4px rgba(0,0,0,0.4)); opacity: 0.8; pointer-events: none; }
         .lubang-pukul { overflow: hidden; position: relative; background: #cbd5e1; border-radius: 50%; border-bottom: 8px solid #94a3b8; }
         .benda-pukul { position: absolute; bottom: -100%; left: 5%; right: 5%; height: 95%; transition: bottom 0.15s ease-out; cursor: pointer; z-index: 20; }
         .benda-pukul.muncul { bottom: 0; }
         .benda-pukul:active { transform: scale(0.9); }
 
-        /* TOAST NOTIF & ANIMASI */
+        /* TOAST & ANIMASI UMUM */
         .toast-enter { animation: slideInDown 0.3s forwards; } .toast-leave { animation: slideOutUp 0.3s forwards; }
         @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         @keyframes slideOutUp { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, -100%); opacity: 0; } }
@@ -80,12 +74,10 @@
 </head>
 <body>
 
-    <!-- Wadah Notifikasi Pop-up -->
     <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
     <div id="view-game" class="h-[100dvh] w-screen flex flex-col relative overflow-hidden bg-slate-50">
         
-        <!-- Layar Mulai / Loading Failsafe -->
         <div id="layar-mulai" class="absolute inset-0 z-[100] bg-gradient-to-br from-sky-400 to-indigo-500 flex flex-col items-center justify-center p-6 text-center transition-all duration-500">
             <div class="bg-white/20 p-6 rounded-3xl backdrop-blur-sm mb-6 anim-pulse-soft shadow-xl border border-white/30">
                 <i data-lucide="gamepad-2" class="w-16 h-16 text-white"></i>
@@ -94,7 +86,7 @@
             
             <div id="loading-bar-container" class="w-full max-w-xs bg-white/30 rounded-full h-4 mb-6 mt-4 overflow-hidden relative">
                 <div id="loading-bar-fill" class="bg-yellow-400 h-full w-0 transition-all duration-100 ease-linear"></div>
-                <div id="loading-text" class="absolute inset-0 flex items-center justify-center text-[10px] font-black text-indigo-900">0%</div>
+                <div id="loading-text" class="absolute inset-0 flex items-center justify-center text-[10px] font-black text-indigo-900">Memuat Data...</div>
             </div>
             
             <button id="btn-mulai" onclick="Game.mulai()" class="hidden bg-white text-indigo-600 hover:bg-slate-50 font-black text-2xl py-4 px-12 rounded-full shadow-[0_6px_0_0_rgba(255,255,255,0.3)] active:translate-y-1 active:shadow-[0_0px_0_0_rgba(255,255,255,0)] transition-all w-full max-w-[250px]">
@@ -102,7 +94,6 @@
             </button>
         </div>
 
-        <!-- Peta Level -->
         <div id="layar-pilih-level" class="hidden absolute inset-0 z-[90] bg-slate-50/95 backdrop-blur flex flex-col items-center justify-start overflow-y-auto pb-10">
             <div class="w-full bg-white px-6 pt-10 pb-4 shadow-sm sticky top-0 z-10 flex items-center justify-between">
                 <h2 class="text-xl font-black text-slate-800 flex items-center gap-2">Peta Level</h2>
@@ -117,7 +108,6 @@
             </div>
         </div>
 
-        <!-- Top Navigation -->
         <header class="absolute top-3 left-3 right-3 z-20 flex justify-between items-center glass-nav rounded-full px-2 py-2">
             <div class="flex items-center gap-2">
                 <button onclick="Game.bukaPilihLevel()" class="w-10 h-10 flex items-center justify-center bg-slate-100/50 text-slate-700 rounded-full active:scale-90 transition"><i data-lucide="map" class="w-5 h-5"></i></button>
@@ -130,22 +120,21 @@
             </div>
         </header>
 
-        <!-- Area Bermain -->
-        <main class="flex-1 overflow-hidden flex flex-col items-center justify-start px-4 pt-20 pb-6 w-full max-w-2xl mx-auto z-10 relative">
+        <main class="flex-1 overflow-visible flex flex-col items-center justify-start px-4 pt-20 pb-6 w-full max-w-2xl mx-auto z-10 relative">
+            
             <div class="glass-card rounded-[1.5rem] p-4 w-full flex flex-col items-center mb-2 anim-fade flex-shrink-0 z-20 pointer-events-auto">
                 <div class="w-full flex items-center justify-between gap-3">
                     <button onclick="AudioMgr.putarUlangSoal()" id="btn-suara-soal" class="hidden flex-shrink-0 w-12 h-12 flex items-center justify-center bg-sky-100 text-sky-600 rounded-full active:scale-90 transition-transform shadow-sm"><i data-lucide="volume-2" id="ikon-baca-soal" class="w-6 h-6"></i></button>
                     <h2 id="teks-pertanyaan" class="text-base md:text-lg font-bold text-slate-800 leading-snug flex-1 text-center">Memuat...</h2>
                 </div>
-                <div id="media-soal" class="w-full max-h-24 mt-2 rounded-xl overflow-hidden hidden flex justify-center bg-slate-100">
-                    <img id="img-soal" src="" class="h-full object-contain pointer-events-none">
+                <div id="media-soal" class="w-full max-h-32 mt-2 rounded-xl overflow-hidden hidden flex justify-center bg-slate-100 p-1 border border-slate-200">
+                    <img id="img-soal" src="" class="h-full object-contain pointer-events-none rounded-lg">
                 </div>
             </div>
             
             <div id="arena-bermain" class="w-full flex-1 flex flex-col items-center justify-center min-h-0 relative"></div>
         </main>
 
-        <!-- Pesan Akhir -->
         <div id="layar-pesan" class="hidden absolute inset-0 z-[80] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
             <div class="bg-white rounded-[2rem] p-8 max-w-xs w-full text-center shadow-2xl anim-fade relative overflow-hidden">
                 <div id="pesan-ikon" class="mx-auto flex justify-center mb-4"></div>
@@ -159,6 +148,7 @@
     <script>
         lucide.createIcons();
 
+        // FUNGSI TOAST NOTIFIKASI
         function uiToast(msg, type='success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -169,27 +159,29 @@
         }
 
         // =========================================================================
-        // MESIN DRAG BEBAS BUG 100% (Sistem Matematika Bounding Box Absolut)
+        // MESIN DRAG & DROP SENTUH MURNI (Point-to-Element Akurasi Piksel)
         // =========================================================================
         const DragEngine = {
             activeEl: null, startX: 0, startY: 0, initX: 0, initY: 0,
             
             init() {
-                document.addEventListener('touchstart', this.onStart.bind(this), {passive: false});
+                // Gunakan Mouse dan Touch Event Murni agar HP mendeteksi dengan sempurna
+                document.addEventListener('touchstart', this.onDown.bind(this), {passive: false});
                 document.addEventListener('touchmove', this.onMove.bind(this), {passive: false});
-                document.addEventListener('touchend', this.onEnd.bind(this));
-                document.addEventListener('mousedown', this.onStart.bind(this), {passive: false});
+                document.addEventListener('touchend', this.onUp.bind(this));
+                
+                document.addEventListener('mousedown', this.onDown.bind(this), {passive: false});
                 document.addEventListener('mousemove', this.onMove.bind(this), {passive: false});
-                document.addEventListener('mouseup', this.onEnd.bind(this));
+                document.addEventListener('mouseup', this.onUp.bind(this));
             },
             
             getPos(e) { return e.touches ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : { x: e.clientX, y: e.clientY }; },
 
-            onStart(e) {
+            onDown(e) {
                 const el = e.target.closest('.kartu-drag');
                 if (!el || el.classList.contains('terkunci')) return;
                 
-                // Mencegah HP men-scroll layar saat bermain (PENTING!)
+                // Mencegah HP men-scroll layar saat bermain (SANGAT PENTING!)
                 if (e.cancelable) e.preventDefault();
                 
                 this.activeEl = el;
@@ -200,7 +192,6 @@
                 this.startX = pos.x; 
                 this.startY = pos.y;
                 
-                // Ambil sisa X dan Y jika gambar pernah terpantul
                 this.initX = parseFloat(this.activeEl.getAttribute('data-x')) || 0;
                 this.initY = parseFloat(this.activeEl.getAttribute('data-y')) || 0;
             },
@@ -213,12 +204,12 @@
                 const newX = this.initX + (pos.x - this.startX);
                 const newY = this.initY + (pos.y - this.startY);
                 
-                // Terbang mulus menggunakan GPU (Hardware Acceleration)
+                // Menggerakkan gambar mengikuti jari
                 this.activeEl.style.transform = `translate3d(${newX}px, ${newY}px, 0) scale(1.15)`;
                 this.activeEl.setAttribute('data-x', newX);
                 this.activeEl.setAttribute('data-y', newY);
 
-                // CEK TABRAKAN SECARA MATEMATIKA (Paling akurat)
+                // CEK TABRAKAN SECARA MATEMATIKA
                 const rect = this.activeEl.getBoundingClientRect();
                 const cx = rect.left + rect.width / 2; 
                 const cy = rect.top + rect.height / 2;
@@ -233,7 +224,7 @@
                 });
             },
 
-            onEnd(e) {
+            onUp(e) {
                 if (!this.activeEl) return;
                 const el = this.activeEl;
                 el.classList.remove('is-dragging');
@@ -265,7 +256,7 @@
         DragEngine.init();
 
         // ==========================================
-        // AUDIO MANAGER 
+        // AUDIO MANAGER (BGM Ducking)
         // ==========================================
         const AudioMgr = {
             bgm: new Audio(), sfxBenar: new Audio(), sfxSalah: new Audio(), soal: new Audio(), 
@@ -327,49 +318,46 @@
         };
 
         // ==========================================
-        // ENGINE GAME FISIKA (Bubble & Melayang)
+        // ENGINE FISIKA (Bubble Air Terjun & Melayang)
         // ==========================================
         const PhysicsEngine = {
             rafId: null, objects: [], arena: null, mode: null,
+            
             start(mode, kecepatan, itemAcak, arenaEl) {
                 this.stop(); this.arena = arenaEl; this.mode = mode; this.objects = [];
-                let speedMult = kecepatan === 'cepat' ? 3 : (kecepatan === 'lambat' ? 1.5 : 2);
-                const rect = this.arena.getBoundingClientRect();
+                let speedMult = kecepatan === 'cepat' ? 3.5 : (kecepatan === 'lambat' ? 1.5 : 2);
                 
-                // AIR TERJUN GELEMBUNG: Dibuat sangat banyak
-                const totalItems = mode === 'bubble' ? 25 : itemAcak.length; 
+                const w = this.arena.clientWidth;
+                const h = this.arena.clientHeight;
+                
+                // AIR TERJUN GELEMBUNG: Dibuat sangat banyak (20 Bubble)
+                const totalItems = mode === 'bubble' ? 20 : itemAcak.length; 
 
                 for(let i=0; i<totalItems; i++) {
                     let it = itemAcak[i % itemAcak.length]; 
-                    if(mode === 'bubble' && i%4===0) it = itemAcak.find(a => a.isTarget) || itemAcak[0]; // Perbanyak target
+                    // Target Bubble di-prioritaskan muncul beberapa kali
+                    if(mode === 'bubble' && (i===0 || i===5 || i===10 || i===15)) it = itemAcak.find(a => a.isTarget) || itemAcak[0];
 
                     const el = document.createElement('div');
-                    el.className = `objek-terbang flex flex-col items-center justify-center shadow-lg overflow-hidden ${mode==='bubble' ? 'bg-white/80 backdrop-blur border-2 border-white rounded-full p-2' : 'bg-white border-2 border-indigo-200 rounded-2xl p-1'}`;
+                    el.className = `objek-terbang flex flex-col items-center justify-center shadow-lg overflow-hidden transition-transform ${mode==='bubble' ? 'bg-white/90 backdrop-blur border-2 border-sky-300 rounded-full p-2' : 'bg-white border-2 border-indigo-200 rounded-2xl p-1'}`;
                     
                     const size = mode === 'bubble' ? (Math.random() * 30 + 60) : 80;
                     el.style.width = `${size}px`; el.style.height = `${size}px`;
                     
-                    let px = Math.random() * (rect.width - size);
-                    // Untuk Bubble: Disebar tinggi ke atas layar agar jatuh berurutan bagaikan air terjun
-                    let py = mode === 'bubble' ? -(Math.random() * 2000) - size : Math.random() * (rect.height - size);
+                    // KOORDINAT AWAL
+                    let px = Math.random() * (w - size);
+                    let py = mode === 'bubble' ? -(Math.random() * 1500) - size : Math.random() * (h - size);
                     
-                    // Pastikan yang melayang awal tidak keluar batas
                     if(mode === 'melayang') {
-                        px = Math.max(10, Math.min(px, rect.width - size - 10));
-                        py = Math.max(10, Math.min(py, rect.height - size - 10));
+                        px = Math.max(10, Math.min(px, w - size - 10));
+                        py = Math.max(10, Math.min(py, h - size - 10));
                     }
                     
                     el.style.left = `0px`; el.style.top = `0px`; 
+                    el.style.transform = `translate3d(${px}px, ${py}px, 0)`;
 
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                    // TAMPILAN FALLBACK CERDAS JIKA TIDAK ADA GAMBAR
-                    el.innerHTML = `
-                        <div class="absolute inset-0 bg-white flex flex-col items-center justify-center p-1 text-center font-bold text-slate-700 leading-none ${urlPath ? 'hidden' : ''}">
-                            <span class="text-2xl drop-shadow-sm mb-0.5">${it.nama.slice(-2).match(/([\uD800-\uDBFF][\uDC00-\uDFFF])/) ? it.nama.slice(-2) : ''}</span>
-                            <span class="text-[9px] w-full truncate px-1">${it.nama}</span>
-                        </div>
-                        <img src="${urlPath}" class="w-full h-full object-contain pointer-events-none" onerror="this.previousElementSibling.classList.remove('hidden'); this.style.display='none'" draggable="false" />
-                    `;
+                    el.innerHTML = Game.generateGambarHtml(it, urlPath, "text-[9px]");
 
                     el.onmousedown = (e) => { e.preventDefault(); AudioMgr.stopSoal(); Game.prosesKetuk(it, el, mode); };
                     el.ontouchstart = (e) => { e.preventDefault(); AudioMgr.stopSoal(); Game.prosesKetuk(it, el, mode); };
@@ -378,8 +366,7 @@
                     
                     const angle = Math.random() * Math.PI * 2;
                     this.objects.push({
-                        el: el, size: size,
-                        x: px, y: py,
+                        el: el, size: size, x: px, y: py,
                         vx: mode === 'bubble' ? 0 : Math.cos(angle) * speedMult,
                         vy: mode === 'bubble' ? (Math.random() * 1.5 + 1) * speedMult : Math.sin(angle) * speedMult,
                         sinC: Math.random() * 100, sinS: Math.random() * 0.05 + 0.02
@@ -387,6 +374,7 @@
                 }
                 this.loop();
             },
+            
             loop() {
                 if(!this.arena) return;
                 const w = this.arena.clientWidth;
@@ -397,9 +385,9 @@
 
                     if (this.mode === 'bubble') {
                         obj.y += obj.vy; obj.sinC += obj.sinS;
-                        obj.x += Math.sin(obj.sinC) * 1.5;
+                        obj.x += Math.sin(obj.sinC) * 1.5; // Ayunan ke kiri-kanan
                         
-                        // RESPawn di atas jika menyentuh bawah layar
+                        // AIR TERJUN: Reset ke atas kalau jatuh melewati layar bawah
                         if(obj.y > h + 20) { 
                             obj.y = -obj.size - (Math.random() * 300); 
                             obj.x = Math.random() * (w - obj.size); 
@@ -409,7 +397,7 @@
                     } else if (this.mode === 'melayang') {
                         obj.x += obj.vx; obj.y += obj.vy;
                         
-                        // MEMANTUL KETAT DI DALAM LAYAR
+                        // GAMBAR MELAYANG: Dikurung ketat dalam layar!
                         if(obj.x <= 0) { obj.vx = Math.abs(obj.vx); obj.x = 0; }
                         if(obj.x >= w - obj.size) { obj.vx = -Math.abs(obj.vx); obj.x = w - obj.size; }
                         
@@ -431,7 +419,7 @@
             levelTerbuka: parseInt(localStorage.getItem('maxUnlockedLevel')) || 0,
             jawabanSaatIni: 0, totalJawaban: 0, memoriFlipped: [], memoriMatched: 0,
 
-            // LOADING FAILSAFE (TIDAK AKAN STUCK DI 0%)
+            // LOADING FAILSAFE (Anti Macet 0%)
             initPreload() {
                 const bCont = document.getElementById('loading-bar-container'); 
                 const bFill = document.getElementById('loading-bar-fill'); 
@@ -465,7 +453,7 @@
                     bCont.classList.add('hidden'); btnMulai.classList.remove('hidden');
                 });
 
-                // FALLBACK PAKSA: 3 Detik tombol PASTI MUNCUL
+                // FALLBACK ABSOLUT 3 Detik
                 setTimeout(() => {
                     if(btnMulai.classList.contains('hidden')) {
                         clearInterval(intv); bCont.classList.add('hidden'); btnMulai.classList.remove('hidden');
@@ -567,10 +555,11 @@
                 else this.mesinKuis(dataLevel, arena);
             },
 
-            // --- PROSES DRAG CUSTOM DARI MESIN DRAG ---
+            // --- PROSES KETIKA BENDA DILEPAS DI KOTAK ZONA DROP ---
             prosesDropItem(card, zone) {
                 const tipe = card.getAttribute('data-tipe');
                 
+                // DRAG NORMAL / SILUET
                 if (tipe === 'drag-tunggal' || tipe === 'drag-siluet') {
                     const isBenar = card.getAttribute('data-benar') === 'ya';
                     if(isBenar) { 
@@ -578,6 +567,7 @@
                         this.prosesKuis(true, zone); 
                     } else { this.prosesSalahDrag(zone, card); }
                 } 
+                // URUTAN / TEBAK KATA
                 else if (tipe === 'drag-urutan' || tipe === 'drag-tebak') {
                     const idDrop = parseInt(zone.getAttribute('data-index'));
                     let isBenar = false;
@@ -617,13 +607,14 @@
                 zone.classList.add('anim-shake', 'bg-red-100', 'border-red-400');
                 setTimeout(() => zone.classList.remove('anim-shake', 'bg-red-100', 'border-red-400'), 500);
                 
-                // Terbang balik
+                // Snap back mental balik
                 card.style.transform = 'translate3d(0,0,0) scale(1)'; 
                 card.setAttribute('data-x', 0); card.setAttribute('data-y', 0);
                 
                 if(this.nyawa <= 0) setTimeout(() => this.munculLayarAkhir('kalah'), 500);
             },
 
+            // --- PROSES KETUK (KUIS, BUBBLE, MELAYANG) ---
             prosesKetuk(item, el, mode) {
                 if(mode === 'bubble') {
                     this.prosesKuis(item.isTarget, el);
@@ -660,25 +651,26 @@
                 }
             },
 
-            // --- GENERATOR ARENA ---
-            generateGambarHtml(it, urlPath, kelasTeks) {
+            // --- FUNGSI HELPER UI ---
+            generateGambarHtml(it, urlPath, classText) {
                 return `
                     <div class="absolute inset-0 bg-white flex flex-col items-center justify-center p-1 text-center font-bold text-slate-700 leading-tight ${urlPath ? 'hidden' : ''}">
                         <span class="text-3xl drop-shadow-sm mb-1">${it.nama.slice(-2).match(/([\uD800-\uDBFF][\uDC00-\uDFFF])/) ? it.nama.slice(-2) : ''}</span>
-                        <span class="${kelasTeks} w-full truncate px-1">${it.nama}</span>
+                        <span class="${classText} w-full truncate px-1">${it.nama}</span>
                     </div>
                     <img src="${urlPath}" class="w-full h-full object-contain pointer-events-none" onerror="this.previousElementSibling.classList.remove('hidden'); this.style.display='none'" draggable="false" />
                 `;
             },
 
+            // --- GENERATOR ARENA ---
             mesinKuis(data, arena) {
                 const target = data.item_target || { nama: "Jawaban", isTarget: true }; const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
                 let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
                 const gridClass = itemsAcak.length > 2 ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2";
-                const grid = document.createElement('div'); grid.className = `grid ${gridClass} gap-3 w-full mt-auto pb-4 anim-fade`;
+                const grid = document.createElement('div'); grid.className = `grid ${gridClass} gap-3 w-full mt-auto pb-4 anim-fade max-w-sm`;
                 itemsAcak.forEach(it => {
                     const btn = document.createElement('button');
-                    btn.className = "btn-pilihan bg-white border-2 border-slate-100 text-slate-700 font-bold text-sm md:text-base p-3 rounded-2xl shadow-sm hover:border-sky-300 flex flex-col items-center justify-center gap-2 min-h-[100px] w-full relative overflow-hidden";
+                    btn.className = "btn-pilihan bg-white border-2 border-slate-100 text-slate-700 font-bold text-sm md:text-base p-2 rounded-2xl shadow-sm hover:border-sky-300 flex flex-col items-center justify-center min-h-[110px] w-full relative overflow-hidden";
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
                     btn.innerHTML = this.generateGambarHtml(it, urlPath, "text-sm");
                     btn.onclick = () => { AudioMgr.stopSoal(); this.prosesKuis(it.isTarget, btn); };
@@ -688,7 +680,7 @@
             },
 
             mesinDrag(data, arena) {
-                arena.innerHTML = `<div class="zona-drop zona-target-drag w-32 h-32 md:w-40 md:h-40 border-2 border-dashed border-sky-400 bg-sky-50/70 backdrop-blur-sm rounded-[1.5rem] flex flex-col items-center justify-center mb-auto mt-2 transition-colors z-0"><i data-lucide="download" class="w-8 h-8 text-sky-400 mb-1"></i><span class="font-bold text-sky-600 text-xs">Taruh Sini</span></div><div id="wadah-item" class="w-full flex justify-center flex-wrap gap-3 pb-6 mt-8 anim-fade z-10"></div>`;
+                arena.innerHTML = `<div class="zona-drop zona-target-drag w-32 h-32 md:w-40 md:h-40 border-4 border-dashed border-sky-300 bg-sky-50/70 backdrop-blur-sm rounded-[1.5rem] flex flex-col items-center justify-center mb-auto mt-2 transition-colors z-0"><i data-lucide="download" class="w-8 h-8 text-sky-400 mb-1"></i><span class="font-bold text-sky-600 text-xs">Taruh Sini</span></div><div id="wadah-item" class="w-full flex justify-center flex-wrap gap-3 pb-6 mt-8 anim-fade z-10"></div>`;
                 lucide.createIcons(); const wadahItem = document.getElementById('wadah-item');
                 const target = data.item_target || { nama: "Target", isTarget: true }; const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
                 let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
@@ -708,16 +700,16 @@
                 const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : []; let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
                 itemsAcak.forEach(it => {
                     const el = document.createElement('div'); el.setAttribute('data-tipe', 'drag-siluet'); el.setAttribute('data-benar', it.isTarget ? 'ya' : 'tidak');
-                    el.className = "kartu-drag w-20 h-20 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden p-1";
+                    el.className = "kartu-drag w-24 h-24 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden p-1";
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                    el.innerHTML = this.generateGambarHtml(it, urlPath, "text-[10px]");
+                    el.innerHTML = this.generateGambarHtml(it, urlPath, "text-xs");
                     wadahItem.appendChild(el);
                 });
             },
 
             mesinUrutan(data, arena) {
                 const arrUrutan = data.item_urutan || []; this.totalJawaban = arrUrutan.length;
-                const boxSize = this.totalJawaban > 4 ? 'w-12 h-12 md:w-16 md:h-16 text-[10px]' : 'w-16 h-16 md:w-20 md:h-20 text-xs';
+                const boxSize = this.totalJawaban > 4 ? 'w-14 h-14 text-[10px]' : 'w-20 h-20 text-xs';
                 let htmlZona = `<div class="flex flex-wrap justify-center gap-2 mb-auto mt-4 w-full px-1">`;
                 for(let i=0; i<this.totalJawaban; i++) htmlZona += `<div data-index="${i}" class="zona-drop zona-urutan ${boxSize} border-2 border-dashed border-sky-400 bg-sky-50/50 rounded-xl flex items-center justify-center transition-colors relative z-0"><span class="absolute -top-2 -left-2 bg-sky-500 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold shadow text-[10px]">${i+1}</span></div>`;
                 htmlZona += `</div><div id="wadah-item-urutan" class="w-full flex justify-center flex-wrap gap-2 pb-6 mt-8 anim-slide-up z-10"></div>`;
@@ -741,7 +733,7 @@
                 let semuaHuruf = [...hurufTarget, ...hurufEkstra].sort(() => Math.random() - 0.5);
 
                 let htmlZona = `<div class="flex flex-wrap justify-center gap-1.5 md:gap-2 mb-auto mt-4 w-full">`;
-                hurufTarget.forEach((h, i) => { htmlZona += `<div data-index="${i}" class="zona-drop zona-tebak w-10 h-12 md:w-14 md:h-16 border-2 border-slate-300 bg-white/50 rounded-lg flex items-center justify-center transition-colors relative z-0 shadow-inner"></div>`; });
+                hurufTarget.forEach((h, i) => { htmlZona += `<div data-index="${i}" class="zona-drop zona-tebak w-12 h-14 border-2 border-slate-300 bg-white/50 rounded-lg flex items-center justify-center transition-colors relative z-0 shadow-inner"></div>`; });
                 htmlZona += `</div><div id="wadah-item-tebak" class="w-full flex justify-center flex-wrap gap-2 pb-6 mt-8 anim-slide-up z-10"></div>`;
                 arena.innerHTML = htmlZona;
 
@@ -750,7 +742,7 @@
                     const el = document.createElement('div');
                     let validIndexes = []; hurufTarget.forEach((ht, idx) => { if(ht === huruf) validIndexes.push(idx); });
                     el.setAttribute('data-tipe', 'drag-tebak'); el.setAttribute('data-valid-indexes', JSON.stringify(validIndexes));
-                    el.className = `kartu-drag w-10 h-12 md:w-14 md:h-16 bg-white rounded-lg shadow border border-slate-200 flex items-center justify-center overflow-hidden text-lg md:text-2xl font-black text-indigo-600`;
+                    el.className = `kartu-drag w-12 h-14 bg-white rounded-lg shadow border border-slate-200 flex items-center justify-center overflow-hidden text-xl font-black text-indigo-600`;
                     el.innerText = huruf; wadahItem.appendChild(el);
                 });
             },
@@ -875,7 +867,7 @@
             }
         };
 
-        // Tunggu halaman siap, lalu langsung paksa tarik data
+        // Tunggu halaman siap lalu paksa load (Anti Stuck 0%)
         document.addEventListener('DOMContentLoaded', () => { Game.initPreload(); });
     </script>
 </body>
