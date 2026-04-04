@@ -510,20 +510,12 @@
       "id": "L_AUTO_1775325050357_1"
     },
     {
-      "kategori": "bubble",
-      "speed": "normal",
+      "id": "L_1775326220145",
+      "kategori": "melayang",
       "pertanyaan": "Tekan gelembung Anggur 🍇 sebelum jatuh!",
-      "item_target": {
-        "nama": "Anggur 🍇",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "Apel 🍎",
-          "isTarget": false
-        }
-      ],
-      "id": "L_AUTO_1775325050357_2"
+      "speed": "cepat",
+      "media_soal": null,
+      "item_urutan": []
     },
     {
       "kategori": "tebak_kata",
@@ -562,6 +554,160 @@
         }
       ],
       "id": "L_AUTO_1775325050357_4"
+    },
+    {
+      "kategori": "kuis",
+      "pertanyaan": "Berapa 1 + 1?",
+      "item_target": {
+        "nama": "2",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "3",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775326138818_0"
+    },
+    {
+      "kategori": "bubble",
+      "speed": "normal",
+      "pertanyaan": "Tekan gelembung Pisang 🍌 sebelum jatuh!",
+      "item_target": {
+        "nama": "Pisang 🍌",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Apel 🍎",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775326138818_1"
+    },
+    {
+      "kategori": "kuis",
+      "pertanyaan": "Berapa 5 + 4?",
+      "item_target": {
+        "nama": "9",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "10",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775326138818_2"
+    },
+    {
+      "kategori": "tebak_kata",
+      "pertanyaan": "Susun kata dari gambar ini: undefined",
+      "item_target": {
+        "nama": "APEL",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "X",
+          "isTarget": false
+        },
+        {
+          "nama": "Y",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775326138818_3"
+    },
+    {
+      "kategori": "kuis",
+      "pertanyaan": "Berapa 1 + 1?",
+      "item_target": {
+        "nama": "2",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "3",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775326138818_4"
+    },
+    {
+      "kategori": "bubble",
+      "speed": "normal",
+      "pertanyaan": "Tekan gelembung Apel 🍎 sebelum jatuh!",
+      "item_target": {
+        "nama": "Apel 🍎",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Pisang 🍌",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775326142910_0"
+    },
+    {
+      "kategori": "kuis",
+      "pertanyaan": "Berapa 5 + 3?",
+      "item_target": {
+        "nama": "8",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "9",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775326142910_1"
+    },
+    {
+      "kategori": "bubble",
+      "speed": "normal",
+      "pertanyaan": "Tekan gelembung Apel 🍎 sebelum jatuh!",
+      "item_target": {
+        "nama": "Apel 🍎",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Pisang 🍌",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775326142910_2"
+    },
+    {
+      "id": "L_1775326197287",
+      "kategori": "melayang",
+      "pertanyaan": "Tekan gelembung Anggur 🍇 sebelum jatuh!",
+      "speed": "cepat",
+      "media_soal": null,
+      "item_urutan": []
+    },
+    {
+      "kategori": "tebak_kata",
+      "pertanyaan": "Susun kata dari gambar ini: undefined",
+      "item_target": {
+        "nama": "ANGGUR",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "X",
+          "isTarget": false
+        },
+        {
+          "nama": "Y",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775326142910_4"
     }
   ]
 }
