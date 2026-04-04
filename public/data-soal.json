@@ -2,48 +2,196 @@
   "global_settings": {},
   "levels": [
     {
-      "id": "L_1775167910432",
+      "kategori": "kuis",
+      "pertanyaan": "Matematika: Ada berapa jumlah bintang ini? ⭐⭐⭐",
       "item_target": {
-        "isTarget": true,
-        "nama": "Kk",
-        "url_gambar": "assets/tgt_1775167910432.png"
+        "nama": "Tiga (3)",
+        "isTarget": true
       },
       "item_pengecoh": [
         {
-          "nama": "Tt",
-          "isTarget": false,
-          "url_gambar": null
+          "nama": "Satu (1)"
+        },
+        {
+          "nama": "Dua (2)"
+        },
+        {
+          "nama": "Empat (4)"
         }
       ],
-      "kategori": "drag",
-      "pertanyaan": "Mari",
-      "bg_image": "assets/bg_lvl_1775167910432.jpg",
-      "audio_soal": "assets/a_soal_1775167910432.mp3",
-      "sfx_benar": "assets/a_bnr_1775167910432.mp3",
-      "bgm_level": "assets/bgm_glbl.mp3",
-      "sfx_salah": null
+      "id": "L_AUTO_1775320254252_0"
     },
     {
-      "id": "L_1775167987329",
+      "kategori": "drag",
+      "pertanyaan": "Sains: Tarik benda yang bisa terbang ke kotak!",
       "item_target": {
-        "isTarget": true,
-        "nama": "Vv",
-        "url_gambar": "assets/tgt_1775167987329.jpg"
+        "nama": "Pesawat",
+        "isTarget": true
       },
       "item_pengecoh": [
         {
-          "nama": "F",
-          "isTarget": false,
-          "url_gambar": null
+          "nama": "Batu"
+        },
+        {
+          "nama": "Lemari"
         }
       ],
+      "id": "L_AUTO_1775320254252_1"
+    },
+    {
       "kategori": "kuis",
-      "pertanyaan": "Yy",
-      "bg_image": "assets/bg_lvl_1775167987329.jpg",
-      "audio_soal": "assets/a_soal_1775167987329.mp3",
-      "sfx_salah": "assets/a_slh_1775167987329.mp3",
-      "bgm_level": "assets/bgm_glbl.mp3",
-      "sfx_benar": null
+      "pertanyaan": "Akhlaq: Apa yang kita ucapkan saat bertemu teman?",
+      "item_target": {
+        "nama": "Assalamu'alaikum",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Diam saja"
+        },
+        {
+          "nama": "Marah"
+        },
+        {
+          "nama": "Menangis"
+        }
+      ],
+      "id": "L_AUTO_1775320254252_2"
+    },
+    {
+      "kategori": "kuis",
+      "pertanyaan": "Hewan Laut: Manakah hewan yang hidup di laut?",
+      "item_target": {
+        "nama": "Ikan Paus",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Kucing"
+        },
+        {
+          "nama": "Ayam"
+        },
+        {
+          "nama": "Sapi"
+        }
+      ],
+      "id": "L_AUTO_1775320254252_3"
+    },
+    {
+      "kategori": "urutan",
+      "pertanyaan": "Logika: Urutkan dari angka terkecil ke terbesar!",
+      "item_urutan": [
+        {
+          "nama": "Angka 1",
+          "indexAsli": 0
+        },
+        {
+          "nama": "Angka 2",
+          "indexAsli": 1
+        },
+        {
+          "nama": "Angka 3",
+          "indexAsli": 2
+        }
+      ],
+      "id": "L_AUTO_1775320254252_4"
+    },
+    {
+      "kategori": "kuis",
+      "pertanyaan": "Matematika: Ada berapa jumlah bintang ini? ⭐⭐⭐",
+      "item_target": {
+        "nama": "Tiga (3)",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Satu (1)"
+        },
+        {
+          "nama": "Dua (2)"
+        },
+        {
+          "nama": "Empat (4)"
+        }
+      ],
+      "id": "L_AUTO_1775320267864_0"
+    },
+    {
+      "kategori": "drag",
+      "pertanyaan": "Sains: Tarik benda yang bisa terbang ke kotak!",
+      "item_target": {
+        "nama": "Pesawat",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Batu"
+        },
+        {
+          "nama": "Lemari"
+        }
+      ],
+      "id": "L_AUTO_1775320267864_1"
+    },
+    {
+      "kategori": "kuis",
+      "pertanyaan": "Akhlaq: Apa yang kita ucapkan saat bertemu teman?",
+      "item_target": {
+        "nama": "Assalamu'alaikum",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Diam saja"
+        },
+        {
+          "nama": "Marah"
+        },
+        {
+          "nama": "Menangis"
+        }
+      ],
+      "id": "L_AUTO_1775320267864_2"
+    },
+    {
+      "kategori": "kuis",
+      "pertanyaan": "Hewan Laut: Manakah hewan yang hidup di laut?",
+      "item_target": {
+        "nama": "Ikan Paus",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Kucing"
+        },
+        {
+          "nama": "Ayam"
+        },
+        {
+          "nama": "Sapi"
+        }
+      ],
+      "id": "L_AUTO_1775320267864_3"
+    },
+    {
+      "kategori": "urutan",
+      "pertanyaan": "Logika: Urutkan dari angka terkecil ke terbesar!",
+      "item_urutan": [
+        {
+          "nama": "Angka 1",
+          "indexAsli": 0
+        },
+        {
+          "nama": "Angka 2",
+          "indexAsli": 1
+        },
+        {
+          "nama": "Angka 3",
+          "indexAsli": 2
+        }
+      ],
+      "id": "L_AUTO_1775320267864_4"
     }
   ]
 }
