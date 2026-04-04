@@ -2,42 +2,73 @@
   "global_settings": {},
   "levels": [
     {
-      "id": "L_1775330400594",
-      "kategori": "melayang",
-      "pertanyaan": "Tubuh Kita: Kita melihat menggunakan?",
+      "id": "L_1775330807155",
+      "kategori": "pukul",
+      "pertanyaan": "Pukul Tikus: Tangkap 3 Jeruk 🍊!",
       "speed": "normal",
-      "media_soal": null,
-      "item_urutan": [
+      "media_soal": "assets/msoal_1775330807155.png",
+      "item_target": {
+        "isTarget": true,
+        "nama": "Jeruk 🍊",
+        "url_gambar": "undefined"
+      },
+      "item_pengecoh": [
         {
-          "indexAsli": 0,
-          "nama": "1"
-        },
-        {
-          "indexAsli": 1,
-          "nama": "2"
-        },
-        {
-          "indexAsli": 2,
-          "nama": "3"
-        },
-        {
-          "indexAsli": 3,
-          "nama": "4"
-        },
-        {
-          "indexAsli": 4,
-          "nama": "5"
-        },
-        {
-          "indexAsli": 5,
-          "nama": "6"
+          "nama": "Pisang 🍌",
+          "isTarget": false
         }
       ]
     },
     {
-      "id": "L_1775330576334",
+      "kategori": "siluet",
+      "pertanyaan": "Tarik Kucing 🐱 ke bayangannya!",
+      "item_target": {
+        "nama": "Kucing 🐱",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Anjing 🐶",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775330684530_1"
+    },
+    {
+      "kategori": "kuis",
+      "pertanyaan": "Berapa 1 + 2?",
+      "item_target": {
+        "nama": "3",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "4",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775330684530_2"
+    },
+    {
+      "kategori": "bubble",
+      "speed": "normal",
+      "pertanyaan": "Tekan gelembung Pisang 🍌!",
+      "item_target": {
+        "nama": "Pisang 🍌",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Apel 🍎",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775330684530_3"
+    },
+    {
+      "id": "L_1775330749369",
       "kategori": "melayang",
-      "pertanyaan": "Logika: Urutkan angka 1 sampai 4!",
+      "pertanyaan": "Tekan gelembung Jeruk 🍊!",
       "speed": "normal",
       "media_soal": null,
       "item_urutan": [
@@ -68,478 +99,39 @@
       ]
     },
     {
-      "id": "L_AUTO_1775321891358_2",
       "kategori": "kuis",
-      "pertanyaan": "Hewan Darat: Mana yang termasuk hewan peliharaan?",
+      "pertanyaan": "Berapa 1 + 2?",
       "item_target": {
-        "nama": "Kucing",
+        "nama": "3",
         "isTarget": true
       },
       "item_pengecoh": [
         {
-          "nama": "Harimau",
-          "isTarget": false
-        },
-        {
-          "nama": "Buaya",
-          "isTarget": false
-        },
-        {
-          "nama": "Hiu",
-          "isTarget": false
-        }
-      ]
-    },
-    {
-      "id": "L_AUTO_1775321891358_3",
-      "kategori": "drag",
-      "pertanyaan": "Kendaraan: Tarik perahu ke kotak air!",
-      "item_target": {
-        "nama": "Perahu",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "Mobil",
-          "isTarget": false
-        },
-        {
-          "nama": "Sepeda",
-          "isTarget": false
-        }
-      ]
-    },
-    {
-      "id": "L_AUTO_1775321891358_4",
-      "kategori": "kuis",
-      "pertanyaan": "Matematika: Ada berapa jumlah matahari ini? ☀️☀️",
-      "item_target": {
-        "nama": "Dua",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "Satu",
-          "isTarget": false
-        },
-        {
-          "nama": "Tiga",
-          "isTarget": false
-        },
-        {
-          "nama": "Empat",
-          "isTarget": false
-        }
-      ]
-    },
-    {
-      "id": "L_AUTO_1775321896273_0",
-      "kategori": "kuis",
-      "pertanyaan": "Warna: Warna apa daun pada pohon?",
-      "item_target": {
-        "nama": "Hijau",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "Merah",
-          "isTarget": false
-        },
-        {
-          "nama": "Biru",
-          "isTarget": false
-        },
-        {
-          "nama": "Kuning",
-          "isTarget": false
-        }
-      ]
-    },
-    {
-      "id": "L_AUTO_1775321896273_1",
-      "kategori": "drag",
-      "pertanyaan": "Sains: Tarik awan ke langit (kotak)!",
-      "item_target": {
-        "nama": "Awan",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "Batu",
-          "isTarget": false
-        },
-        {
-          "nama": "Kayu",
-          "isTarget": false
-        }
-      ]
-    },
-    {
-      "id": "L_AUTO_1775321896273_2",
-      "kategori": "kuis",
-      "pertanyaan": "Akhlaq: Jika diberi hadiah, kita harus bilang apa?",
-      "item_target": {
-        "nama": "Terima Kasih",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "Marah",
-          "isTarget": false
-        },
-        {
-          "nama": "Diam",
-          "isTarget": false
-        },
-        {
-          "nama": "Nangis",
-          "isTarget": false
-        }
-      ]
-    },
-    {
-      "id": "L_AUTO_1775321896273_3",
-      "kategori": "memory",
-      "pertanyaan": "Ingatan: Cocokkan buah yang sama!",
-      "item_target": {
-        "nama": "Apel",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "Pisang",
-          "isTarget": false
-        },
-        {
-          "nama": "Jeruk",
-          "isTarget": false
-        },
-        {
-          "nama": "Anggur",
-          "isTarget": false
-        }
-      ]
-    },
-    {
-      "id": "L_AUTO_1775321896273_4",
-      "kategori": "urutan",
-      "pertanyaan": "Sains: Urutkan dari pagi ke malam!",
-      "item_urutan": [
-        {
-          "nama": "Matahari Terbit",
-          "indexAsli": 0
-        },
-        {
-          "nama": "Siang Terang",
-          "indexAsli": 1
-        },
-        {
-          "nama": "Sore",
-          "indexAsli": 2
-        },
-        {
-          "nama": "Bulan Bintang",
-          "indexAsli": 3
-        }
-      ]
-    },
-    {
-      "kategori": "drag",
-      "pertanyaan": "Mengenal Hewan: Tarik \"Kuda 🐎\" ke dalam kotak!",
-      "item_target": {
-        "nama": "Kuda 🐎",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "Bebek 🐔",
-          "isTarget": false
-        },
-        {
-          "nama": "Ikan 🐟",
-          "isTarget": false
-        },
-        {
-          "nama": "Gajah 🐘",
+          "nama": "4",
           "isTarget": false
         }
       ],
-      "id": "L_AUTO_1775323250539_0"
+      "id": "L_AUTO_1775330696276_0"
     },
     {
-      "kategori": "drag",
-      "pertanyaan": "Mengenal Hewan: Tarik \"Burung 🐦\" ke dalam kotak!",
+      "kategori": "pukul",
+      "speed": "normal",
+      "pertanyaan": "Pukul Tikus: Tangkap 3 Pisang 🍌!",
       "item_target": {
-        "nama": "Burung 🐦",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "Anjing 🐶",
-          "isTarget": false
-        },
-        {
-          "nama": "Ikan 🐟",
-          "isTarget": false
-        },
-        {
-          "nama": "Kuda 🐎",
-          "isTarget": false
-        }
-      ],
-      "id": "L_AUTO_1775323250539_1"
-    },
-    {
-      "kategori": "drag",
-      "pertanyaan": "Mengenal Buah: Tarik \"Anggur 🍇\" ke dalam kotak!",
-      "item_target": {
-        "nama": "Anggur 🍇",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "Pisang 🍌",
-          "isTarget": false
-        },
-        {
-          "nama": "Apel 🍎",
-          "isTarget": false
-        },
-        {
-          "nama": "Ceri 🍒",
-          "isTarget": false
-        }
-      ],
-      "id": "L_AUTO_1775323250539_2"
-    },
-    {
-      "kategori": "memory",
-      "pertanyaan": "Latih Ingatan: Cari pasangan gambar yang sama!",
-      "item_target": {
-        "nama": "Apel 🍎",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "Semangka 🍉",
-          "isTarget": false
-        },
-        {
-          "nama": "Ceri 🍒",
-          "isTarget": false
-        }
-      ],
-      "id": "L_AUTO_1775323250539_3"
-    },
-    {
-      "kategori": "memory",
-      "pertanyaan": "Latih Ingatan: Cari pasangan gambar yang sama!",
-      "item_target": {
-        "nama": "Stroberi 🍓",
+        "nama": "Pisang 🍌",
         "isTarget": true
       },
       "item_pengecoh": [
         {
           "nama": "Apel 🍎",
           "isTarget": false
-        },
-        {
-          "nama": "Pisang 🍌",
-          "isTarget": false
         }
       ],
-      "id": "L_AUTO_1775323250539_4"
-    },
-    {
-      "kategori": "urutan",
-      "pertanyaan": "Urutkan angka dari yang terkecil ke terbesar!",
-      "item_urutan": [
-        {
-          "nama": "Angka 1",
-          "indexAsli": 0
-        },
-        {
-          "nama": "Angka 2",
-          "indexAsli": 1
-        },
-        {
-          "nama": "Angka 3",
-          "indexAsli": 2
-        },
-        {
-          "nama": "Angka 4",
-          "indexAsli": 3
-        }
-      ],
-      "id": "L_AUTO_1775323258148_0"
-    },
-    {
-      "kategori": "drag",
-      "pertanyaan": "Mengenal Buah: Tarik \"Ceri 🍒\" ke dalam kotak!",
-      "item_target": {
-        "nama": "Ceri 🍒",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "Pisang 🍌",
-          "isTarget": false
-        },
-        {
-          "nama": "Nanas 🍍",
-          "isTarget": false
-        },
-        {
-          "nama": "Apel 🍎",
-          "isTarget": false
-        }
-      ],
-      "id": "L_AUTO_1775323258148_1"
-    },
-    {
-      "kategori": "drag",
-      "pertanyaan": "Mengenal Buah: Tarik \"Semangka 🍉\" ke dalam kotak!",
-      "item_target": {
-        "nama": "Semangka 🍉",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "Anggur 🍇",
-          "isTarget": false
-        },
-        {
-          "nama": "Jeruk 🍊",
-          "isTarget": false
-        },
-        {
-          "nama": "Pisang 🍌",
-          "isTarget": false
-        }
-      ],
-      "id": "L_AUTO_1775323263068_0"
-    },
-    {
-      "kategori": "memory",
-      "pertanyaan": "Latih Ingatan: Cari pasangan gambar yang sama!",
-      "item_target": {
-        "nama": "Ceri 🍒",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "Nanas 🍍",
-          "isTarget": false
-        },
-        {
-          "nama": "Mangga 🥭",
-          "isTarget": false
-        }
-      ],
-      "id": "L_AUTO_1775323263068_1"
-    },
-    {
-      "kategori": "memory",
-      "pertanyaan": "Latih Ingatan: Cari pasangan gambar yang sama!",
-      "item_target": {
-        "nama": "Nanas 🍍",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "Pisang 🍌",
-          "isTarget": false
-        },
-        {
-          "nama": "Stroberi 🍓",
-          "isTarget": false
-        }
-      ],
-      "id": "L_AUTO_1775323263068_2"
-    },
-    {
-      "kategori": "memory",
-      "pertanyaan": "Latih Ingatan: Cari pasangan gambar yang sama!",
-      "item_target": {
-        "nama": "Mangga 🥭",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "Stroberi 🍓",
-          "isTarget": false
-        },
-        {
-          "nama": "Nanas 🍍",
-          "isTarget": false
-        }
-      ],
-      "id": "L_AUTO_1775323263068_3"
-    },
-    {
-      "kategori": "urutan",
-      "pertanyaan": "Urutkan angka dari yang terkecil ke terbesar!",
-      "item_urutan": [
-        {
-          "nama": "Angka 5",
-          "indexAsli": 0
-        },
-        {
-          "nama": "Angka 6",
-          "indexAsli": 1
-        },
-        {
-          "nama": "Angka 7",
-          "indexAsli": 2
-        },
-        {
-          "nama": "Angka 8",
-          "indexAsli": 3
-        }
-      ],
-      "id": "L_AUTO_1775323263068_4"
-    },
-    {
-      "kategori": "kuis",
-      "pertanyaan": "Berapa 3 + 2?",
-      "item_target": {
-        "nama": "5",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "6",
-          "isTarget": false
-        }
-      ],
-      "id": "L_AUTO_1775325050357_0"
-    },
-    {
-      "kategori": "kuis",
-      "pertanyaan": "Berapa 4 + 1?",
-      "item_target": {
-        "nama": "5",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "6",
-          "isTarget": false
-        }
-      ],
-      "id": "L_AUTO_1775325050357_1"
-    },
-    {
-      "id": "L_1775326220145",
-      "kategori": "melayang",
-      "pertanyaan": "Tekan gelembung Anggur 🍇 sebelum jatuh!",
-      "speed": "cepat",
-      "media_soal": null,
-      "item_urutan": []
+      "id": "L_AUTO_1775330696276_1"
     },
     {
       "kategori": "tebak_kata",
-      "pertanyaan": "Susun kata dari gambar ini: undefined",
+      "pertanyaan": "Susun kata: undefined",
       "item_target": {
         "nama": "APEL",
         "isTarget": true
@@ -548,47 +140,24 @@
         {
           "nama": "X",
           "isTarget": false
-        },
-        {
-          "nama": "Y",
-          "isTarget": false
         }
       ],
-      "id": "L_AUTO_1775325050357_3"
+      "id": "L_AUTO_1775330696276_2"
     },
     {
-      "kategori": "tebak_kata",
-      "pertanyaan": "Susun kata dari gambar ini: undefined",
+      "kategori": "siluet",
+      "pertanyaan": "Tarik Ikan 🐟 ke bayangannya!",
       "item_target": {
-        "nama": "JERUK",
+        "nama": "Ikan 🐟",
         "isTarget": true
       },
       "item_pengecoh": [
         {
-          "nama": "X",
-          "isTarget": false
-        },
-        {
-          "nama": "Y",
+          "nama": "Anjing 🐶",
           "isTarget": false
         }
       ],
-      "id": "L_AUTO_1775325050357_4"
-    },
-    {
-      "kategori": "kuis",
-      "pertanyaan": "Berapa 1 + 1?",
-      "item_target": {
-        "nama": "2",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "3",
-          "isTarget": false
-        }
-      ],
-      "id": "L_AUTO_1775326138818_0"
+      "id": "L_AUTO_1775330696276_3"
     },
     {
       "kategori": "pukul",
@@ -600,11 +169,11 @@
       },
       "item_pengecoh": [
         {
-          "nama": "Anggur 🍇",
+          "nama": "Pisang 🍌",
           "isTarget": false
         }
       ],
-      "id": "L_AUTO_1775327799095_4"
+      "id": "L_AUTO_1775330696276_4"
     }
   ]
 }
