@@ -18,23 +18,9 @@
         
         .btn-pilihan { transition: transform 0.2s; } .btn-pilihan:active { transform: scale(0.92); border-color: #3b82f6; }
         
-        /* ========================================================= */
-        /* DRAG CSS CUSTOM ALA CANVA (BEBAS MELAYANG & ANTI MACET)   */
-        /* ========================================================= */
-        .kartu-drag { 
-            touch-action: none; /* PENTING: Mencegah layar HP scrolling saat drag */
-            user-select: none; 
-            position: relative; 
-            z-index: 10; 
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s; 
-            will-change: transform; 
-        }
-        .is-dragging { 
-            opacity: 0.95; 
-            z-index: 99999 !important; /* Memastikan melayang di atas segalanya */
-            transition: none !important; /* Responsif instan mengikuti jari */
-            box-shadow: 0 25px 50px rgba(0,0,0,0.35); 
-        }
+        /* DRAG CSS CUSTOM */
+        .kartu-drag { touch-action: none; user-select: none; position: relative; z-index: 10; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s; will-change: transform; }
+        .is-dragging { opacity: 0.95; z-index: 99999 !important; transition: none !important; box-shadow: 0 25px 50px rgba(0,0,0,0.35); transform: scale(1.15) !important; }
         .drop-hover { border-color: #0ea5e9 !important; background-color: #f0f9ff !important; box-shadow: inset 0 0 0 4px #bae6fd; transform: scale(1.05); transition: all 0.2s; }
         .terkunci { pointer-events: none !important; opacity: 1 !important; transform: translate3d(0,0,0) scale(1) !important; box-shadow: none !important; transition: none !important; }
 
@@ -47,8 +33,20 @@
         .mem-back { background: #fff; transform: rotateY(180deg); border: 4px solid #fff; overflow: hidden; }
 
         /* BUBBLE & MELAYANG */
-        .objek-terbang { position: absolute; cursor: pointer; user-select: none; transition: transform 0.1s; will-change: top, left; }
+        .objek-terbang { position: absolute; cursor: pointer; user-select: none; transition: transform 0.1s; will-change: transform; }
         .objek-terbang:active { transform: scale(0.9); }
+
+        /* SILUET / BAYANGAN */
+        .bayangan-hitam { filter: brightness(0) drop-shadow(0 4px 4px rgba(0,0,0,0.3)); opacity: 0.7; }
+
+        /* PUKUL TIKUS (WHACK) */
+        .lubang-pukul { overflow: hidden; position: relative; background: #cbd5e1; border-radius: 50%; border-bottom: 8px solid #94a3b8; }
+        .benda-pukul { position: absolute; bottom: -100%; left: 10%; right: 10%; height: 90%; transition: bottom 0.2s ease-out; cursor: pointer; }
+        .benda-pukul.muncul { bottom: 0; }
+
+        /* TOAST NOTIF */
+        .toast-enter { animation: slideInDown 0.3s forwards; }
+        .toast-leave { animation: slideOutUp 0.3s forwards; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         .anim-fade { animation: fadeIn 0.4s ease-out forwards; }
@@ -56,23 +54,41 @@
         .anim-pulse-soft { animation: pulseSoft 2s infinite ease-in-out; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
         .anim-shake { animation: shake 0.4s ease-in-out; }
+        @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        @keyframes slideOutUp { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, -100%); opacity: 0; } }
     </style>
 </head>
 <body>
 
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+
     <div id="view-game" class="h-[100dvh] w-screen flex flex-col relative overflow-hidden bg-slate-50">
         
+        <!-- Layar Mulai / Loading -->
         <div id="layar-mulai" class="absolute inset-0 z-[100] bg-gradient-to-br from-sky-400 to-indigo-500 flex flex-col items-center justify-center p-6 text-center transition-all duration-500">
-            <div class="bg-white/20 p-6 rounded-3xl backdrop-blur-sm mb-6 anim-pulse-soft shadow-xl border border-white/30"><i data-lucide="gamepad-2" class="w-16 h-16 text-white"></i></div>
+            <div class="bg-white/20 p-6 rounded-3xl backdrop-blur-sm mb-6 anim-pulse-soft shadow-xl border border-white/30">
+                <i data-lucide="gamepad-2" class="w-16 h-16 text-white"></i>
+            </div>
             <h1 class="text-4xl md:text-5xl font-black text-white mb-2 tracking-tight">Belajar Cerdas</h1>
-            <p class="text-sky-100 font-bold mb-10 text-sm md:text-base">Bermain sambil belajar!</p>
-            <button onclick="Game.mulai()" class="bg-white text-indigo-600 hover:bg-slate-50 font-black text-2xl py-4 px-12 rounded-full shadow-[0_6px_0_0_rgba(255,255,255,0.3)] active:translate-y-1 active:shadow-[0_0px_0_0_rgba(255,255,255,0)] transition-all w-full max-w-[250px]">MULAI</button>
+            <div id="loading-bar-container" class="w-full max-w-xs bg-white/30 rounded-full h-4 mb-6 mt-4 overflow-hidden relative">
+                <div id="loading-bar-fill" class="bg-yellow-400 h-full w-0 transition-all duration-100 ease-linear"></div>
+                <div id="loading-text" class="absolute inset-0 flex items-center justify-center text-[10px] font-black text-indigo-900">0%</div>
+            </div>
+            <button id="btn-mulai" onclick="Game.mulai()" class="hidden bg-white text-indigo-600 hover:bg-slate-50 font-black text-2xl py-4 px-12 rounded-full shadow-[0_6px_0_0_rgba(255,255,255,0.3)] active:translate-y-1 active:shadow-[0_0px_0_0_rgba(255,255,255,0)] transition-all w-full max-w-[250px]">
+                MULAI MAIN
+            </button>
         </div>
 
+        <!-- Peta Level -->
         <div id="layar-pilih-level" class="hidden absolute inset-0 z-[90] bg-slate-50/95 backdrop-blur flex flex-col items-center justify-start overflow-y-auto">
             <div class="w-full bg-white px-6 pt-10 pb-4 shadow-sm sticky top-0 z-10 flex items-center justify-between">
                 <h2 class="text-xl font-black text-slate-800 flex items-center gap-2">Pilih Level <button onclick="Game.tarikDataBaru()" class="bg-sky-100 text-sky-600 p-1.5 rounded-lg active:scale-90" title="Tarik Data Terbaru"><i data-lucide="refresh-cw" id="ikon-sync" class="w-4 h-4"></i></button></h2>
                 <button onclick="Game.tutupPilihLevel()" id="btn-tutup-level" class="hidden p-2 bg-slate-100 text-slate-600 rounded-full hover:bg-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <!-- Loading Indicator Sync -->
+            <div id="sync-progress" class="hidden w-full bg-sky-100 h-1">
+                <div id="sync-bar" class="bg-sky-500 h-full w-0 transition-all duration-100"></div>
             </div>
             <div class="w-full max-w-lg p-6">
                 <div id="grid-level" class="grid grid-cols-4 sm:grid-cols-5 gap-3 sm:gap-4 content-start"></div>
@@ -91,13 +107,13 @@
             </div>
         </header>
 
-        <main class="flex-1 overflow-visible flex flex-col items-center justify-start px-4 pt-24 pb-6 w-full max-w-2xl mx-auto z-10 relative">
-            <div class="glass-card rounded-[1.5rem] p-4 w-full flex flex-col items-center mb-4 anim-fade flex-shrink-0 z-20 pointer-events-auto">
+        <main class="flex-1 overflow-hidden flex flex-col items-center justify-start px-4 pt-24 pb-6 w-full max-w-2xl mx-auto z-10 relative">
+            <div class="glass-card rounded-[1.5rem] p-4 w-full flex flex-col items-center mb-2 anim-fade flex-shrink-0 z-20 pointer-events-auto">
                 <div class="w-full flex items-center justify-between gap-3">
                     <button onclick="AudioMgr.putarUlangSoal()" id="btn-suara-soal" class="hidden flex-shrink-0 w-12 h-12 flex items-center justify-center bg-sky-100 text-sky-600 rounded-full active:scale-90 transition-transform shadow-sm"><i data-lucide="volume-2" id="ikon-baca-soal" class="w-6 h-6"></i></button>
-                    <h2 id="teks-pertanyaan" class="text-base md:text-xl font-bold text-slate-800 leading-snug flex-1 text-center">Memuat...</h2>
+                    <h2 id="teks-pertanyaan" class="text-base md:text-lg font-bold text-slate-800 leading-snug flex-1 text-center">Memuat...</h2>
                 </div>
-                <div id="media-soal" class="w-full max-h-32 mt-3 rounded-xl overflow-hidden hidden flex justify-center bg-slate-100">
+                <div id="media-soal" class="w-full max-h-24 mt-2 rounded-xl overflow-hidden hidden flex justify-center bg-slate-100">
                     <img id="img-soal" src="" class="h-full object-contain">
                 </div>
             </div>
@@ -118,130 +134,104 @@
     <script>
         lucide.createIcons();
 
-        // =========================================================================
-        // ENGINE DRAG & DROP CUSTOM (PURE JS - BEBAS MELAYANG ALA CANVA)
-        // 100% Menggantikan Interact.js yang bermasalah di Mobile
-        // =========================================================================
+        // ==========================================
+        // UI TOAST NOTIFICATION (Pengganti Alert)
+        // ==========================================
+        function uiToast(msg, type='success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast-enter px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 ${type==='success' ? 'bg-emerald-500 text-white' : (type==='error' ? 'bg-rose-500 text-white' : 'bg-sky-500 text-white')}`;
+            const icon = type==='success' ? 'check-circle' : (type==='error' ? 'alert-circle' : 'info');
+            toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5"></i> ${msg}`;
+            container.appendChild(toast);
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                toast.classList.replace('toast-enter', 'toast-leave');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ==========================================
+        // ENGINE DRAG & DROP CUSTOM
+        // ==========================================
         const CanvaDragEngine = {
             activeCard: null, startX: 0, startY: 0, currX: 0, currY: 0, dropzones: [],
-            
             init() {
-                // Binding Touch dan Mouse event
                 document.addEventListener('touchstart', this.onDown.bind(this), {passive: false});
                 document.addEventListener('mousedown', this.onDown.bind(this), {passive: false});
-                
                 document.addEventListener('touchmove', this.onMove.bind(this), {passive: false});
                 document.addEventListener('mousemove', this.onMove.bind(this), {passive: false});
-                
                 document.addEventListener('touchend', this.onUp.bind(this));
                 document.addEventListener('mouseup', this.onUp.bind(this));
-
-                // Hindari efek gambar ketarik bayangannya (bug default browser)
-                document.addEventListener('dragstart', (e) => {
-                    if(e.target.tagName.toLowerCase() === 'img') e.preventDefault();
-                });
             },
-
             getEventPos(e) {
                 if (e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
                 if (e.changedTouches && e.changedTouches.length > 0) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
                 return { x: e.clientX, y: e.clientY };
             },
-
             onDown(e) {
                 const card = e.target.closest('.kartu-drag');
                 if(!card || card.classList.contains('terkunci')) return;
-                
-                // Mencegah layar tertarik ke bawah saat jari menggeser gambar (Penyebab utama macet)
+                if(card.getAttribute('data-tipe') === 'no-drag') return;
+
                 if(e.cancelable) e.preventDefault(); 
-                
-                this.activeCard = card; 
-                this.activeCard.classList.add('is-dragging');
-                
-                // Tambahkan efek membesar ala Canva
-                this.activeCard.style.transform = `translate3d(${this.currX}px, ${this.currY}px, 0) scale(1.15)`;
-                
+                this.activeCard = card; this.activeCard.classList.add('is-dragging');
                 AudioMgr.stopSoal();
 
                 const pos = this.getEventPos(e);
-                this.startX = pos.x; 
-                this.startY = pos.y;
+                this.startX = pos.x; this.startY = pos.y;
                 this.currX = parseFloat(this.activeCard.getAttribute('data-x')) || 0;
                 this.currY = parseFloat(this.activeCard.getAttribute('data-y')) || 0;
-                
-                // Cari kotak tujuan
-                this.dropzones = Array.from(document.querySelectorAll('.zona-target-drag, .zona-urutan, .zona-tebak'));
+                this.dropzones = Array.from(document.querySelectorAll('.zona-target-drag, .zona-urutan, .zona-tebak, .zona-siluet'));
             },
-
             onMove(e) {
                 if(!this.activeCard) return;
                 if(e.cancelable) e.preventDefault();
-
                 const pos = this.getEventPos(e);
                 const newX = this.currX + (pos.x - this.startX);
                 const newY = this.currY + (pos.y - this.startY);
                 
-                // Translate3d = Hardware acceleration, super mulus tanpa delay!
                 this.activeCard.style.transform = `translate3d(${newX}px, ${newY}px, 0) scale(1.15)`;
-                this.activeCard.setAttribute('data-x', newX); 
-                this.activeCard.setAttribute('data-y', newY);
+                this.activeCard.setAttribute('data-x', newX); this.activeCard.setAttribute('data-y', newY);
 
-                // Hitung posisi titik tengah gambar
                 const cardRect = this.activeCard.getBoundingClientRect();
-                const cardCenterX = cardRect.left + (cardRect.width / 2); 
-                const cardCenterY = cardRect.top + (cardRect.height / 2);
+                const cardCenterX = cardRect.left + (cardRect.width / 2); const cardCenterY = cardRect.top + (cardRect.height / 2);
 
-                // Efek hover jika melewati kotak
                 this.dropzones.forEach(zone => {
                     const zRect = zone.getBoundingClientRect();
                     if(cardCenterX > zRect.left && cardCenterX < zRect.right && cardCenterY > zRect.top && cardCenterY < zRect.bottom) {
                         zone.classList.add('drop-hover');
-                    } else {
-                        zone.classList.remove('drop-hover');
-                    }
+                    } else zone.classList.remove('drop-hover');
                 });
             },
-
             onUp(e) {
                 if(!this.activeCard) return;
-                const card = this.activeCard; 
-                card.classList.remove('is-dragging'); 
-                this.activeCard = null;
-                
+                const card = this.activeCard; card.classList.remove('is-dragging'); this.activeCard = null;
                 let berhasilDimasukkan = false;
-                
                 const cardRect = card.getBoundingClientRect();
-                const cardCenterX = cardRect.left + (cardRect.width / 2); 
-                const cardCenterY = cardRect.top + (cardRect.height / 2);
+                const cardCenterX = cardRect.left + (cardRect.width / 2); const cardCenterY = cardRect.top + (cardRect.height / 2);
 
                 this.dropzones.forEach(zone => {
                     zone.classList.remove('drop-hover');
                     const zRect = zone.getBoundingClientRect();
                     if(cardCenterX > zRect.left && cardCenterX < zRect.right && cardCenterY > zRect.top && cardCenterY < zRect.bottom) {
-                        berhasilDimasukkan = true; 
-                        this.prosesJatuhKeKotak(card, zone);
+                        berhasilDimasukkan = true; this.prosesJatuhKeKotak(card, zone);
                     }
                 });
 
-                // Jika dilepas tidak di kotak mana pun -> JURUS SNAP BACK
                 if(!berhasilDimasukkan) {
                     card.style.transform = 'translate3d(0px, 0px, 0) scale(1)';
-                    card.setAttribute('data-x', 0); 
-                    card.setAttribute('data-y', 0);
+                    card.setAttribute('data-x', 0); card.setAttribute('data-y', 0);
                 }
             },
-
             prosesJatuhKeKotak(card, zone) {
                 const tipeDrag = card.getAttribute('data-tipe');
-                
-                // --- MODE DRAG BIASA ---
-                if (tipeDrag === 'drag-tunggal') {
+                // Drag Normal & Siluet
+                if (tipeDrag === 'drag-tunggal' || tipeDrag === 'drag-siluet') {
                     const isBenar = card.getAttribute('data-benar') === 'ya';
                     if(isBenar) {
-                        card.classList.add('terkunci'); 
-                        card.style.transform = 'translate3d(0px, 0px, 0) scale(1)';
-                        card.setAttribute('data-x', 0); card.setAttribute('data-y', 0);
-                        
+                        card.classList.add('terkunci'); card.style.transform = 'none';
                         zone.innerHTML = ''; zone.appendChild(card);
                         card.style.width = '100%'; card.style.height = '100%'; card.style.border = 'none'; card.style.borderRadius = 'inherit';
                         Game.prosesKuis(true, zone);
@@ -249,26 +239,27 @@
                         AudioMgr.playSalah(); Game.nyawa--; Game.renderUI();
                         zone.classList.add('anim-shake', 'bg-red-100', 'border-red-400');
                         setTimeout(() => zone.classList.remove('anim-shake', 'bg-red-100', 'border-red-400'), 500);
-                        
                         card.style.transform = 'translate3d(0px, 0px, 0) scale(1)'; card.setAttribute('data-x', 0); card.setAttribute('data-y', 0);
                         if(Game.nyawa <= 0) setTimeout(() => Game.munculLayarAkhir('kalah'), 500);
                     }
-                } 
-                // --- MODE URUTAN ---
-                else if (tipeDrag === 'drag-urutan') {
+                } else if (tipeDrag === 'drag-urutan' || tipeDrag === 'drag-tebak') {
                     const indexDrop = parseInt(zone.getAttribute('data-index'));
-                    const indexBenda = parseInt(card.getAttribute('data-index-asli'));
-                    if(indexDrop === indexBenda) {
-                        card.classList.add('terkunci'); 
-                        card.style.transform = 'translate3d(0px, 0px, 0) scale(1)';
-                        card.setAttribute('data-x', 0); card.setAttribute('data-y', 0);
-                        
-                        zone.innerHTML = ''; zone.appendChild(card);
-                        card.style.width = '100%'; card.style.height = '100%'; card.style.border = 'none'; card.style.borderRadius = 'inherit';
+                    let isBenar = false;
+                    if(tipeDrag === 'drag-urutan') {
+                        isBenar = indexDrop === parseInt(card.getAttribute('data-index-asli'));
+                    } else {
+                        const validIndexes = JSON.parse(card.getAttribute('data-valid-indexes'));
+                        isBenar = validIndexes.includes(indexDrop) && zone.innerHTML === '';
+                    }
+
+                    if(isBenar) {
+                        card.classList.add('terkunci'); card.style.transform = 'none'; card.setAttribute('data-x', 0); card.setAttribute('data-y', 0);
+                        zone.appendChild(card); card.style.width = '100%'; card.style.height = '100%'; card.style.border = 'none'; card.style.borderRadius = 'inherit';
                         
                         AudioMgr.sfxBenar.currentTime = 0; AudioMgr.sfxBenar.play().catch(()=>{});
                         Game.jawabanBenarSaatIni++;
-                        if(Game.jawabanBenarSaatIni >= document.querySelectorAll('.zona-urutan').length) {
+                        const maxBenda = tipeDrag === 'drag-tebak' ? Game.totalJawabanTebak : document.querySelectorAll('.zona-urutan').length;
+                        if(Game.jawabanBenarSaatIni >= maxBenda) {
                             Game.skor += 100; Game.simpanProgres(); Game.renderUI();
                             setTimeout(() => Game.munculLayarAkhir('benar'), 800);
                         }
@@ -276,45 +267,13 @@
                         AudioMgr.playSalah(); Game.nyawa--; Game.renderUI();
                         zone.classList.add('bg-red-100', 'border-red-400');
                         setTimeout(() => zone.classList.remove('bg-red-100', 'border-red-400'), 500);
-                        
-                        card.style.transform = 'translate3d(0px, 0px, 0) scale(1)'; card.setAttribute('data-x', 0); card.setAttribute('data-y', 0);
-                        if(Game.nyawa <= 0) setTimeout(() => Game.munculLayarAkhir('kalah'), 500);
-                    }
-                }
-                // --- MODE TEBAK KATA ---
-                else if (tipeDrag === 'drag-tebak') {
-                    const indexDrop = parseInt(zone.getAttribute('data-index'));
-                    const validIndexes = JSON.parse(card.getAttribute('data-valid-indexes'));
-                    
-                    if(validIndexes.includes(indexDrop) && zone.innerHTML === '') {
-                        card.classList.add('terkunci'); 
-                        card.style.transform = 'translate3d(0px, 0px, 0) scale(1)';
-                        card.setAttribute('data-x', 0); card.setAttribute('data-y', 0);
-                        
-                        zone.appendChild(card);
-                        card.style.width = '100%'; card.style.height = '100%'; card.style.border = 'none'; card.style.borderRadius = 'inherit';
-                        
-                        AudioMgr.sfxBenar.currentTime = 0; AudioMgr.sfxBenar.play().catch(()=>{});
-                        Game.jawabanBenarSaatIni++;
-                        if(Game.jawabanBenarSaatIni >= Game.totalJawabanTebak) {
-                            Game.skor += 100; Game.simpanProgres(); Game.renderUI();
-                            setTimeout(() => Game.munculLayarAkhir('benar'), 800);
-                        }
-                    } else {
-                        AudioMgr.playSalah(); Game.nyawa--; Game.renderUI();
-                        zone.classList.add('bg-red-100', 'border-red-400');
-                        setTimeout(() => zone.classList.remove('bg-red-100', 'border-red-400'), 500);
-                        
                         card.style.transform = 'translate3d(0px, 0px, 0) scale(1)'; card.setAttribute('data-x', 0); card.setAttribute('data-y', 0);
                         if(Game.nyawa <= 0) setTimeout(() => Game.munculLayarAkhir('kalah'), 500);
                     }
                 }
             }
         };
-
-        // Nyalakan Mesin Drag Anti Macet
         CanvaDragEngine.init();
-
 
         // ==========================================
         // AUDIO MANAGER 
@@ -327,15 +286,10 @@
             defBenar: 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3',
             defSalah: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3',
             
-            getAmanPath(url) {
-                if(!url) return null; if(url.startsWith('http') || url.startsWith('data:')) return url; return `public/${url}`;
-            },
+            getAmanPath(url) { if(!url) return null; if(url.startsWith('http') || url.startsWith('data:')) return url; return `public/${url}`; },
             initGlobal(cfg) {
                 if(cfg && cfg.bgm_url) { this.bgm.src = this.getAmanPath(cfg.bgm_url); this.bgm.loop = true; this.bgm.volume = this.volumeNormalBGM; }
-                this.soal.onended = () => {
-                    this.fadeVolume(this.bgm, this.volumeNormalBGM, 800);
-                    const ikon = document.getElementById('ikon-baca-soal'); if(ikon) ikon.classList.remove('animate-pulse', 'text-sky-400');
-                };
+                this.soal.onended = () => { this.fadeVolume(this.bgm, this.volumeNormalBGM, 800); const ikon = document.getElementById('ikon-baca-soal'); if(ikon) ikon.classList.remove('animate-pulse', 'text-sky-400'); };
             },
             setAudioLevel(dataLevel) {
                 if (!dataLevel) return;
@@ -388,17 +342,28 @@
         // ==========================================
         const PhysicsEngine = {
             intervalId: null, objects: [], arenaRect: null,
+            
             mulaiBubble(kecepatan, itemAcak, arena) {
                 this.berhenti(); this.objects = []; this.arenaRect = arena.getBoundingClientRect();
-                let speedMult = kecepatan === 'cepat' ? 3 : (kecepatan === 'lambat' ? 1 : 2);
+                let speedMult = kecepatan === 'cepat' ? 3 : (kecepatan === 'lambat' ? 1.5 : 2);
+                
+                // BUBBLE WATERFALL: Kita buat banyak gelembung (misal 15) agar seperti air terjun
+                const totalBubbles = 15;
+                for(let i=0; i<totalBubbles; i++) {
+                    // 1 bubble pasti target, sisanya diundi (diutamakan pengecoh jika ada)
+                    let it = itemAcak[Math.floor(Math.random() * itemAcak.length)];
+                    // Pastikan setidaknya ada 2-3 target
+                    if(i === 0 || i === 5 || i === 10) it = itemAcak.find(a => a.isTarget) || itemAcak[0];
 
-                itemAcak.forEach((it) => {
                     const el = document.createElement('div');
-                    el.className = "objek-terbang bg-white/90 backdrop-blur border-4 border-sky-200 rounded-full flex flex-col items-center justify-center p-2 shadow-lg overflow-hidden";
-                    const size = Math.random() > 0.5 ? 90 : 110;
+                    el.className = "objek-terbang bg-white/80 backdrop-blur border border-white rounded-full flex flex-col items-center justify-center p-2 shadow-md overflow-hidden transition-transform active:scale-90";
+                    const size = Math.random() * 30 + 70; // 70px - 100px
                     el.style.width = `${size}px`; el.style.height = `${size}px`;
                     
-                    let posX = Math.random() * (this.arenaRect.width - size); let posY = -(Math.random() * 200) - size; 
+                    let posX = Math.random() * (this.arenaRect.width - size); 
+                    // Mulai dari atas layar yang sangat jauh agar jatuhnya berurutan
+                    let posY = -(Math.random() * 1500) - size; 
+                    
                     el.style.left = `${posX}px`; el.style.top = `${posY}px`;
 
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
@@ -408,29 +373,44 @@
                     el.onclick = () => { AudioMgr.stopSoal(); Game.prosesKuis(it.isTarget, el); };
                     arena.appendChild(el);
                     
-                    this.objects.push({ element: el, x: posX, y: posY, size: size, speedY: (Math.random() * 1.5 + 1) * speedMult, sinCounter: Math.random() * 100, sinSpeed: Math.random() * 0.05 + 0.02 });
-                });
+                    this.objects.push({ 
+                        element: el, x: posX, y: posY, size: size, 
+                        speedY: (Math.random() * 1.5 + 1) * speedMult, 
+                        sinCounter: Math.random() * 100, sinSpeed: Math.random() * 0.05 + 0.02 
+                    });
+                }
 
                 this.intervalId = setInterval(() => {
+                    this.arenaRect = arena.getBoundingClientRect();
                     this.objects.forEach(obj => {
                         obj.y += obj.speedY; obj.sinCounter += obj.sinSpeed;
-                        const currentX = obj.x + Math.sin(obj.sinCounter) * 30;
-                        if(obj.y > this.arenaRect.height + 50) { obj.y = -obj.size - 50; obj.x = Math.random() * (this.arenaRect.width - obj.size); }
+                        const currentX = obj.x + Math.sin(obj.sinCounter) * 20; // Ayun pelan
+                        
+                        // AIR TERJUN: Jika menyentuh bawah, reset lagi ke atas
+                        if(obj.y > this.arenaRect.height) { 
+                            obj.y = -obj.size - (Math.random() * 200); 
+                            obj.x = Math.random() * (this.arenaRect.width - obj.size); 
+                        }
                         obj.element.style.transform = `translate3d(${currentX}px, ${obj.y}px, 0)`;
                     });
                 }, 30);
             },
+
             mulaiMelayang(kecepatan, itemAcak, arena) {
                 this.berhenti(); this.objects = []; this.arenaRect = arena.getBoundingClientRect();
-                let speedMult = kecepatan === 'cepat' ? 4 : (kecepatan === 'lambat' ? 1.5 : 2.5);
+                let speedMult = kecepatan === 'cepat' ? 3 : (kecepatan === 'lambat' ? 1 : 2);
 
                 itemAcak.forEach((it) => {
                     const el = document.createElement('div');
-                    el.className = "objek-terbang bg-white border-2 border-indigo-200 rounded-2xl flex flex-col items-center justify-center p-1 shadow-md overflow-hidden";
-                    const size = 80; el.style.width = `${size}px`; el.style.height = `${size}px`;
+                    el.className = "objek-terbang bg-white/90 backdrop-blur border border-white rounded-2xl flex flex-col items-center justify-center p-1 shadow-md overflow-hidden";
+                    const size = 70; el.style.width = `${size}px`; el.style.height = `${size}px`;
                     
-                    let posX = Math.random() * (this.arenaRect.width - size); let posY = Math.random() * (this.arenaRect.height - size);
-                    el.style.left = `${posX}px`; el.style.top = `${posY}px`;
+                    let posX = Math.random() * (this.arenaRect.width - size); 
+                    let posY = Math.random() * (this.arenaRect.height - size);
+                    
+                    // Pastikan di awal tidak keluar batas
+                    posX = Math.max(10, Math.min(posX, this.arenaRect.width - size - 10));
+                    posY = Math.max(10, Math.min(posY, this.arenaRect.height - size - 10));
 
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
                     if(urlPath) el.innerHTML = `<img src="${urlPath}" class="w-full h-full object-cover rounded pointer-events-none" draggable="false">`;
@@ -462,10 +442,14 @@
                     this.arenaRect = arena.getBoundingClientRect(); 
                     this.objects.forEach(obj => {
                         obj.x += obj.vx; obj.y += obj.vy;
-                        if(obj.x <= 0 || obj.x >= this.arenaRect.width - obj.size) obj.vx *= -1;
-                        if(obj.y <= 0 || obj.y >= this.arenaRect.height - obj.size) obj.vy *= -1;
-                        obj.x = Math.max(0, Math.min(obj.x, this.arenaRect.width - obj.size));
-                        obj.y = Math.max(0, Math.min(obj.y, this.arenaRect.height - obj.size));
+                        
+                        // Pantulan ketat di dalam layar
+                        if(obj.x <= 5) { obj.vx *= -1; obj.x = 5; }
+                        if(obj.x >= this.arenaRect.width - obj.size - 5) { obj.vx *= -1; obj.x = this.arenaRect.width - obj.size - 5; }
+                        
+                        if(obj.y <= 5) { obj.vy *= -1; obj.y = 5; }
+                        if(obj.y >= this.arenaRect.height - obj.size - 5) { obj.vy *= -1; obj.y = this.arenaRect.height - obj.size - 5; }
+                        
                         obj.element.style.transform = `translate3d(${obj.x}px, ${obj.y}px, 0)`;
                     });
                 }, 30);
@@ -481,31 +465,54 @@
             levelTerbuka: parseInt(localStorage.getItem('maxUnlockedLevel')) || 0,
             jawabanBenarSaatIni: 0, memoriFlipped: [], memoriMatched: 0, totalJawabanTebak: 0,
 
-            async tarikDataBaru() {
-                const ikon = document.getElementById('ikon-sync'); if(ikon) ikon.classList.add('animate-spin');
+            async prosesTarikData(isRefresh = false) {
+                const barContainer = document.getElementById('loading-bar-container');
+                const barFill = document.getElementById('loading-bar-fill');
+                const barText = document.getElementById('loading-text');
+                const btnMulai = document.getElementById('btn-mulai');
+                
+                const syncProg = document.getElementById('sync-progress');
+                const syncBar = document.getElementById('sync-bar');
+                const ikonSync = document.getElementById('ikon-sync');
+
+                if(!isRefresh && barContainer) { barContainer.classList.remove('hidden'); btnMulai.classList.add('hidden'); }
+                if(isRefresh) { syncProg.classList.remove('hidden'); syncBar.style.width = '0%'; if(ikonSync) ikonSync.classList.add('animate-spin'); }
+
+                let counter = 0;
+                let intv = setInterval(() => { 
+                    counter += Math.floor(Math.random() * 15) + 5; 
+                    if(counter > 90) counter = 90; 
+                    if(!isRefresh && barFill) { barFill.style.width = `${counter}%`; barText.innerText = `${counter}%`; }
+                    if(isRefresh && syncBar) syncBar.style.width = `${counter}%`;
+                }, 100);
+
                 try {
                     const res = await fetch(`public/data-soal.json?v=${Date.now()}`, { cache: 'no-store' });
                     if (!res.ok) throw new Error("Gagal");
                     const data = await res.json();
                     this.db.global = data.global_settings || {}; this.db.levels = data.levels || [];
-                    AudioMgr.initGlobal(this.db.global); this.bukaPilihLevel(false);
-                } catch(e) { console.warn("Gagal tarik terbaru.", e); }
-                if(ikon) setTimeout(() => ikon.classList.remove('animate-spin'), 1000);
+                    AudioMgr.initGlobal(this.db.global);
+                    
+                    clearInterval(intv);
+                    if(!isRefresh && barFill) { barFill.style.width = `100%`; barText.innerText = `Siap!`; setTimeout(()=>{barContainer.classList.add('hidden'); btnMulai.classList.remove('hidden');}, 500); }
+                    if(isRefresh) { syncBar.style.width = `100%`; setTimeout(()=>{syncProg.classList.add('hidden'); if(ikonSync) ikonSync.classList.remove('animate-spin'); this.bukaPilihLevel(false); uiToast('Data level terbaru berhasil ditarik!'); }, 500); }
+                    
+                } catch(e) { 
+                    clearInterval(intv);
+                    console.warn("DB Kosong", e);
+                    this.db.levels = [{ kategori: "kuis", pertanyaan: "Belum ada soal, buka Admin Panel untuk Buat Soal Otomatis!", item_target: { nama: "Mengerti", isTarget: true }, item_pengecoh: [] }];
+                    if(!isRefresh && btnMulai) { barContainer.classList.add('hidden'); btnMulai.classList.remove('hidden'); }
+                    if(isRefresh) { syncProg.classList.add('hidden'); if(ikonSync) ikonSync.classList.remove('animate-spin'); uiToast('Gagal menarik data', 'error'); }
+                }
             },
 
-            async mulai() {
-                const btnMulai = document.getElementById('layar-mulai'); btnMulai.style.opacity = '0'; setTimeout(() => btnMulai.classList.add('hidden'), 400);
-                try {
-                    const res = await fetch(`public/data-soal.json?v=${Date.now()}`, { cache: 'no-store' });
-                    if (!res.ok) throw new Error("Gagal mengambil data");
-                    const data = await res.json();
-                    this.db.global = data.global_settings || {}; this.db.levels = data.levels || [];
-                    if(this.db.levels.length === 0) throw new Error("Level Kosong");
-                    AudioMgr.initGlobal(this.db.global);
-                } catch(e) {
-                    console.warn("DB Kosong / Cache Issue");
-                    this.db.levels = [{ kategori: "kuis", pertanyaan: "Belum ada soal, buka Admin Panel untuk Buat Soal Otomatis!", item_target: { nama: "Mengerti", isTarget: true }, item_pengecoh: [] }];
-                }
+            tarikDataBaru() { this.prosesTarikData(true); },
+
+            async initPreload() { this.prosesTarikData(false); },
+
+            mulai() {
+                const layarMulai = document.getElementById('layar-mulai');
+                layarMulai.style.opacity = '0'; setTimeout(() => layarMulai.classList.add('hidden'), 400);
                 AudioMgr.playBGM(); this.levelTerbuka = Math.min(this.levelTerbuka, Math.max(0, this.db.levels.length - 1)); this.bukaPilihLevel(true);
             },
 
@@ -565,6 +572,8 @@
                 AudioMgr.setAudioLevel(dataLevel);
                 if(dataLevel.audio_soal) { setTimeout(() => AudioMgr.playSoal(), 500); }
 
+                interact('.zona-target-drag, .zona-urutan, .zona-tebak, .zona-siluet').unset();
+
                 const kat = dataLevel.kategori;
                 if(kat === 'drag') this.mesinDrag(dataLevel, arena);
                 else if (kat === 'urutan') this.mesinUrutan(dataLevel, arena);
@@ -572,6 +581,8 @@
                 else if (kat === 'tebak_kata') this.mesinTebakKata(dataLevel, arena);
                 else if (kat === 'bubble') this.mesinBubble(dataLevel, arena);
                 else if (kat === 'melayang') this.mesinMelayang(dataLevel, arena);
+                else if (kat === 'siluet') this.mesinSiluet(dataLevel, arena);
+                else if (kat === 'pukul') this.mesinPukul(dataLevel, arena);
                 else this.mesinKuis(dataLevel, arena);
             },
 
@@ -581,15 +592,14 @@
                 let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
                 
                 const gridClass = itemsAcak.length > 2 ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2";
-                const grid = document.createElement('div');
-                grid.className = `grid ${gridClass} gap-3 w-full mt-auto pb-4 anim-fade`;
+                const grid = document.createElement('div'); grid.className = `grid ${gridClass} gap-3 w-full mt-auto pb-4 anim-fade`;
                 
                 itemsAcak.forEach(it => {
                     const btn = document.createElement('button');
-                    btn.className = "btn-pilihan bg-white border-2 border-slate-100 text-slate-700 font-bold text-sm md:text-base p-3 rounded-2xl shadow-sm hover:border-sky-300 flex flex-col items-center justify-center gap-2 min-h-[120px] w-full";
+                    btn.className = "btn-pilihan bg-white border border-slate-200 text-slate-700 font-bold text-sm md:text-base p-3 rounded-2xl shadow-sm hover:border-sky-300 flex flex-col items-center justify-center gap-2 min-h-[100px] w-full";
                     let konten = '';
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                    if(urlPath) konten += `<img src="${urlPath}" class="h-16 md:h-20 object-contain rounded-lg" onerror="this.style.display='none'" draggable="false">`;
+                    if(urlPath) konten += `<img src="${urlPath}" class="h-16 object-contain rounded-lg" draggable="false">`;
                     if(it.nama) konten += `<span class="leading-tight text-center w-full">${it.nama}</span>`;
                     btn.innerHTML = konten || "Pilihan";
                     btn.onclick = () => { AudioMgr.stopSoal(); this.prosesKuis(it.isTarget, btn); };
@@ -600,7 +610,7 @@
 
             mesinDrag(data, arena) {
                 arena.innerHTML = `
-                    <div id="zona-target-drag" class="zona-target-drag w-32 h-32 md:w-48 md:h-48 border-2 border-dashed border-sky-400 bg-sky-50/70 backdrop-blur-sm rounded-[1.5rem] flex flex-col items-center justify-center mb-auto mt-2 transition-colors z-0">
+                    <div class="zona-target-drag w-32 h-32 md:w-40 md:h-40 border-2 border-dashed border-sky-400 bg-sky-50/70 backdrop-blur-sm rounded-[1.5rem] flex flex-col items-center justify-center mb-auto mt-2 transition-colors z-0">
                         <i data-lucide="download" class="w-8 h-8 text-sky-400 mb-1"></i><span class="font-bold text-sky-600 text-xs">Taruh Sini</span>
                     </div>
                     <div id="wadah-item" class="w-full flex justify-center flex-wrap gap-3 pb-6 mt-8 anim-fade z-10"></div>
@@ -612,9 +622,36 @@
                 itemsAcak.forEach(it => {
                     const el = document.createElement('div');
                     el.setAttribute('data-tipe', 'drag-tunggal'); el.setAttribute('data-benar', it.isTarget ? 'ya' : 'tidak');
-                    el.className = "kartu-drag w-20 h-20 md:w-28 md:h-28 bg-white rounded-2xl shadow-sm border border-slate-200 cursor-grab flex items-center justify-center overflow-hidden relative";
+                    el.className = "kartu-drag w-20 h-20 bg-white rounded-2xl shadow-sm border border-slate-200 cursor-grab flex items-center justify-center overflow-hidden relative";
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                    el.innerHTML = `<div class="absolute inset-0 bg-slate-50 flex items-center justify-center text-slate-600 font-bold text-xs md:text-sm text-center p-1 leading-tight ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div><img src="${urlPath}" class="w-full h-full object-cover pointer-events-none" onerror="this.previousElementSibling.classList.remove('hidden'); this.style.display='none'" draggable="false" />`;
+                    el.innerHTML = `<div class="absolute inset-0 bg-slate-50 flex items-center justify-center text-slate-600 font-bold text-xs text-center p-1 leading-tight ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div><img src="${urlPath}" class="w-full h-full object-cover pointer-events-none" draggable="false" />`;
+                    wadahItem.appendChild(el);
+                });
+            },
+
+            // KATEGORI BARU 1: SILUET (TEBAK BAYANGAN)
+            mesinSiluet(data, arena) {
+                const target = data.item_target || { nama: "Target", isTarget: true }; 
+                const targetUrl = target.url_gambar ? AudioMgr.getAmanPath(target.url_gambar) : '';
+                
+                // Zona target pakai gambar bayangan hitam
+                arena.innerHTML = `
+                    <div class="zona-siluet w-32 h-32 md:w-40 md:h-40 mb-auto mt-2 transition-colors z-0 flex items-center justify-center">
+                        <img src="${targetUrl}" class="w-full h-full object-contain bayangan-hitam pointer-events-none" draggable="false" onerror="this.outerHTML='<div class=\\'text-xs font-bold text-slate-400\\'>Taruh Sini</div>'">
+                    </div>
+                    <div id="wadah-item" class="w-full flex justify-center flex-wrap gap-3 pb-6 mt-8 anim-fade z-10"></div>
+                `;
+                
+                const wadahItem = document.getElementById('wadah-item');
+                const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
+                let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
+
+                itemsAcak.forEach(it => {
+                    const el = document.createElement('div');
+                    el.setAttribute('data-tipe', 'drag-siluet'); el.setAttribute('data-benar', it.isTarget ? 'ya' : 'tidak');
+                    el.className = "kartu-drag w-20 h-20 bg-white rounded-2xl shadow-sm border border-slate-200 cursor-grab flex items-center justify-center overflow-hidden relative p-1";
+                    const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
+                    el.innerHTML = `<div class="absolute inset-0 bg-slate-50 flex items-center justify-center text-slate-600 font-bold text-xs text-center p-1 leading-tight ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div><img src="${urlPath}" class="w-full h-full object-contain pointer-events-none" draggable="false" />`;
                     wadahItem.appendChild(el);
                 });
             },
@@ -635,7 +672,7 @@
                     el.setAttribute('data-tipe', 'drag-urutan'); el.setAttribute('data-index-asli', it.indexAsli);
                     el.className = `kartu-drag ${boxSize} bg-white rounded-xl shadow-sm border border-slate-200 cursor-grab flex items-center justify-center overflow-hidden relative`;
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                    el.innerHTML = `<div class="absolute inset-0 flex items-center justify-center p-1 text-center font-bold text-slate-600 leading-tight ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div><img src="${urlPath}" class="w-full h-full object-cover pointer-events-none" onerror="this.previousElementSibling.classList.remove('hidden'); this.style.display='none'" draggable="false" />`;
+                    el.innerHTML = `<div class="absolute inset-0 flex items-center justify-center p-1 text-center font-bold text-slate-600 leading-tight ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div><img src="${urlPath}" class="w-full h-full object-cover pointer-events-none" draggable="false" />`;
                     wadahItem.appendChild(el);
                 });
             },
@@ -651,7 +688,7 @@
                 const totalPairs = itemUnik.length;
 
                 const gridClass = pasangan.length > 6 ? "grid-cols-4" : "grid-cols-3";
-                const grid = document.createElement('div'); grid.className = `grid ${gridClass} gap-2 md:gap-3 w-full mt-auto pb-4 anim-fade max-w-sm`;
+                const grid = document.createElement('div'); grid.className = `grid ${gridClass} gap-2 w-full mt-auto pb-4 anim-fade max-w-sm`;
 
                 pasangan.forEach((it) => {
                     const card = document.createElement('div'); card.className = "mem-card w-full aspect-square";
@@ -695,12 +732,10 @@
                 arena.innerHTML = htmlZona;
 
                 const wadahItem = document.getElementById('wadah-item-tebak');
-                
                 semuaHuruf.forEach((huruf, i) => {
                     const el = document.createElement('div');
                     let validIndexes = []; hurufTarget.forEach((ht, idx) => { if(ht === huruf) validIndexes.push(idx); });
-                    
-                    el.setAttribute('data-tipe', 'drag-tebak'); el.setAttribute('data-huruf', huruf); el.setAttribute('data-valid-indexes', JSON.stringify(validIndexes));
+                    el.setAttribute('data-tipe', 'drag-tebak'); el.setAttribute('data-valid-indexes', JSON.stringify(validIndexes));
                     el.className = `kartu-drag w-10 h-12 md:w-14 md:h-16 bg-white rounded-lg shadow border border-slate-200 cursor-grab flex items-center justify-center overflow-hidden relative text-lg md:text-2xl font-black text-indigo-600`;
                     el.innerText = huruf;
                     wadahItem.appendChild(el);
@@ -722,8 +757,77 @@
                 this.jawabanBenarSaatIni = 0;
                 const kecepatan = data.speed || 'normal';
 
-                arena.innerHTML = `<p class="text-xs text-sky-600 font-bold mb-2 z-10 bg-white/70 px-3 py-1 rounded-full">Tekan sesuai urutan (1, 2, 3..)</p>`;
+                arena.innerHTML = `<p class="text-xs text-sky-600 font-bold mb-2 z-10 bg-white/70 px-3 py-1 rounded-full pointer-events-none">Tekan sesuai urutan (1, 2, 3..)</p>`;
                 PhysicsEngine.mulaiMelayang(kecepatan, arrUrutan, arena);
+            },
+
+            // KATEGORI BARU 2: PUKUL TIKUS (WHACK-A-MOLE)
+            mesinPukul(data, arena) {
+                const target = data.item_target || { nama: "Benar", isTarget: true };
+                const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
+                let itemAcak = [target, ...pengecoh];
+                const kecepatan = data.speed || 'normal';
+                let speedMs = kecepatan === 'cepat' ? 800 : (kecepatan === 'lambat' ? 1800 : 1200);
+
+                this.jawabanBenarSaatIni = 0; // Butuh 3 kali pukul benar untuk menang
+
+                arena.innerHTML = `<p class="text-xs text-sky-600 font-bold mb-2 z-10 bg-white/70 px-3 py-1 rounded-full">Pukul gambar yang benar 3x!</p>
+                                   <div class="grid grid-cols-3 gap-3 w-full max-w-sm mt-auto pb-10" id="wadah-lubang"></div>`;
+                
+                const wadahLubang = document.getElementById('wadah-lubang');
+                let lubangs = [];
+                // Buat 6 Lubang
+                for(let i=0; i<6; i++) {
+                    const lubang = document.createElement('div');
+                    lubang.className = "lubang-pukul aspect-square w-full";
+                    const benda = document.createElement('div');
+                    benda.className = "benda-pukul flex flex-col items-center justify-center bg-white border-2 border-indigo-200 rounded-t-full shadow-inner p-1";
+                    
+                    benda.onclick = () => {
+                        const isTarget = benda.getAttribute('data-is-target') === 'true';
+                        benda.classList.remove('muncul'); // Langsung masuk ke dalam
+                        if(isTarget) {
+                            AudioMgr.playBenar(); this.jawabanBenarSaatIni++; this.skor += 50; this.renderUI();
+                            if(this.jawabanBenarSaatIni >= 3) {
+                                clearInterval(PhysicsEngine.intervalId);
+                                setTimeout(() => this.munculLayarAkhir('benar'), 500);
+                            }
+                        } else {
+                            AudioMgr.playSalah(); this.nyawa--; this.renderUI();
+                            if(this.nyawa <= 0) {
+                                clearInterval(PhysicsEngine.intervalId);
+                                setTimeout(() => this.munculLayarAkhir('kalah'), 500);
+                            }
+                        }
+                    };
+                    lubang.appendChild(benda);
+                    wadahLubang.appendChild(lubang);
+                    lubangs.push(benda);
+                }
+
+                // Logika Muncul Tenggelam
+                PhysicsEngine.berhenti();
+                PhysicsEngine.intervalId = setInterval(() => {
+                    // Masukkan semua benda dulu
+                    lubangs.forEach(b => b.classList.remove('muncul'));
+                    
+                    // Pilih 1 atau 2 lubang acak untuk memunculkan benda
+                    const numToPop = Math.random() > 0.5 ? 2 : 1;
+                    const shuffledLubang = [...lubangs].sort(() => 0.5 - Math.random()).slice(0, numToPop);
+                    
+                    shuffledLubang.forEach((benda, idx) => {
+                        // Pastikan ada target yang muncul sesekali
+                        let it = itemAcak[Math.floor(Math.random() * itemAcak.length)];
+                        if(idx === 0 && Math.random() > 0.3) it = target; // 70% peluang target muncul
+
+                        const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
+                        if(urlPath) benda.innerHTML = `<img src="${urlPath}" class="w-full h-full object-cover rounded-full pointer-events-none">`;
+                        else benda.innerHTML = `<span class="text-[10px] font-bold text-slate-700 pointer-events-none">${it.nama}</span>`;
+                        
+                        benda.setAttribute('data-is-target', it.isTarget ? 'true' : 'false');
+                        benda.classList.add('muncul');
+                    });
+                }, speedMs);
             },
 
             prosesKuis(isBenar, elemenAnimasi) {
@@ -769,6 +873,9 @@
                 lucide.createIcons();
             }
         };
+
+        // Otomatis jalan preload saat dibuka
+        window.onload = () => Game.initPreload();
     </script>
 </body>
 </html>
