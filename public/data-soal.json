@@ -718,6 +718,84 @@
         }
       ],
       "id": "L_AUTO_1775326142910_4"
+    },
+    {
+      "kategori": "kuis",
+      "pertanyaan": "Berapa 1 + 1?",
+      "item_target": {
+        "nama": "2",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "3",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775327799095_0"
+    },
+    {
+      "kategori": "pukul",
+      "speed": "normal",
+      "pertanyaan": "Pukul Tikus: Tangkap 3 Anggur 🍇!",
+      "item_target": {
+        "nama": "Anggur 🍇",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Jeruk 🍊",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775327799095_1"
+    },
+    {
+      "kategori": "kuis",
+      "pertanyaan": "Berapa 4 + 1?",
+      "item_target": {
+        "nama": "5",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "6",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775327799095_2"
+    },
+    {
+      "kategori": "bubble",
+      "speed": "normal",
+      "pertanyaan": "Tekan gelembung Apel 🍎 sebelum jatuh!",
+      "item_target": {
+        "nama": "Apel 🍎",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Pisang 🍌",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775327799095_3"
+    },
+    {
+      "kategori": "pukul",
+      "speed": "normal",
+      "pertanyaan": "Pukul Tikus: Tangkap 3 Jeruk 🍊!",
+      "item_target": {
+        "nama": "Jeruk 🍊",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Anggur 🍇",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775327799095_4"
     }
   ]
 }
