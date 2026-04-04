@@ -31,14 +31,15 @@
                 <span>Klik tombol kuning "Repo" untuk menghubungkan GitHub.</span>
             </div>
 
-            <!-- FITUR AI AUTO GENERATE SOAL -->
-            <button onclick="generateSoalCerdas()" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-black p-4 rounded-2xl flex justify-center items-center gap-2 transition-all shadow-md active:scale-95">
-                <i data-lucide="wand-2" class="w-6 h-6"></i> BIKIN 5 SOAL TK OTOMATIS (Cerdas)
+            <!-- FITUR AI AUTO GENERATE SOAL TAK TERBATAS -->
+            <button onclick="ProceduralGenerator.buat5Soal()" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-black p-4 rounded-2xl flex justify-center items-center gap-2 transition-all shadow-md active:scale-95">
+                <i data-lucide="infinity" class="w-6 h-6"></i> BIKIN 5 SOAL OTOMATIS (Tak Terbatas)
             </button>
+            <p class="text-xs text-center text-slate-500 mt-1 font-bold">Mesin ini bisa membuat ribuan kombinasi soal Matematika, Logika, dan Kata secara acak!</p>
 
-            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 mt-4">
                 <div class="flex justify-between items-center mb-4 pb-3 border-b-2 border-slate-100">
-                    <h2 class="font-black text-xl text-slate-800">Daftar Level</h2>
+                    <h2 class="font-black text-xl text-slate-800">Daftar Level (<span id="total-level">0</span>)</h2>
                     <button onclick="bukaFormTambah()" class="bg-indigo-100 text-indigo-700 font-black px-4 py-2 rounded-xl text-sm flex gap-1 items-center hover:bg-indigo-200 transition"><i data-lucide="plus" class="w-5 h-5"></i> TAMBAH</button>
                 </div>
                 <div id="daftar-soal-admin" class="space-y-3"></div>
@@ -78,16 +79,23 @@
             </div>
         </div>
 
-        <!-- MODAL GALERI ASET CERDAS -->
+        <!-- MODAL GALERI -->
         <div id="modal-galeri" class="hidden fixed inset-0 z-[80] bg-slate-100 flex flex-col max-w-[600px] mx-auto overflow-hidden">
-            <header class="bg-amber-500 p-4 flex justify-between items-center shadow-md">
-                <h2 class="font-black text-lg text-amber-950 flex items-center gap-2"><i data-lucide="library"></i> Galeri Aset</h2>
-                <button onclick="Galeri.tutup()" class="bg-amber-600 p-2 rounded-full text-white hover:bg-amber-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <header class="bg-indigo-800 p-4 flex justify-between items-center shadow-md">
+                <h2 class="font-black text-lg text-white flex items-center gap-2"><i data-lucide="library"></i> Galeri Aset GitHub</h2>
+                <button onclick="Galeri.tutup()" class="bg-indigo-900 p-2 rounded-full text-white hover:bg-indigo-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </header>
-            <div id="galeri-loading" class="p-8 text-center hidden">
-                <i data-lucide="loader" class="w-8 h-8 text-amber-600 animate-spin mx-auto mb-2"></i>
-                <p class="text-sm font-bold text-slate-500">Membaca file dari GitHub...</p>
+            
+            <div class="p-3 bg-indigo-100 border-b border-indigo-200 flex items-center gap-2">
+                <i data-lucide="info" class="w-5 h-5 text-indigo-600"></i>
+                <span class="text-xs font-bold text-indigo-800">Klik file di bawah ini untuk menggunakannya tanpa perlu upload ulang.</span>
             </div>
+
+            <div id="galeri-loading" class="p-8 text-center hidden">
+                <i data-lucide="loader" class="w-8 h-8 text-indigo-500 animate-spin mx-auto mb-2"></i>
+                <p class="text-sm font-bold text-slate-500">Mengambil file dari GitHub...</p>
+            </div>
+
             <div id="galeri-grid" class="flex-1 overflow-y-auto p-4 grid grid-cols-3 gap-3 content-start"></div>
         </div>
 
@@ -103,23 +111,54 @@
 
                 <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
                     <label class="font-black text-sm block mb-2 text-indigo-800">Kategori Game</label>
-                    <select id="in-kategori" onchange="UbahTampilanForm()" class="w-full p-3 border border-indigo-200 rounded-xl bg-indigo-50 font-black text-indigo-700 outline-none mb-4">
+                    <select id="in-kategori" onchange="UbahTampilanForm()" class="w-full p-3 border border-indigo-200 rounded-xl bg-indigo-50 font-bold text-indigo-700 outline-none mb-4">
                         <option value="kuis">📝 Kuis (Pilihan Berganda)</option>
-                        <option value="drag">🕹️ Drag & Drop (Tarik ke Kotak)</option>
-                        <option value="urutan">🔄 Urutan Gambar (Maks 6)</option>
-                        <option value="memory">🃏 Kartu Memori (Cocokkan)</option>
+                        <option value="drag">🕹️ Drag & Drop (Tarik ke 1 Kotak)</option>
+                        <option value="urutan">🔄 Urutan (Tarik Sesuai Urutan)</option>
+                        <option value="memory">🃏 Kartu Memori (Cocokkan Gambar)</option>
                     </select>
 
                     <label class="font-black text-sm block mb-2 text-slate-800">Teks Instruksi / Pertanyaan</label>
                     <textarea id="in-tanya" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 outline-none focus:border-indigo-400" rows="2" placeholder="Contoh: Manakah yang buah apel?"></textarea>
                 
-                    <!-- Fitur Baru: Gambar pada Soal -->
                     <label class="font-black text-sm block mt-4 mb-2 text-slate-800 flex items-center gap-1"><i data-lucide="image" class="w-4 h-4 text-sky-500"></i> Gambar / Media pada Soal (Opsional)</label>
                     <div class="flex gap-2 mb-1">
                         <input type="text" id="path-media-soal" class="w-full text-xs p-2 border border-slate-200 rounded bg-slate-50" placeholder="Galeri ->" readonly>
                         <button onclick="Galeri.bukaUtama('path-media-soal', 'image')" class="bg-sky-100 text-sky-700 p-2 rounded"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
                     </div>
                     <input type="file" id="f-media-soal" accept="image/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-slate-200">
+                </div>
+
+                <div class="bg-sky-50 p-5 rounded-3xl shadow-sm border border-sky-200">
+                    <h3 class="font-black text-sky-800 mb-3 flex items-center gap-2"><i data-lucide="music"></i> Latar & Audio Khusus Level Ini</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs font-bold text-sky-700 flex items-center gap-1"><i data-lucide="mic" class="w-3 h-3"></i> Suara Soal (Dibacakan)</label>
+                            <div class="flex gap-2 mb-1">
+                                <input type="text" id="path-lvl-soal" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Pilih dari Galeri ->" readonly>
+                                <button onclick="Galeri.bukaUtama('path-lvl-soal', 'audio')" class="bg-amber-100 text-amber-800 p-2 rounded"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
+                            </div>
+                            <input type="file" id="f-lvl-soal" accept="audio/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-sky-300">
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-bold text-sky-700">Gambar Latar Belakang (BG)</label>
+                            <div class="flex gap-2 mb-1">
+                                <input type="text" id="path-lvl-bg" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Pilih dari Galeri ->" readonly>
+                                <button onclick="Galeri.bukaUtama('path-lvl-bg', 'image')" class="bg-amber-100 text-amber-800 p-2 rounded"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
+                            </div>
+                            <input type="file" id="f-lvl-bg" accept="image/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-sky-300">
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-bold text-sky-700">Musik BGM Level (.mp3)</label>
+                            <div class="flex gap-2 mb-1">
+                                <input type="text" id="path-lvl-bgm" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Pilih dari Galeri ->" readonly>
+                                <button onclick="Galeri.bukaUtama('path-lvl-bgm', 'audio')" class="bg-amber-100 text-amber-800 p-2 rounded"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
+                            </div>
+                            <input type="file" id="f-lvl-bgm" accept="audio/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-sky-300">
+                        </div>
+                    </div>
                 </div>
 
                 <!-- WADAH DINAMIS UNTUK TARGET & PENGECOH (TAMPIL JIKA KUIS/DRAG/MEMORY) -->
@@ -136,7 +175,6 @@
 
                     <div class="bg-rose-50 p-5 rounded-3xl border border-rose-300 shadow-sm mb-6">
                         <label class="font-black text-lg block mb-3 text-rose-800 flex items-center gap-2"><i data-lucide="x-circle"></i> GAMBAR LAIN (Pengecoh / Pasangan Memory)</label>
-                        <!-- Pengecoh 1 -->
                         <div class="mb-4 bg-white/50 p-3 rounded-xl border border-rose-200">
                             <input type="text" id="in-p1-nama" placeholder="Teks 1" class="w-full p-2 border border-rose-200 rounded mb-1 text-sm font-bold">
                             <div class="flex gap-2 mb-1">
@@ -145,7 +183,6 @@
                             </div>
                             <input type="file" id="f-p1-img" accept="image/*" class="w-full text-xs bg-white p-1 rounded">
                         </div>
-                        <!-- Pengecoh 2 -->
                         <div class="mb-4 bg-white/50 p-3 rounded-xl border border-rose-200">
                             <input type="text" id="in-p2-nama" placeholder="Teks 2 (Opsional)" class="w-full p-2 border border-rose-200 rounded mb-1 text-sm font-bold">
                             <div class="flex gap-2 mb-1">
@@ -154,7 +191,6 @@
                             </div>
                             <input type="file" id="f-p2-img" accept="image/*" class="w-full text-xs bg-white p-1 rounded">
                         </div>
-                        <!-- Pengecoh 3 -->
                         <div class="mb-2 bg-white/50 p-3 rounded-xl border border-rose-200">
                             <input type="text" id="in-p3-nama" placeholder="Teks 3 (Opsional)" class="w-full p-2 border border-rose-200 rounded mb-1 text-sm font-bold">
                             <div class="flex gap-2 mb-1">
@@ -182,7 +218,7 @@
 
             <div class="bg-white p-5 border-t z-10 sticky bottom-0">
                 <button onclick="simpanLevelKeDaftar()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xl py-4 rounded-2xl shadow-[0_6px_0_0_#4f46e5] active:translate-y-2 active:shadow-none transition-all flex justify-center items-center gap-2">
-                    <i data-lucide="save"></i> SIMPAN LEVEL
+                    <i data-lucide="save"></i> SIMPAN LEVEL INI
                 </button>
             </div>
         </div>
@@ -248,53 +284,110 @@
         }
 
         // =========================================================================
-        // AI BANK SOAL TK (Cerdas Anti Duplikat)
+        // PROCEDURAL GENERATOR: MESIN PEMBUAT SOAL TAK TERBATAS
         // =========================================================================
-        const BANK_SOAL_TK = [
-            { k: "kuis", t: "Matematika: Ada berapa jumlah matahari ini? ☀️☀️", tg: "Dua", pg: ["Satu", "Tiga", "Empat"] },
-            { k: "drag", t: "Sains: Tarik awan ke langit (kotak)!", tg: "Awan", pg: ["Batu", "Kayu"] },
-            { k: "kuis", t: "Akhlaq: Jika diberi hadiah, kita harus bilang apa?", tg: "Terima Kasih", pg: ["Marah", "Diam", "Nangis"] },
-            { k: "kuis", t: "Hewan Darat: Mana yang termasuk hewan peliharaan?", tg: "Kucing", pg: ["Harimau", "Buaya", "Hiu"] },
-            { k: "urutan", t: "Logika: Urutkan angka 1 sampai 4!", u: ["Satu 1", "Dua 2", "Tiga 3", "Empat 4"] },
-            { k: "memory", t: "Ingatan: Cocokkan buah yang sama!", tg: "Apel", pg: ["Pisang", "Jeruk", "Anggur"] },
-            { k: "kuis", t: "Warna: Warna apa daun pada pohon?", tg: "Hijau", pg: ["Merah", "Biru", "Kuning"] },
-            { k: "urutan", t: "Sains: Urutkan dari pagi ke malam!", u: ["Matahari Terbit", "Siang Terang", "Sore", "Bulan Bintang"] },
-            { k: "drag", t: "Kendaraan: Tarik perahu ke kotak air!", tg: "Perahu", pg: ["Mobil", "Sepeda"] },
-            { k: "kuis", t: "Tubuh Kita: Kita melihat menggunakan?", tg: "Mata", pg: ["Telinga", "Kaki", "Tangan"] }
-        ];
-
-        function generateSoalCerdas() {
-            if(!confirm("Tambahkan 5 soal acak baru?")) return;
+        const ProceduralGenerator = {
+            buah: ["Apel 🍎", "Pisang 🍌", "Jeruk 🍊", "Anggur 🍇", "Semangka 🍉", "Stroberi 🍓", "Mangga 🥭", "Ceri 🍒", "Nanas 🍍"],
+            hewan: ["Kucing 🐱", "Anjing 🐶", "Burung 🐦", "Ikan 🐟", "Sapi 🐄", "Kuda 🐎", "Kelinci 🐰", "Bebek 🐔", "Gajah 🐘", "Singa 🦁"],
+            warna: ["Merah 🔴", "Biru 🔵", "Kuning 🟡", "Hijau 🟢", "Ungu 🟣", "Jingga 🟠"],
             
-            // Ambil semua teks pertanyaan yang SUDAH ADA di level agar tidak kembar
-            const soalTersedia = dbLokal.levels ? dbLokal.levels.map(l => l.pertanyaan) : [];
-            
-            // Filter Bank Soal: Hanya ambil soal yang pertanyaannya belum ada
-            const bankTerfilter = BANK_SOAL_TK.filter(soal => !soalTersedia.includes(soal.t));
-            
-            if(bankTerfilter.length === 0) return alert("Semua soal di Bank Soal sudah kamu gunakan!");
+            // Mengambil n item acak dari array
+            ambilAcak(arr, n) {
+                const shuffled = [...arr].sort(() => 0.5 - Math.random());
+                return shuffled.slice(0, n);
+            },
 
-            // Acak (Shuffle) dan ambil maksimal 5 soal
-            const diambil = bankTerfilter.sort(() => 0.5 - Math.random()).slice(0, 5);
-            const tsBase = Date.now();
-
-            diambil.forEach((soal, i) => {
-                let obj = { id: `L_AUTO_${tsBase}_${i}`, kategori: soal.k, pertanyaan: soal.t };
+            bikinSoalMatematika() {
+                const operator = Math.random() > 0.5 ? '+' : '-';
+                const a = Math.floor(Math.random() * 5) + 1; // 1-5
+                let b = Math.floor(Math.random() * 5) + 1; // 1-5
                 
-                if (soal.k === 'urutan') {
-                    obj.item_urutan = [];
-                    soal.u.forEach((txt, idx) => { obj.item_urutan.push({ nama: txt, indexAsli: idx }); });
-                } else {
-                    obj.item_target = { nama: soal.tg, isTarget: true };
-                    obj.item_pengecoh = [];
-                    soal.pg.forEach(txt => { obj.item_pengecoh.push({ nama: txt, isTarget: false }); });
+                let hasil = 0;
+                if(operator === '+') { hasil = a + b; }
+                else {
+                    if(a < b) { const temp = a; b = a; a = temp; } // Cegah minus
+                    if(a === b) a += 1;
+                    hasil = a - b;
                 }
-                dbLokal.levels.push(obj);
-            });
 
-            renderDaftarLevel();
-            alert(`Berhasil menambahkan ${diambil.length} soal baru secara acak! Jangan lupa klik SIMPAN & PUBLISH.`);
-        }
+                // Bikin 3 pengecoh (angka yang salah tapi dekat dengan hasil)
+                let pengecoh = [];
+                while(pengecoh.length < 3) {
+                    let p = hasil + Math.floor(Math.random() * 5) - 2;
+                    if(p !== hasil && p > 0 && !pengecoh.includes(p)) pengecoh.push(p);
+                }
+
+                return {
+                    kategori: "kuis",
+                    pertanyaan: `Matematika: Berapa hasil dari ${a} ${operator} ${b}?`,
+                    item_target: { nama: hasil.toString(), isTarget: true },
+                    item_pengecoh: pengecoh.map(p => ({ nama: p.toString(), isTarget: false }))
+                };
+            },
+
+            bikinSoalKata(kategoriKata, arrKata) {
+                const item = this.ambilAcak(arrKata, 4); // Ambil 4 (1 benar, 3 pengecoh)
+                return {
+                    kategori: "drag",
+                    pertanyaan: `Mengenal ${kategoriKata}: Tarik "${item[0]}" ke dalam kotak!`,
+                    item_target: { nama: item[0], isTarget: true },
+                    item_pengecoh: [
+                        { nama: item[1], isTarget: false },
+                        { nama: item[2], isTarget: false },
+                        { nama: item[3], isTarget: false }
+                    ]
+                };
+            },
+
+            bikinSoalUrutanAngka() {
+                let start = Math.floor(Math.random() * 5) + 1;
+                return {
+                    kategori: "urutan",
+                    pertanyaan: "Urutkan angka dari yang terkecil ke terbesar!",
+                    item_urutan: [
+                        { nama: `Angka ${start}`, indexAsli: 0 },
+                        { nama: `Angka ${start+1}`, indexAsli: 1 },
+                        { nama: `Angka ${start+2}`, indexAsli: 2 },
+                        { nama: `Angka ${start+3}`, indexAsli: 3 }
+                    ]
+                };
+            },
+
+            bikinSoalMemory() {
+                const buahAcak = this.ambilAcak(this.buah, 3);
+                return {
+                    kategori: "memory",
+                    pertanyaan: "Latih Ingatan: Cari pasangan gambar yang sama!",
+                    item_target: { nama: buahAcak[0], isTarget: true },
+                    item_pengecoh: [ { nama: buahAcak[1], isTarget: false }, { nama: buahAcak[2], isTarget: false } ]
+                };
+            },
+
+            // Fungsi utama pemanggil
+            buat5Soal() {
+                if(!confirm("Buat 5 soal baru yang belum pernah ada secara otomatis?")) return;
+                
+                const tsBase = Date.now();
+                for(let i=0; i<5; i++) {
+                    const tipeRnd = Math.random();
+                    let soalBaru;
+                    
+                    if (tipeRnd < 0.3) soalBaru = this.bikinSoalMatematika();
+                    else if (tipeRnd < 0.5) soalBaru = this.bikinSoalKata("Buah", this.buah);
+                    else if (tipeRnd < 0.7) soalBaru = this.bikinSoalKata("Hewan", this.hewan);
+                    else if (tipeRnd < 0.85) soalBaru = this.bikinSoalUrutanAngka();
+                    else soalBaru = this.bikinSoalMemory();
+
+                    soalBaru.id = `L_AUTO_${tsBase}_${i}`;
+                    dbLokal.levels.push(soalBaru);
+                }
+
+                renderDaftarLevel();
+                alert("5 Soal Unik Berhasil Ditambahkan ke paling bawah daftar! Ingat untuk klik SIMPAN & PUBLISH.");
+            }
+        };
+
+        // =========================================================================
 
         async function tarikDataGitHub() {
             const token = localStorage.getItem('ghToken'); const repo = localStorage.getItem('ghRepo');
@@ -307,9 +400,11 @@
                 if(res.ok) {
                     const data = await res.json(); const parsed = JSON.parse(decodeURIComponent(escape(window.atob(data.content))));
                     dbLokal.global_settings = parsed.global_settings || {}; dbLokal.levels = parsed.levels || [];
+                    document.getElementById('total-level').innerText = dbLokal.levels.length;
                     statusEl.innerHTML = `<i data-lucide="check-circle" class="w-6 h-6 text-emerald-500"></i> <span class="text-emerald-800">Terhubung: ${repo}</span>`;
                 } else if (res.status === 404) {
                     dbLokal = { global_settings: {}, levels: [] };
+                    document.getElementById('total-level').innerText = 0;
                     statusEl.innerHTML = `<i data-lucide="info" class="w-6 h-6 text-sky-500"></i> <span class="text-sky-800">Repo Kosong. Klik Bikin Soal Otomatis!</span>`;
                 } else throw new Error(`Akses Ditolak.`);
             } catch(e) { statusEl.innerHTML = `<i data-lucide="x-circle" class="w-6 h-6 text-rose-500"></i> <span class="text-rose-800">Error: ${e.message}</span>`; }
@@ -318,6 +413,8 @@
 
         function renderDaftarLevel() {
             const wadah = document.getElementById('daftar-soal-admin'); wadah.innerHTML = '';
+            document.getElementById('total-level').innerText = dbLokal.levels ? dbLokal.levels.length : 0;
+            
             if(!dbLokal.levels || dbLokal.levels.length === 0) return wadah.innerHTML = `<div class="text-center p-10"><p>Belum ada Level.</p></div>`;
 
             dbLokal.levels.forEach((lvl, idx) => {
@@ -326,7 +423,7 @@
                         <div class="overflow-hidden">
                             <span class="text-[10px] font-black text-white uppercase px-2 py-1 bg-indigo-500 rounded-lg">${lvl.kategori}</span>
                             <span class="text-sm font-black text-slate-400 ml-2">Level ${idx + 1}</span>
-                            <h3 class="font-bold text-base text-slate-800 mt-2 truncate w-48">${lvl.pertanyaan}</h3>
+                            <h3 class="font-bold text-base text-slate-800 mt-1 truncate w-48 sm:w-64">${lvl.pertanyaan}</h3>
                         </div>
                         <div class="flex gap-2">
                             <button onclick="bukaFormEdit(${idx})" class="text-indigo-600 bg-indigo-50 p-3 rounded-xl hover:bg-indigo-600 hover:text-white transition"><i data-lucide="edit-3" class="w-5 h-5"></i></button>
@@ -395,6 +492,7 @@
 
             let objLevel = { id: `L_${ts}`, kategori: kategori, pertanyaan: tanya };
 
+            // Helper simpan file
             const cekM = (idF, idP, prp, prx) => {
                 const f = document.getElementById(idF).files[0]; const p = document.getElementById(idP).value;
                 if(f) { objLevel[prp] = `assets/${prx}_${ts}.${f.name.split('.').pop()}`; antreanFile.push({path: `public/${objLevel[prp]}`, file: f}); }
@@ -439,37 +537,8 @@
             renderDaftarLevel(); tutupModal('modal-soal');
         }
 
-        const Galeri = {
-            targetInputId: null, filterType: 'all', 
-            bukaUtama(inputId, type) { this.targetInputId = inputId; this.filterType = type; document.getElementById('modal-galeri').classList.remove('hidden'); this.fetchDataGitHub(); },
-            tutup() { document.getElementById('modal-galeri').classList.add('hidden'); },
-            async fetchDataGitHub() {
-                const token = localStorage.getItem('ghToken'); const repo = localStorage.getItem('ghRepo');
-                const grid = document.getElementById('galeri-grid'); const loader = document.getElementById('galeri-loading');
-                grid.innerHTML = ''; loader.classList.remove('hidden');
-                try {
-                    const res = await fetch(`https://api.github.com/repos/${repo}/contents/public/assets?v=${Date.now()}`, { headers: { 'Authorization': `token ${token}` } });
-                    loader.classList.add('hidden');
-                    if(res.ok) {
-                        const files = await res.json();
-                        if(files.length === 0) return grid.innerHTML = `<p class="col-span-3 text-center">Belum ada aset.</p>`;
-                        files.forEach(file => {
-                            const isImage = file.name.match(/\.(jpg|jpeg|png|gif|webp)$/i); const isAudio = file.name.match(/\.(mp3|wav|ogg|m4a)$/i);
-                            if (this.filterType === 'image' && !isImage) return; if (this.filterType === 'audio' && !isAudio) return;
-                            const btn = document.createElement('div');
-                            btn.className = "bg-white p-2 rounded-xl shadow-sm border border-slate-200 cursor-pointer text-center";
-                            btn.onclick = () => this.pilihAset(`assets/${file.name}`);
-                            if (isImage) btn.innerHTML = `<img src="https://raw.githubusercontent.com/${repo}/main/public/assets/${file.name}" class="w-full h-16 object-cover rounded-lg mb-1"><span class="text-[9px] truncate w-full">${file.name}</span>`;
-                            else btn.innerHTML = `<div class="w-full h-16 bg-amber-50 rounded-lg mb-1 flex items-center justify-center"><i data-lucide="music" class="w-8 h-8 text-amber-300"></i></div><span class="text-[9px] truncate w-full">${file.name}</span>`;
-                            grid.appendChild(btn);
-                        }); lucide.createIcons();
-                    } else throw new Error();
-                } catch(e) { loader.classList.add('hidden'); grid.innerHTML = `<p class="col-span-3 text-center">Folder Aset kosong/error.</p>`; }
-            },
-            pilihAset(pathStr) { if (this.targetInputId) document.getElementById(this.targetInputId).value = pathStr; this.tutup(); }
-        };
-
         const ubahFileKeBase64 = (file) => new Promise((r) => { const rd = new FileReader(); rd.readAsDataURL(file); rd.onload = () => { let b64 = rd.result.replace(/^data:(.*,)?/, ''); if(b64.length%4>0) b64 += '='.repeat(4-(b64.length%4)); r(b64); }; });
+
         async function githubPutRequest(token, repo, path, base64Content) {
             const url = `https://api.github.com/repos/${repo}/contents/${path}`; let sha = null;
             try { const getRes = await fetch(url, { headers: { 'Authorization': `token ${token}` } }); if(getRes.ok) sha = (await getRes.json()).sha; } catch(e) {} 
@@ -477,15 +546,25 @@
             const putRes = await fetch(url, { method: 'PUT', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(bodyData) });
             if(!putRes.ok) throw new Error(`Upload Gagal: ${path}`);
         }
+
         async function publishKeGitHub() {
             const token = localStorage.getItem('ghToken'); const repo = localStorage.getItem('ghRepo');
             if(!token || !repo) return alert("Hubungkan Token GitHub!");
-            const modLoad = document.getElementById('modal-loading'); document.getElementById('loading-teks').innerText = "Mengupload..."; modLoad.classList.remove('hidden');
+            const modLoad = document.getElementById('modal-loading'); const tLoad = document.getElementById('loading-teks');
+            modLoad.classList.remove('hidden');
+
             try {
-                for(let i=0; i<antreanFile.length; i++) { await githubPutRequest(token, repo, antreanFile[i].path, await ubahFileKeBase64(antreanFile[i].file)); }
-                document.getElementById('loading-teks').innerText = "Menyinkronkan Database...";
-                await githubPutRequest(token, repo, 'public/data-soal.json', window.btoa(unescape(encodeURIComponent(JSON.stringify(dbLokal, null, 2)))));
-                antreanFile = []; fileYangHarusDihapus = []; setTimeout(() => { modLoad.classList.add('hidden'); alert("Berhasil Publish!"); }, 1000);
+                for(let i=0; i<antreanFile.length; i++) {
+                    tLoad.innerText = `Upload media ${i+1}/${antreanFile.length}...`;
+                    const b64 = await ubahFileKeBase64(antreanFile[i].file);
+                    await githubPutRequest(token, repo, antreanFile[i].path, b64);
+                }
+                tLoad.innerText = `Menyinkronkan Database...`;
+                const jsonStr = JSON.stringify(dbLokal, null, 2); const jsonB64 = window.btoa(unescape(encodeURIComponent(jsonStr)));
+                await githubPutRequest(token, repo, 'public/data-soal.json', jsonB64);
+                
+                tLoad.innerText = `SELESAI!`; antreanFile = []; fileYangHarusDihapus = []; 
+                setTimeout(() => { modLoad.classList.add('hidden'); alert("Berhasil Publish!"); }, 1000);
             } catch(e) { alert("ERROR: " + e.message); modLoad.classList.add('hidden'); }
         }
     </script>
