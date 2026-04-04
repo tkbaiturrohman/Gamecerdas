@@ -222,6 +222,262 @@
           "indexAsli": 3
         }
       ]
+    },
+    {
+      "kategori": "drag",
+      "pertanyaan": "Mengenal Hewan: Tarik \"Kuda 🐎\" ke dalam kotak!",
+      "item_target": {
+        "nama": "Kuda 🐎",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Bebek 🐔",
+          "isTarget": false
+        },
+        {
+          "nama": "Ikan 🐟",
+          "isTarget": false
+        },
+        {
+          "nama": "Gajah 🐘",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775323250539_0"
+    },
+    {
+      "kategori": "drag",
+      "pertanyaan": "Mengenal Hewan: Tarik \"Burung 🐦\" ke dalam kotak!",
+      "item_target": {
+        "nama": "Burung 🐦",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Anjing 🐶",
+          "isTarget": false
+        },
+        {
+          "nama": "Ikan 🐟",
+          "isTarget": false
+        },
+        {
+          "nama": "Kuda 🐎",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775323250539_1"
+    },
+    {
+      "kategori": "drag",
+      "pertanyaan": "Mengenal Buah: Tarik \"Anggur 🍇\" ke dalam kotak!",
+      "item_target": {
+        "nama": "Anggur 🍇",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Pisang 🍌",
+          "isTarget": false
+        },
+        {
+          "nama": "Apel 🍎",
+          "isTarget": false
+        },
+        {
+          "nama": "Ceri 🍒",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775323250539_2"
+    },
+    {
+      "kategori": "memory",
+      "pertanyaan": "Latih Ingatan: Cari pasangan gambar yang sama!",
+      "item_target": {
+        "nama": "Apel 🍎",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Semangka 🍉",
+          "isTarget": false
+        },
+        {
+          "nama": "Ceri 🍒",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775323250539_3"
+    },
+    {
+      "kategori": "memory",
+      "pertanyaan": "Latih Ingatan: Cari pasangan gambar yang sama!",
+      "item_target": {
+        "nama": "Stroberi 🍓",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Apel 🍎",
+          "isTarget": false
+        },
+        {
+          "nama": "Pisang 🍌",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775323250539_4"
+    },
+    {
+      "kategori": "urutan",
+      "pertanyaan": "Urutkan angka dari yang terkecil ke terbesar!",
+      "item_urutan": [
+        {
+          "nama": "Angka 1",
+          "indexAsli": 0
+        },
+        {
+          "nama": "Angka 2",
+          "indexAsli": 1
+        },
+        {
+          "nama": "Angka 3",
+          "indexAsli": 2
+        },
+        {
+          "nama": "Angka 4",
+          "indexAsli": 3
+        }
+      ],
+      "id": "L_AUTO_1775323258148_0"
+    },
+    {
+      "kategori": "drag",
+      "pertanyaan": "Mengenal Buah: Tarik \"Ceri 🍒\" ke dalam kotak!",
+      "item_target": {
+        "nama": "Ceri 🍒",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Pisang 🍌",
+          "isTarget": false
+        },
+        {
+          "nama": "Nanas 🍍",
+          "isTarget": false
+        },
+        {
+          "nama": "Apel 🍎",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775323258148_1"
+    },
+    {
+      "kategori": "drag",
+      "pertanyaan": "Mengenal Buah: Tarik \"Semangka 🍉\" ke dalam kotak!",
+      "item_target": {
+        "nama": "Semangka 🍉",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Anggur 🍇",
+          "isTarget": false
+        },
+        {
+          "nama": "Jeruk 🍊",
+          "isTarget": false
+        },
+        {
+          "nama": "Pisang 🍌",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775323263068_0"
+    },
+    {
+      "kategori": "memory",
+      "pertanyaan": "Latih Ingatan: Cari pasangan gambar yang sama!",
+      "item_target": {
+        "nama": "Ceri 🍒",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Nanas 🍍",
+          "isTarget": false
+        },
+        {
+          "nama": "Mangga 🥭",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775323263068_1"
+    },
+    {
+      "kategori": "memory",
+      "pertanyaan": "Latih Ingatan: Cari pasangan gambar yang sama!",
+      "item_target": {
+        "nama": "Nanas 🍍",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Pisang 🍌",
+          "isTarget": false
+        },
+        {
+          "nama": "Stroberi 🍓",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775323263068_2"
+    },
+    {
+      "kategori": "memory",
+      "pertanyaan": "Latih Ingatan: Cari pasangan gambar yang sama!",
+      "item_target": {
+        "nama": "Mangga 🥭",
+        "isTarget": true
+      },
+      "item_pengecoh": [
+        {
+          "nama": "Stroberi 🍓",
+          "isTarget": false
+        },
+        {
+          "nama": "Nanas 🍍",
+          "isTarget": false
+        }
+      ],
+      "id": "L_AUTO_1775323263068_3"
+    },
+    {
+      "kategori": "urutan",
+      "pertanyaan": "Urutkan angka dari yang terkecil ke terbesar!",
+      "item_urutan": [
+        {
+          "nama": "Angka 5",
+          "indexAsli": 0
+        },
+        {
+          "nama": "Angka 6",
+          "indexAsli": 1
+        },
+        {
+          "nama": "Angka 7",
+          "indexAsli": 2
+        },
+        {
+          "nama": "Angka 8",
+          "indexAsli": 3
+        }
+      ],
+      "id": "L_AUTO_1775323263068_4"
     }
   ]
 }
