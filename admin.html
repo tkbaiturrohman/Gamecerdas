@@ -87,9 +87,7 @@
                 <p class="text-sm font-bold text-slate-500">Membaca file dari GitHub...</p>
             </div>
 
-            <div id="galeri-grid" class="flex-1 overflow-y-auto p-4 grid grid-cols-3 gap-3 content-start">
-                <!-- Aset akan dilist di sini -->
-            </div>
+            <div id="galeri-grid" class="flex-1 overflow-y-auto p-4 grid grid-cols-3 gap-3 content-start"></div>
         </div>
 
         <!-- Modal Form Level -->
@@ -104,56 +102,52 @@
 
                 <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
                     <label class="font-black text-sm block mb-2 text-indigo-800">Kategori Game</label>
-                    <select id="in-kategori" class="w-full p-3 border-2 border-indigo-100 rounded-xl bg-indigo-50 font-bold text-indigo-700 outline-none mb-4">
-                        <option value="drag">🕹️ Drag & Drop (Tarik)</option>
-                        <option value="kuis">📝 Kuis (Pilihan)</option>
+                    <select id="in-kategori" class="w-full p-3 border border-indigo-200 rounded-xl bg-indigo-50 font-bold text-indigo-700 outline-none mb-4">
+                        <option value="drag">🕹️ Drag & Drop (Tarik Barang)</option>
+                        <option value="kuis">📝 Kuis (Pilihan Ganda Dinamis)</option>
                     </select>
 
                     <label class="font-black text-sm block mb-2 text-slate-800">Teks Instruksi / Soal</label>
-                    <textarea id="in-tanya" class="w-full p-3 border-2 border-slate-200 rounded-xl bg-slate-50 outline-none focus:border-indigo-400" rows="2" placeholder="Contoh: Manakah yang buah?"></textarea>
+                    <textarea id="in-tanya" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 outline-none focus:border-indigo-400" rows="2" placeholder="Contoh: Manakah yang buah apel?"></textarea>
                 </div>
 
-                <!-- Custom Media Per-Level (Disederhanakan untuk stabilitas) -->
-                <div class="bg-sky-50 p-5 rounded-3xl shadow-sm border-2 border-sky-200">
+                <div class="bg-sky-50 p-5 rounded-3xl shadow-sm border border-sky-200">
                     <h3 class="font-black text-sky-800 mb-3 flex items-center gap-2"><i data-lucide="music"></i> Latar & Audio Khusus Level Ini</h3>
                     <div class="space-y-4">
+                        
+                        <!-- AUDIO SOAL KEMBALI DITAMBAHKAN -->
+                        <div>
+                            <label class="text-xs font-bold text-sky-700 flex items-center gap-1"><i data-lucide="mic" class="w-3 h-3"></i> Suara Soal (Dibacakan)</label>
+                            <div class="flex gap-2 mb-1">
+                                <input type="text" id="path-lvl-soal" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Pilih dari Galeri ->" readonly>
+                                <button onclick="Galeri.bukaUtama('path-lvl-soal', 'audio')" class="bg-amber-100 text-amber-800 p-2 rounded"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
+                            </div>
+                            <input type="file" id="f-lvl-soal" accept="audio/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-sky-300">
+                        </div>
+
                         <div>
                             <label class="text-xs font-bold text-sky-700">Gambar Latar Belakang (BG)</label>
                             <div class="flex gap-2 mb-1">
-                                <input type="text" id="path-lvl-bg" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Galeri ->" readonly>
+                                <input type="text" id="path-lvl-bg" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Pilih dari Galeri ->" readonly>
                                 <button onclick="Galeri.bukaUtama('path-lvl-bg', 'image')" class="bg-amber-100 text-amber-800 p-2 rounded"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
                             </div>
                             <input type="file" id="f-lvl-bg" accept="image/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-sky-300">
                         </div>
 
-                        <!-- Audio BGM per level -->
                         <div>
-                            <label class="text-xs font-bold text-sky-700">Musik BGM Khusus Level Ini (.mp3)</label>
+                            <label class="text-xs font-bold text-sky-700">Musik BGM Level (.mp3)</label>
                             <div class="flex gap-2 mb-1">
-                                <input type="text" id="path-lvl-bgm" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Galeri ->" readonly>
+                                <input type="text" id="path-lvl-bgm" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Pilih dari Galeri ->" readonly>
                                 <button onclick="Galeri.bukaUtama('path-lvl-bgm', 'audio')" class="bg-amber-100 text-amber-800 p-2 rounded"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
                             </div>
                             <input type="file" id="f-lvl-bgm" accept="audio/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-sky-300">
                         </div>
-                        
-                        <div class="flex gap-2">
-                            <div class="w-1/2 bg-white p-2 rounded-lg border border-green-200">
-                                <label class="text-[10px] font-bold text-green-700 flex justify-between">SFX Benar <button onclick="Galeri.bukaUtama('path-lvl-benar', 'audio')" class="bg-amber-100 text-amber-800 px-1 rounded"><i data-lucide="folder-search" class="w-3 h-3"></i></button></label>
-                                <input type="text" id="path-lvl-benar" class="w-full text-[9px] p-1 border-b my-1" placeholder="Kosong = Default" readonly>
-                                <input type="file" id="f-lvl-benar" accept="audio/*" class="w-full text-[9px]">
-                            </div>
-                            <div class="w-1/2 bg-white p-2 rounded-lg border border-red-200">
-                                <label class="text-[10px] font-bold text-red-700 flex justify-between">SFX Salah <button onclick="Galeri.bukaUtama('path-lvl-salah', 'audio')" class="bg-amber-100 text-amber-800 px-1 rounded"><i data-lucide="folder-search" class="w-3 h-3"></i></button></label>
-                                <input type="text" id="path-lvl-salah" class="w-full text-[9px] p-1 border-b my-1" placeholder="Kosong = Default" readonly>
-                                <input type="file" id="f-lvl-salah" accept="audio/*" class="w-full text-[9px]">
-                            </div>
-                        </div>
                     </div>
                 </div>
 
-                <div class="bg-emerald-50 p-5 rounded-3xl border-2 border-emerald-300">
-                    <label class="font-black text-lg block mb-3 text-emerald-800 flex items-center gap-2"><i data-lucide="check-circle-2"></i> TARGET BENAR</label>
-                    <input type="text" id="in-benar-nama" placeholder="Teks Jawaban" class="w-full p-3 border-2 border-emerald-300 rounded-xl bg-white mb-3 font-black text-slate-700 outline-none focus:border-emerald-500">
+                <div class="bg-emerald-50 p-5 rounded-3xl border border-emerald-300 shadow-sm">
+                    <label class="font-black text-lg block mb-3 text-emerald-800 flex items-center gap-2"><i data-lucide="check-circle-2"></i> JAWABAN BENAR</label>
+                    <input type="text" id="in-benar-nama" placeholder="Teks Jawaban" class="w-full p-3 border border-emerald-300 rounded-xl bg-white mb-3 font-black text-slate-700 outline-none focus:border-emerald-500">
                     
                     <label class="text-xs font-bold block text-emerald-700 mb-1">Gambar Jawaban:</label>
                     <div class="flex gap-2 mb-1">
@@ -163,10 +157,15 @@
                     <input type="file" id="f-benar-img" accept="image/*" class="w-full text-sm bg-white p-2 rounded-xl border border-emerald-300">
                 </div>
 
-                <div class="bg-rose-50 p-5 rounded-3xl border-2 border-rose-300 mb-6">
-                    <label class="font-black text-lg block mb-2 text-rose-800 flex items-center gap-2"><i data-lucide="x-circle"></i> PENGECOH</label>
-                    <p class="text-[11px] text-rose-600 mb-3 font-bold bg-rose-100 p-2 rounded-lg">Pisahkan teks dengan koma. (Upload gambar bisa lebih dari 1 file sekaligus).</p>
-                    <input type="text" id="in-salah-nama" placeholder="Cth: Meja, Kursi" class="w-full p-3 border-2 border-rose-300 rounded-xl bg-white mb-3 font-black text-slate-700 outline-none focus:border-rose-500">
+                <div class="bg-rose-50 p-5 rounded-3xl border border-rose-300 shadow-sm mb-6">
+                    <label class="font-black text-lg block mb-2 text-rose-800 flex items-center gap-2"><i data-lucide="x-circle"></i> PENGECOH (Pilihan Salah)</label>
+                    
+                    <div class="bg-white/60 border border-rose-200 p-3 rounded-xl mb-3">
+                        <p class="text-xs text-rose-700 font-bold mb-1"><i data-lucide="info" class="w-3 h-3 inline"></i> Tips Kuis 4 Pilihan Ganda:</p>
+                        <p class="text-[11px] text-rose-600 leading-tight">Jika ingin membuat 4 kotak jawaban, masukkan <strong>3 nama pengecoh</strong> dipisah koma (cth: <i>Apel, Mangga, Jeruk</i>), atau pilih/upload <strong>3 gambar pengecoh</strong> sekaligus.</p>
+                    </div>
+
+                    <input type="text" id="in-salah-nama" placeholder="Cth: Meja, Kursi, Lemari" class="w-full p-3 border border-rose-300 rounded-xl bg-white mb-3 font-black text-slate-700 outline-none focus:border-rose-500">
                     <label class="text-xs font-bold block text-rose-700 mb-1">Upload Gambar Pengecoh:</label>
                     <input type="file" id="f-salah-img" accept="image/*" multiple class="w-full text-sm bg-white p-2 rounded-xl border border-rose-300">
                 </div>
@@ -190,9 +189,6 @@
         function bukaModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function tutupModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-        // ==========================================
-        // GALERI ASET CERDAS
-        // ==========================================
         const Galeri = {
             targetInputId: null,
             filterType: 'all', 
@@ -260,9 +256,6 @@
             }
         };
 
-        // ==========================================
-        // INIT & TARIK DATA
-        // ==========================================
         window.onload = () => {
             const token = localStorage.getItem('ghToken');
             const repo = localStorage.getItem('ghRepo');
@@ -334,13 +327,13 @@
             const wadah = document.getElementById('daftar-soal-admin');
             wadah.innerHTML = '';
             if(!dbLokal.levels || dbLokal.levels.length === 0) {
-                wadah.innerHTML = `<div class="text-center p-10 bg-slate-50 border-4 border-dashed border-slate-200 rounded-3xl"><p class="text-slate-500 font-bold text-lg">Belum ada Level.</p></div>`;
+                wadah.innerHTML = `<div class="text-center p-10 bg-slate-50 border-2 border-dashed border-slate-300 rounded-3xl"><p class="text-slate-500 font-bold text-lg">Belum ada Level.</p></div>`;
                 return;
             }
 
             dbLokal.levels.forEach((lvl, idx) => {
                 wadah.innerHTML += `
-                    <div class="border-2 border-slate-200 p-4 rounded-2xl flex justify-between items-center bg-white shadow-sm hover:border-indigo-300 transition group">
+                    <div class="border border-slate-200 p-4 rounded-2xl flex justify-between items-center bg-white shadow-sm hover:border-indigo-300 hover:shadow-md transition group">
                         <div class="overflow-hidden">
                             <span class="text-[10px] font-black text-white uppercase px-2 py-1 bg-indigo-500 rounded-lg">${lvl.kategori}</span>
                             <span class="text-sm font-black text-slate-400 ml-2">Level ${idx + 1}</span>
@@ -361,6 +354,7 @@
                 const l = dbLokal.levels[idx];
                 if(l.bg_image) fileYangHarusDihapus.push(`public/${l.bg_image}`);
                 if(l.bgm_level) fileYangHarusDihapus.push(`public/${l.bgm_level}`);
+                if(l.audio_soal) fileYangHarusDihapus.push(`public/${l.audio_soal}`);
                 if(l.sfx_benar) fileYangHarusDihapus.push(`public/${l.sfx_benar}`);
                 if(l.sfx_salah) fileYangHarusDihapus.push(`public/${l.sfx_salah}`);
                 if(l.item_target && l.item_target.url_gambar) fileYangHarusDihapus.push(`public/${l.item_target.url_gambar}`);
@@ -390,8 +384,7 @@
             
             document.getElementById('path-lvl-bg').value = data.bg_image || "";
             document.getElementById('path-lvl-bgm').value = data.bgm_level || "";
-            document.getElementById('path-lvl-benar').value = data.sfx_benar || "";
-            document.getElementById('path-lvl-salah').value = data.sfx_salah || "";
+            document.getElementById('path-lvl-soal').value = data.audio_soal || "";
             
             document.getElementById('in-benar-nama').value = data.item_target.nama || "";
             document.getElementById('path-benar-img').value = data.item_target.url_gambar || "";
@@ -435,10 +428,8 @@
 
             cekMedia('f-lvl-bg', 'path-lvl-bg', 'bg_image', 'bg');
             cekMedia('f-lvl-bgm', 'path-lvl-bgm', 'bgm_level', 'bgm');
-            cekMedia('f-lvl-benar', 'path-lvl-benar', 'sfx_benar', 'sbenar');
-            cekMedia('f-lvl-salah', 'path-lvl-salah', 'sfx_salah', 'ssalah');
+            cekMedia('f-lvl-soal', 'path-lvl-soal', 'audio_soal', 'asoal');
 
-            // Target Gambar Benar
             const fTarget = document.getElementById('f-benar-img').files[0];
             const pTarget = document.getElementById('path-benar-img').value;
             if(fTarget) { 
@@ -449,7 +440,6 @@
                 objLevel.item_target.url_gambar = pTarget;
             }
 
-            // Pengecoh
             const textPengecoh = document.getElementById('in-salah-nama').value.split(',').map(s => s.trim()).filter(s => s);
             const filePengecoh = document.getElementById('f-salah-img').files;
 
@@ -477,7 +467,6 @@
             tutupModal('modal-soal');
         }
 
-        // --- UPLOAD GITHUB API ---
         const ubahFileKeBase64 = (file) => new Promise((resolve) => { 
             const r = new FileReader(); r.readAsDataURL(file); 
             r.onload = () => { let b64 = r.result.replace(/^data:(.*,)?/, ''); if(b64.length % 4 > 0) b64 += '='.repeat(4 - (b64.length % 4)); resolve(b64); }; 
