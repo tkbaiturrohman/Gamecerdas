@@ -12,14 +12,16 @@
         {
           "nama": "Tt",
           "isTarget": false,
-          "url_gambar": "assets/pgc_1775167910432_0.jpg"
+          "url_gambar": null
         }
       ],
       "kategori": "drag",
       "pertanyaan": "Mari",
       "bg_image": "assets/bg_lvl_1775167910432.jpg",
       "audio_soal": "assets/a_soal_1775167910432.mp3",
-      "sfx_benar": "assets/a_bnr_1775167910432.mp3"
+      "sfx_benar": "assets/a_bnr_1775167910432.mp3",
+      "bgm_level": "assets/bgm_glbl.mp3",
+      "sfx_salah": null
     },
     {
       "id": "L_1775167987329",
@@ -32,14 +34,16 @@
         {
           "nama": "F",
           "isTarget": false,
-          "url_gambar": "assets/pgc_1775167987329_0.jpg"
+          "url_gambar": null
         }
       ],
       "kategori": "kuis",
       "pertanyaan": "Yy",
       "bg_image": "assets/bg_lvl_1775167987329.jpg",
       "audio_soal": "assets/a_soal_1775167987329.mp3",
-      "sfx_salah": "assets/a_slh_1775167987329.mp3"
+      "sfx_salah": "assets/a_slh_1775167987329.mp3",
+      "bgm_level": "assets/bgm_glbl.mp3",
+      "sfx_benar": null
     }
   ]
 }
