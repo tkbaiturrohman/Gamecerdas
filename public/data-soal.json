@@ -2,25 +2,35 @@
   "global_settings": {},
   "levels": [
     {
-      "id": "L_AUTO_1775321891358_0",
-      "kategori": "kuis",
+      "id": "L_1775326445161",
+      "kategori": "melayang",
       "pertanyaan": "Tubuh Kita: Kita melihat menggunakan?",
-      "item_target": {
-        "nama": "Mata",
-        "isTarget": true
-      },
-      "item_pengecoh": [
+      "speed": "normal",
+      "media_soal": null,
+      "item_urutan": [
         {
-          "nama": "Telinga",
-          "isTarget": false
+          "indexAsli": 0,
+          "nama": "1"
         },
         {
-          "nama": "Kaki",
-          "isTarget": false
+          "indexAsli": 1,
+          "nama": "2"
         },
         {
-          "nama": "Tangan",
-          "isTarget": false
+          "indexAsli": 2,
+          "nama": "3"
+        },
+        {
+          "indexAsli": 3,
+          "nama": "4"
+        },
+        {
+          "indexAsli": 4,
+          "nama": "5"
+        },
+        {
+          "indexAsli": 5,
+          "nama": "6"
         }
       ]
     },
