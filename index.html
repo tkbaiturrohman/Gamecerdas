@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        body { font-family: 'Nunito', sans-serif; margin: 0; background: #f8fafc; touch-action: pan-y; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Nunito', sans-serif; margin: 0; background: #f8fafc; touch-action: none; overflow: hidden; -webkit-tap-highlight-color: transparent; }
         #view-game { background-size: cover; background-position: center; transition: background-image 0.5s ease-in-out; }
         
         .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,1); box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
@@ -18,10 +18,14 @@
         
         .btn-pilihan { transition: transform 0.2s; } .btn-pilihan:active { transform: scale(0.92); border-color: #3b82f6; }
         
-        /* DRAG CSS CUSTOM */
-        .kartu-drag { touch-action: none; user-select: none; position: relative; z-index: 10; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s; will-change: transform; }
+        /* MESIN DRAG MURNI (ANTI MACET) */
+        .kartu-drag { touch-action: none; user-select: none; position: relative; z-index: 10; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s; will-change: transform; cursor: grab; }
+        .kartu-drag:active { cursor: grabbing; }
         .is-dragging { opacity: 0.95; z-index: 99999 !important; transition: none !important; box-shadow: 0 25px 50px rgba(0,0,0,0.35); transform: scale(1.15) !important; }
-        .drop-hover { border-color: #0ea5e9 !important; background-color: #f0f9ff !important; box-shadow: inset 0 0 0 4px #bae6fd; transform: scale(1.05); transition: all 0.2s; }
+        
+        /* KOTAK TARGET */
+        .zona-drop { transition: all 0.2s; border: 2px dashed #38bdf8; background: rgba(240, 249, 255, 0.7); }
+        .drop-hover { border-color: #0ea5e9 !important; background-color: #e0f2fe !important; box-shadow: inset 0 0 0 4px #bae6fd; transform: scale(1.05); }
         .terkunci { pointer-events: none !important; opacity: 1 !important; transform: translate3d(0,0,0) scale(1) !important; box-shadow: none !important; transition: none !important; }
 
         /* KARTU MEMORI */
@@ -36,17 +40,18 @@
         .objek-terbang { position: absolute; cursor: pointer; user-select: none; transition: transform 0.1s; will-change: transform; }
         .objek-terbang:active { transform: scale(0.9); }
 
-        /* SILUET / BAYANGAN */
+        /* SILUET */
         .bayangan-hitam { filter: brightness(0) drop-shadow(0 4px 4px rgba(0,0,0,0.3)); opacity: 0.7; }
 
-        /* PUKUL TIKUS (WHACK) */
-        .lubang-pukul { overflow: hidden; position: relative; background: #cbd5e1; border-radius: 50%; border-bottom: 8px solid #94a3b8; }
+        /* PUKUL TIKUS */
+        .lubang-pukul { overflow: hidden; position: relative; background: #e2e8f0; border-radius: 50%; border-bottom: 8px solid #94a3b8; }
         .benda-pukul { position: absolute; bottom: -100%; left: 10%; right: 10%; height: 90%; transition: bottom 0.2s ease-out; cursor: pointer; }
         .benda-pukul.muncul { bottom: 0; }
 
         /* TOAST NOTIF */
-        .toast-enter { animation: slideInDown 0.3s forwards; }
-        .toast-leave { animation: slideOutUp 0.3s forwards; }
+        .toast-enter { animation: slideInDown 0.3s forwards; } .toast-leave { animation: slideOutUp 0.3s forwards; }
+        @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        @keyframes slideOutUp { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, -100%); opacity: 0; } }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         .anim-fade { animation: fadeIn 0.4s ease-out forwards; }
@@ -54,47 +59,47 @@
         .anim-pulse-soft { animation: pulseSoft 2s infinite ease-in-out; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
         .anim-shake { animation: shake 0.4s ease-in-out; }
-        @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
-        @keyframes slideOutUp { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, -100%); opacity: 0; } }
     </style>
 </head>
 <body>
 
-    <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
     <div id="view-game" class="h-[100dvh] w-screen flex flex-col relative overflow-hidden bg-slate-50">
         
-        <!-- Layar Mulai / Loading -->
+        <!-- Layar Mulai -->
         <div id="layar-mulai" class="absolute inset-0 z-[100] bg-gradient-to-br from-sky-400 to-indigo-500 flex flex-col items-center justify-center p-6 text-center transition-all duration-500">
             <div class="bg-white/20 p-6 rounded-3xl backdrop-blur-sm mb-6 anim-pulse-soft shadow-xl border border-white/30">
                 <i data-lucide="gamepad-2" class="w-16 h-16 text-white"></i>
             </div>
             <h1 class="text-4xl md:text-5xl font-black text-white mb-2 tracking-tight">Belajar Cerdas</h1>
+            
             <div id="loading-bar-container" class="w-full max-w-xs bg-white/30 rounded-full h-4 mb-6 mt-4 overflow-hidden relative">
                 <div id="loading-bar-fill" class="bg-yellow-400 h-full w-0 transition-all duration-100 ease-linear"></div>
                 <div id="loading-text" class="absolute inset-0 flex items-center justify-center text-[10px] font-black text-indigo-900">0%</div>
             </div>
+            
             <button id="btn-mulai" onclick="Game.mulai()" class="hidden bg-white text-indigo-600 hover:bg-slate-50 font-black text-2xl py-4 px-12 rounded-full shadow-[0_6px_0_0_rgba(255,255,255,0.3)] active:translate-y-1 active:shadow-[0_0px_0_0_rgba(255,255,255,0)] transition-all w-full max-w-[250px]">
-                MULAI MAIN
+                MULAI
             </button>
         </div>
 
         <!-- Peta Level -->
-        <div id="layar-pilih-level" class="hidden absolute inset-0 z-[90] bg-slate-50/95 backdrop-blur flex flex-col items-center justify-start overflow-y-auto">
+        <div id="layar-pilih-level" class="hidden absolute inset-0 z-[90] bg-slate-50/95 backdrop-blur flex flex-col items-center justify-start overflow-y-auto pb-10">
             <div class="w-full bg-white px-6 pt-10 pb-4 shadow-sm sticky top-0 z-10 flex items-center justify-between">
-                <h2 class="text-xl font-black text-slate-800 flex items-center gap-2">Pilih Level <button onclick="Game.tarikDataBaru()" class="bg-sky-100 text-sky-600 p-1.5 rounded-lg active:scale-90" title="Tarik Data Terbaru"><i data-lucide="refresh-cw" id="ikon-sync" class="w-4 h-4"></i></button></h2>
-                <button onclick="Game.tutupPilihLevel()" id="btn-tutup-level" class="hidden p-2 bg-slate-100 text-slate-600 rounded-full hover:bg-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <h2 class="text-xl font-black text-slate-800 flex items-center gap-2">Peta Level</h2>
+                <div class="flex gap-2">
+                    <button onclick="Game.tarikDataBaru()" class="bg-emerald-100 text-emerald-600 p-2 rounded-xl active:scale-90 shadow-sm flex items-center gap-1" title="Tarik Data Terbaru"><i data-lucide="refresh-cw" id="ikon-sync" class="w-4 h-4"></i> <span class="text-xs font-bold">Update</span></button>
+                    <button onclick="Game.tutupPilihLevel()" id="btn-tutup-level" class="hidden p-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
             </div>
-            <!-- Loading Indicator Sync -->
-            <div id="sync-progress" class="hidden w-full bg-sky-100 h-1">
-                <div id="sync-bar" class="bg-sky-500 h-full w-0 transition-all duration-100"></div>
-            </div>
+            <div id="sync-progress" class="hidden w-full bg-slate-200 h-1"><div id="sync-bar" class="bg-emerald-500 h-full w-0 transition-all duration-100"></div></div>
             <div class="w-full max-w-lg p-6">
                 <div id="grid-level" class="grid grid-cols-4 sm:grid-cols-5 gap-3 sm:gap-4 content-start"></div>
             </div>
         </div>
 
+        <!-- Top Navigation -->
         <header class="absolute top-3 left-3 right-3 z-20 flex justify-between items-center glass-nav rounded-full px-2 py-2">
             <div class="flex items-center gap-2">
                 <button onclick="Game.bukaPilihLevel()" class="w-10 h-10 flex items-center justify-center bg-slate-100/50 text-slate-700 rounded-full active:scale-90 transition"><i data-lucide="map" class="w-5 h-5"></i></button>
@@ -107,7 +112,8 @@
             </div>
         </header>
 
-        <main class="flex-1 overflow-hidden flex flex-col items-center justify-start px-4 pt-24 pb-6 w-full max-w-2xl mx-auto z-10 relative">
+        <!-- Area Bermain -->
+        <main class="flex-1 overflow-visible flex flex-col items-center justify-start px-4 pt-20 pb-6 w-full max-w-2xl mx-auto z-10 relative">
             <div class="glass-card rounded-[1.5rem] p-4 w-full flex flex-col items-center mb-2 anim-fade flex-shrink-0 z-20 pointer-events-auto">
                 <div class="w-full flex items-center justify-between gap-3">
                     <button onclick="AudioMgr.putarUlangSoal()" id="btn-suara-soal" class="hidden flex-shrink-0 w-12 h-12 flex items-center justify-center bg-sky-100 text-sky-600 rounded-full active:scale-90 transition-transform shadow-sm"><i data-lucide="volume-2" id="ikon-baca-soal" class="w-6 h-6"></i></button>
@@ -121,6 +127,7 @@
             <div id="arena-bermain" class="w-full flex-1 flex flex-col items-center justify-center min-h-0 relative"></div>
         </main>
 
+        <!-- Pesan Akhir -->
         <div id="layar-pesan" class="hidden absolute inset-0 z-[80] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
             <div class="bg-white rounded-[2rem] p-8 max-w-xs w-full text-center shadow-2xl anim-fade relative overflow-hidden">
                 <div id="pesan-ikon" class="mx-auto flex justify-center mb-4"></div>
@@ -134,146 +141,95 @@
     <script>
         lucide.createIcons();
 
-        // ==========================================
-        // UI TOAST NOTIFICATION (Pengganti Alert)
-        // ==========================================
         function uiToast(msg, type='success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `toast-enter px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 ${type==='success' ? 'bg-emerald-500 text-white' : (type==='error' ? 'bg-rose-500 text-white' : 'bg-sky-500 text-white')}`;
-            const icon = type==='success' ? 'check-circle' : (type==='error' ? 'alert-circle' : 'info');
-            toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5"></i> ${msg}`;
-            container.appendChild(toast);
-            lucide.createIcons();
-            
-            setTimeout(() => {
-                toast.classList.replace('toast-enter', 'toast-leave');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            toast.className = `toast-enter px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 ${type==='success' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`;
+            toast.innerHTML = `<i data-lucide="${type==='success' ? 'check-circle' : 'alert-circle'}" class="w-5 h-5"></i> ${msg}`;
+            container.appendChild(toast); lucide.createIcons();
+            setTimeout(() => { toast.classList.replace('toast-enter', 'toast-leave'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        // ==========================================
-        // ENGINE DRAG & DROP CUSTOM
-        // ==========================================
-        const CanvaDragEngine = {
-            activeCard: null, startX: 0, startY: 0, currX: 0, currY: 0, dropzones: [],
+        // =========================================================================
+        // MESIN DRAG & DROP MURNI (Vanilla JS - 100% Anti Macet)
+        // =========================================================================
+        const DragEngine = {
+            activeEl: null, startX: 0, startY: 0, initX: 0, initY: 0,
+            
             init() {
-                document.addEventListener('touchstart', this.onDown.bind(this), {passive: false});
-                document.addEventListener('mousedown', this.onDown.bind(this), {passive: false});
+                document.addEventListener('touchstart', this.onStart.bind(this), {passive: false});
                 document.addEventListener('touchmove', this.onMove.bind(this), {passive: false});
+                document.addEventListener('touchend', this.onEnd.bind(this));
+                document.addEventListener('mousedown', this.onStart.bind(this), {passive: false});
                 document.addEventListener('mousemove', this.onMove.bind(this), {passive: false});
-                document.addEventListener('touchend', this.onUp.bind(this));
-                document.addEventListener('mouseup', this.onUp.bind(this));
+                document.addEventListener('mouseup', this.onEnd.bind(this));
             },
-            getEventPos(e) {
-                if (e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-                if (e.changedTouches && e.changedTouches.length > 0) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
-                return { x: e.clientX, y: e.clientY };
-            },
-            onDown(e) {
-                const card = e.target.closest('.kartu-drag');
-                if(!card || card.classList.contains('terkunci')) return;
-                if(card.getAttribute('data-tipe') === 'no-drag') return;
+            
+            getPos(e) { return e.touches ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : { x: e.clientX, y: e.clientY }; },
 
-                if(e.cancelable) e.preventDefault(); 
-                this.activeCard = card; this.activeCard.classList.add('is-dragging');
+            onStart(e) {
+                const el = e.target.closest('.kartu-drag');
+                if (!el || el.classList.contains('terkunci')) return;
+                
+                this.activeEl = el;
+                this.activeEl.classList.add('is-dragging');
                 AudioMgr.stopSoal();
 
-                const pos = this.getEventPos(e);
+                const pos = this.getPos(e);
                 this.startX = pos.x; this.startY = pos.y;
-                this.currX = parseFloat(this.activeCard.getAttribute('data-x')) || 0;
-                this.currY = parseFloat(this.activeCard.getAttribute('data-y')) || 0;
-                this.dropzones = Array.from(document.querySelectorAll('.zona-target-drag, .zona-urutan, .zona-tebak, .zona-siluet'));
+                this.initX = parseFloat(this.activeEl.getAttribute('data-x')) || 0;
+                this.initY = parseFloat(this.activeEl.getAttribute('data-y')) || 0;
             },
+
             onMove(e) {
-                if(!this.activeCard) return;
-                if(e.cancelable) e.preventDefault();
-                const pos = this.getEventPos(e);
-                const newX = this.currX + (pos.x - this.startX);
-                const newY = this.currY + (pos.y - this.startY);
+                if (!this.activeEl) return;
+                e.preventDefault(); // Mencegah scrolling layar saat drag berjalan
                 
-                this.activeCard.style.transform = `translate3d(${newX}px, ${newY}px, 0) scale(1.15)`;
-                this.activeCard.setAttribute('data-x', newX); this.activeCard.setAttribute('data-y', newY);
+                const pos = this.getPos(e);
+                const newX = this.initX + (pos.x - this.startX);
+                const newY = this.initY + (pos.y - this.startY);
+                
+                this.activeEl.style.transform = `translate3d(${newX}px, ${newY}px, 0) scale(1.15)`;
+                this.activeEl.setAttribute('data-x', newX);
+                this.activeEl.setAttribute('data-y', newY);
 
-                const cardRect = this.activeCard.getBoundingClientRect();
-                const cardCenterX = cardRect.left + (cardRect.width / 2); const cardCenterY = cardRect.top + (cardRect.height / 2);
+                // Cek Tabrakan dengan Zona Drop
+                const rect = this.activeEl.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2; const cy = rect.top + rect.height / 2;
 
-                this.dropzones.forEach(zone => {
-                    const zRect = zone.getBoundingClientRect();
-                    if(cardCenterX > zRect.left && cardCenterX < zRect.right && cardCenterY > zRect.top && cardCenterY < zRect.bottom) {
-                        zone.classList.add('drop-hover');
-                    } else zone.classList.remove('drop-hover');
+                document.querySelectorAll('.zona-drop').forEach(z => {
+                    const zRect = z.getBoundingClientRect();
+                    if(cx > zRect.left && cx < zRect.right && cy > zRect.top && cy < zRect.bottom) z.classList.add('drop-hover');
+                    else z.classList.remove('drop-hover');
                 });
             },
-            onUp(e) {
-                if(!this.activeCard) return;
-                const card = this.activeCard; card.classList.remove('is-dragging'); this.activeCard = null;
-                let berhasilDimasukkan = false;
-                const cardRect = card.getBoundingClientRect();
-                const cardCenterX = cardRect.left + (cardRect.width / 2); const cardCenterY = cardRect.top + (cardRect.height / 2);
 
-                this.dropzones.forEach(zone => {
-                    zone.classList.remove('drop-hover');
-                    const zRect = zone.getBoundingClientRect();
-                    if(cardCenterX > zRect.left && cardCenterX < zRect.right && cardCenterY > zRect.top && cardCenterY < zRect.bottom) {
-                        berhasilDimasukkan = true; this.prosesJatuhKeKotak(card, zone);
+            onEnd(e) {
+                if (!this.activeEl) return;
+                const el = this.activeEl;
+                el.classList.remove('is-dragging');
+                this.activeEl = null;
+
+                let isDropped = false;
+                const rect = el.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2; const cy = rect.top + rect.height / 2;
+
+                document.querySelectorAll('.zona-drop').forEach(z => {
+                    z.classList.remove('drop-hover');
+                    const zRect = z.getBoundingClientRect();
+                    if(!isDropped && cx > zRect.left && cx < zRect.right && cy > zRect.top && cy < zRect.bottom) {
+                        isDropped = true; Game.prosesDropItem(el, z);
                     }
                 });
 
-                if(!berhasilDimasukkan) {
-                    card.style.transform = 'translate3d(0px, 0px, 0) scale(1)';
-                    card.setAttribute('data-x', 0); card.setAttribute('data-y', 0);
-                }
-            },
-            prosesJatuhKeKotak(card, zone) {
-                const tipeDrag = card.getAttribute('data-tipe');
-                // Drag Normal & Siluet
-                if (tipeDrag === 'drag-tunggal' || tipeDrag === 'drag-siluet') {
-                    const isBenar = card.getAttribute('data-benar') === 'ya';
-                    if(isBenar) {
-                        card.classList.add('terkunci'); card.style.transform = 'none';
-                        zone.innerHTML = ''; zone.appendChild(card);
-                        card.style.width = '100%'; card.style.height = '100%'; card.style.border = 'none'; card.style.borderRadius = 'inherit';
-                        Game.prosesKuis(true, zone);
-                    } else {
-                        AudioMgr.playSalah(); Game.nyawa--; Game.renderUI();
-                        zone.classList.add('anim-shake', 'bg-red-100', 'border-red-400');
-                        setTimeout(() => zone.classList.remove('anim-shake', 'bg-red-100', 'border-red-400'), 500);
-                        card.style.transform = 'translate3d(0px, 0px, 0) scale(1)'; card.setAttribute('data-x', 0); card.setAttribute('data-y', 0);
-                        if(Game.nyawa <= 0) setTimeout(() => Game.munculLayarAkhir('kalah'), 500);
-                    }
-                } else if (tipeDrag === 'drag-urutan' || tipeDrag === 'drag-tebak') {
-                    const indexDrop = parseInt(zone.getAttribute('data-index'));
-                    let isBenar = false;
-                    if(tipeDrag === 'drag-urutan') {
-                        isBenar = indexDrop === parseInt(card.getAttribute('data-index-asli'));
-                    } else {
-                        const validIndexes = JSON.parse(card.getAttribute('data-valid-indexes'));
-                        isBenar = validIndexes.includes(indexDrop) && zone.innerHTML === '';
-                    }
-
-                    if(isBenar) {
-                        card.classList.add('terkunci'); card.style.transform = 'none'; card.setAttribute('data-x', 0); card.setAttribute('data-y', 0);
-                        zone.appendChild(card); card.style.width = '100%'; card.style.height = '100%'; card.style.border = 'none'; card.style.borderRadius = 'inherit';
-                        
-                        AudioMgr.sfxBenar.currentTime = 0; AudioMgr.sfxBenar.play().catch(()=>{});
-                        Game.jawabanBenarSaatIni++;
-                        const maxBenda = tipeDrag === 'drag-tebak' ? Game.totalJawabanTebak : document.querySelectorAll('.zona-urutan').length;
-                        if(Game.jawabanBenarSaatIni >= maxBenda) {
-                            Game.skor += 100; Game.simpanProgres(); Game.renderUI();
-                            setTimeout(() => Game.munculLayarAkhir('benar'), 800);
-                        }
-                    } else {
-                        AudioMgr.playSalah(); Game.nyawa--; Game.renderUI();
-                        zone.classList.add('bg-red-100', 'border-red-400');
-                        setTimeout(() => zone.classList.remove('bg-red-100', 'border-red-400'), 500);
-                        card.style.transform = 'translate3d(0px, 0px, 0) scale(1)'; card.setAttribute('data-x', 0); card.setAttribute('data-y', 0);
-                        if(Game.nyawa <= 0) setTimeout(() => Game.munculLayarAkhir('kalah'), 500);
-                    }
+                // Snapback jika dilepas di luar kotak
+                if(!isDropped && !el.classList.contains('terkunci')) {
+                    el.style.transform = 'translate3d(0,0,0) scale(1)';
+                    el.setAttribute('data-x', 0); el.setAttribute('data-y', 0);
                 }
             }
         };
-        CanvaDragEngine.init();
+        DragEngine.init();
 
         // ==========================================
         // AUDIO MANAGER 
@@ -339,122 +295,72 @@
 
         // ==========================================
         // ENGINE GAME FISIKA (Bubble & Melayang)
+        // Dibuat Menggunakan requestAnimationFrame super mulus
         // ==========================================
         const PhysicsEngine = {
-            intervalId: null, objects: [], arenaRect: null,
-            
-            mulaiBubble(kecepatan, itemAcak, arena) {
-                this.berhenti(); this.objects = []; this.arenaRect = arena.getBoundingClientRect();
-                let speedMult = kecepatan === 'cepat' ? 3 : (kecepatan === 'lambat' ? 1.5 : 2);
-                
-                // BUBBLE WATERFALL: Kita buat banyak gelembung (misal 15) agar seperti air terjun
-                const totalBubbles = 15;
-                for(let i=0; i<totalBubbles; i++) {
-                    // 1 bubble pasti target, sisanya diundi (diutamakan pengecoh jika ada)
-                    let it = itemAcak[Math.floor(Math.random() * itemAcak.length)];
-                    // Pastikan setidaknya ada 2-3 target
-                    if(i === 0 || i === 5 || i === 10) it = itemAcak.find(a => a.isTarget) || itemAcak[0];
+            rafId: null, objects: [], arena: null, mode: null,
+            start(mode, kecepatan, itemAcak, arenaEl) {
+                this.stop(); this.arena = arenaEl; this.mode = mode; this.objects = [];
+                let speedMult = kecepatan === 'cepat' ? 3.5 : (kecepatan === 'lambat' ? 1.5 : 2.5);
+                const rect = this.arena.getBoundingClientRect();
+
+                const totalItems = mode === 'bubble' ? 15 : itemAcak.length; // Bubble jatuh air terjun (banyak), Melayang sesuai jumlah item
+
+                for(let i=0; i<totalItems; i++) {
+                    let it = itemAcak[i % itemAcak.length]; // Distribusikan item secara merata
+                    if(mode === 'bubble' && i%4===0) it = itemAcak.find(a => a.isTarget) || itemAcak[0]; // Pastikan target sering muncul di bubble
 
                     const el = document.createElement('div');
-                    el.className = "objek-terbang bg-white/80 backdrop-blur border border-white rounded-full flex flex-col items-center justify-center p-2 shadow-md overflow-hidden transition-transform active:scale-90";
-                    const size = Math.random() * 30 + 70; // 70px - 100px
+                    el.className = `objek-terbang flex flex-col items-center justify-center shadow-lg overflow-hidden transition-transform ${mode==='bubble' ? 'bg-white/80 backdrop-blur border border-white rounded-full p-2' : 'bg-white border-2 border-indigo-200 rounded-2xl p-1'}`;
+                    
+                    const size = mode === 'bubble' ? (Math.random() * 30 + 60) : 80;
                     el.style.width = `${size}px`; el.style.height = `${size}px`;
                     
-                    let posX = Math.random() * (this.arenaRect.width - size); 
-                    // Mulai dari atas layar yang sangat jauh agar jatuhnya berurutan
-                    let posY = -(Math.random() * 1500) - size; 
+                    let px = Math.random() * (rect.width - size);
+                    let py = mode === 'bubble' ? -(Math.random() * 1000) - size : Math.random() * (rect.height - size);
                     
-                    el.style.left = `${posX}px`; el.style.top = `${posY}px`;
+                    el.style.left = `0px`; el.style.top = `0px`; // Base, digerakkan via transform
 
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
                     if(urlPath) el.innerHTML = `<img src="${urlPath}" class="w-full h-full object-contain pointer-events-none" draggable="false">`;
-                    else el.innerHTML = `<span class="text-xs font-black text-slate-700 text-center pointer-events-none">${it.nama}</span>`;
+                    else el.innerHTML = `<span class="text-xs font-black text-slate-700 text-center pointer-events-none leading-tight">${it.nama}</span>`;
 
-                    el.onclick = () => { AudioMgr.stopSoal(); Game.prosesKuis(it.isTarget, el); };
+                    el.onclick = () => { AudioMgr.stopSoal(); Game.prosesKetuk(it, el, mode); };
                     arena.appendChild(el);
                     
-                    this.objects.push({ 
-                        element: el, x: posX, y: posY, size: size, 
-                        speedY: (Math.random() * 1.5 + 1) * speedMult, 
-                        sinCounter: Math.random() * 100, sinSpeed: Math.random() * 0.05 + 0.02 
+                    const angle = Math.random() * Math.PI * 2;
+                    this.objects.push({
+                        el: el, size: size,
+                        x: px, y: py,
+                        vx: mode === 'bubble' ? 0 : Math.cos(angle) * speedMult,
+                        vy: mode === 'bubble' ? (Math.random() * 1.5 + 1) * speedMult : Math.sin(angle) * speedMult,
+                        sinC: Math.random() * 100, sinS: Math.random() * 0.05 + 0.02
                     });
                 }
-
-                this.intervalId = setInterval(() => {
-                    this.arenaRect = arena.getBoundingClientRect();
-                    this.objects.forEach(obj => {
-                        obj.y += obj.speedY; obj.sinCounter += obj.sinSpeed;
-                        const currentX = obj.x + Math.sin(obj.sinCounter) * 20; // Ayun pelan
-                        
-                        // AIR TERJUN: Jika menyentuh bawah, reset lagi ke atas
-                        if(obj.y > this.arenaRect.height) { 
-                            obj.y = -obj.size - (Math.random() * 200); 
-                            obj.x = Math.random() * (this.arenaRect.width - obj.size); 
-                        }
-                        obj.element.style.transform = `translate3d(${currentX}px, ${obj.y}px, 0)`;
-                    });
-                }, 30);
+                this.loop();
             },
-
-            mulaiMelayang(kecepatan, itemAcak, arena) {
-                this.berhenti(); this.objects = []; this.arenaRect = arena.getBoundingClientRect();
-                let speedMult = kecepatan === 'cepat' ? 3 : (kecepatan === 'lambat' ? 1 : 2);
-
-                itemAcak.forEach((it) => {
-                    const el = document.createElement('div');
-                    el.className = "objek-terbang bg-white/90 backdrop-blur border border-white rounded-2xl flex flex-col items-center justify-center p-1 shadow-md overflow-hidden";
-                    const size = 70; el.style.width = `${size}px`; el.style.height = `${size}px`;
-                    
-                    let posX = Math.random() * (this.arenaRect.width - size); 
-                    let posY = Math.random() * (this.arenaRect.height - size);
-                    
-                    // Pastikan di awal tidak keluar batas
-                    posX = Math.max(10, Math.min(posX, this.arenaRect.width - size - 10));
-                    posY = Math.max(10, Math.min(posY, this.arenaRect.height - size - 10));
-
-                    const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                    if(urlPath) el.innerHTML = `<img src="${urlPath}" class="w-full h-full object-cover rounded pointer-events-none" draggable="false">`;
-                    else el.innerHTML = `<span class="text-[10px] font-bold text-slate-600 text-center pointer-events-none">${it.nama}</span>`;
-
-                    el.onclick = () => { 
-                        AudioMgr.stopSoal(); 
-                        if(it.indexAsli === Game.jawabanBenarSaatIni) {
-                            el.style.display = 'none'; 
-                            AudioMgr.sfxBenar.currentTime = 0; AudioMgr.sfxBenar.play().catch(()=>{});
-                            Game.jawabanBenarSaatIni++;
-                            if(Game.jawabanBenarSaatIni >= itemAcak.length) {
-                                Game.skor += 100; Game.simpanProgres(); Game.renderUI();
-                                setTimeout(() => Game.munculLayarAkhir('benar'), 500);
-                            }
-                        } else {
-                            AudioMgr.playSalah(); Game.nyawa--; Game.renderUI();
-                            el.classList.add('bg-red-100', 'anim-shake');
-                            setTimeout(() => el.classList.remove('bg-red-100', 'anim-shake'), 500);
-                            if(Game.nyawa <= 0) setTimeout(() => Game.munculLayarAkhir('kalah'), 500);
-                        }
-                    };
-                    arena.appendChild(el);
-                    const angle = Math.random() * Math.PI * 2;
-                    this.objects.push({ element: el, x: posX, y: posY, size: size, vx: Math.cos(angle) * speedMult, vy: Math.sin(angle) * speedMult });
-                });
-
-                this.intervalId = setInterval(() => {
-                    this.arenaRect = arena.getBoundingClientRect(); 
-                    this.objects.forEach(obj => {
+            loop() {
+                if(!this.arena) return;
+                const rect = this.arena.getBoundingClientRect();
+                this.objects.forEach(obj => {
+                    if (this.mode === 'bubble') {
+                        obj.y += obj.vy; obj.sinC += obj.sinS;
+                        obj.x += Math.sin(obj.sinC) * 1.5;
+                        if(obj.y > rect.height) { obj.y = -obj.size - 100; obj.x = Math.random() * (rect.width - obj.size); }
+                        // Clamp X agar bubble tidak keluar ke samping
+                        obj.x = Math.max(0, Math.min(obj.x, rect.width - obj.size));
+                    } else if (this.mode === 'melayang') {
                         obj.x += obj.vx; obj.y += obj.vy;
-                        
-                        // Pantulan ketat di dalam layar
-                        if(obj.x <= 5) { obj.vx *= -1; obj.x = 5; }
-                        if(obj.x >= this.arenaRect.width - obj.size - 5) { obj.vx *= -1; obj.x = this.arenaRect.width - obj.size - 5; }
-                        
-                        if(obj.y <= 5) { obj.vy *= -1; obj.y = 5; }
-                        if(obj.y >= this.arenaRect.height - obj.size - 5) { obj.vy *= -1; obj.y = this.arenaRect.height - obj.size - 5; }
-                        
-                        obj.element.style.transform = `translate3d(${obj.x}px, ${obj.y}px, 0)`;
-                    });
-                }, 30);
+                        if(obj.x <= 0 || obj.x >= rect.width - obj.size) obj.vx *= -1;
+                        if(obj.y <= 0 || obj.y >= rect.height - obj.size) obj.vy *= -1;
+                        obj.x = Math.max(0, Math.min(obj.x, rect.width - obj.size));
+                        obj.y = Math.max(0, Math.min(obj.y, rect.height - obj.size));
+                    }
+                    obj.el.style.transform = `translate3d(${obj.x}px, ${obj.y}px, 0)`;
+                });
+                this.rafId = requestAnimationFrame(this.loop.bind(this));
             },
-            berhenti() { if(this.intervalId) clearInterval(this.intervalId); this.objects = []; }
+            berhenti() { if(this.rafId) cancelAnimationFrame(this.rafId); this.objects = []; }
         };
 
         // ==========================================
@@ -463,28 +369,16 @@
         const Game = {
             db: { global: {}, levels: [] }, levelSekarang: 0, skor: 0, nyawa: 3, 
             levelTerbuka: parseInt(localStorage.getItem('maxUnlockedLevel')) || 0,
-            jawabanBenarSaatIni: 0, memoriFlipped: [], memoriMatched: 0, totalJawabanTebak: 0,
+            jawabanSaatIni: 0, totalJawaban: 0, memoriFlipped: [], memoriMatched: 0,
 
             async prosesTarikData(isRefresh = false) {
-                const barContainer = document.getElementById('loading-bar-container');
-                const barFill = document.getElementById('loading-bar-fill');
-                const barText = document.getElementById('loading-text');
-                const btnMulai = document.getElementById('btn-mulai');
-                
-                const syncProg = document.getElementById('sync-progress');
-                const syncBar = document.getElementById('sync-bar');
-                const ikonSync = document.getElementById('ikon-sync');
+                const bCont = document.getElementById('loading-bar-container'); const bFill = document.getElementById('loading-bar-fill'); const bTxt = document.getElementById('loading-text');
+                const btnMulai = document.getElementById('btn-mulai'); const syncProg = document.getElementById('sync-progress'); const syncBar = document.getElementById('sync-bar'); const iSync = document.getElementById('ikon-sync');
 
-                if(!isRefresh && barContainer) { barContainer.classList.remove('hidden'); btnMulai.classList.add('hidden'); }
-                if(isRefresh) { syncProg.classList.remove('hidden'); syncBar.style.width = '0%'; if(ikonSync) ikonSync.classList.add('animate-spin'); }
+                if(!isRefresh && bCont) { bCont.classList.remove('hidden'); btnMulai.classList.add('hidden'); }
+                if(isRefresh) { syncProg.classList.remove('hidden'); syncBar.style.width = '0%'; if(iSync) iSync.classList.add('animate-spin'); }
 
-                let counter = 0;
-                let intv = setInterval(() => { 
-                    counter += Math.floor(Math.random() * 15) + 5; 
-                    if(counter > 90) counter = 90; 
-                    if(!isRefresh && barFill) { barFill.style.width = `${counter}%`; barText.innerText = `${counter}%`; }
-                    if(isRefresh && syncBar) syncBar.style.width = `${counter}%`;
-                }, 100);
+                let cnt = 0; let intv = setInterval(() => { cnt+=Math.floor(Math.random()*15)+5; if(cnt>90) cnt=90; if(!isRefresh && bFill){bFill.style.width=`${cnt}%`; bTxt.innerText=`${cnt}%`;} if(isRefresh && syncBar) syncBar.style.width=`${cnt}%`; }, 100);
 
                 try {
                     const res = await fetch(`public/data-soal.json?v=${Date.now()}`, { cache: 'no-store' });
@@ -494,25 +388,21 @@
                     AudioMgr.initGlobal(this.db.global);
                     
                     clearInterval(intv);
-                    if(!isRefresh && barFill) { barFill.style.width = `100%`; barText.innerText = `Siap!`; setTimeout(()=>{barContainer.classList.add('hidden'); btnMulai.classList.remove('hidden');}, 500); }
-                    if(isRefresh) { syncBar.style.width = `100%`; setTimeout(()=>{syncProg.classList.add('hidden'); if(ikonSync) ikonSync.classList.remove('animate-spin'); this.bukaPilihLevel(false); uiToast('Data level terbaru berhasil ditarik!'); }, 500); }
-                    
+                    if(!isRefresh && bFill) { bFill.style.width = `100%`; bTxt.innerText = `Siap!`; setTimeout(()=>{bCont.classList.add('hidden'); btnMulai.classList.remove('hidden');}, 500); }
+                    if(isRefresh) { syncBar.style.width = `100%`; setTimeout(()=>{syncProg.classList.add('hidden'); if(iSync) iSync.classList.remove('animate-spin'); this.bukaPilihLevel(false); uiToast('Data level terbaru berhasil ditarik!'); }, 500); }
                 } catch(e) { 
                     clearInterval(intv);
-                    console.warn("DB Kosong", e);
                     this.db.levels = [{ kategori: "kuis", pertanyaan: "Belum ada soal, buka Admin Panel untuk Buat Soal Otomatis!", item_target: { nama: "Mengerti", isTarget: true }, item_pengecoh: [] }];
-                    if(!isRefresh && btnMulai) { barContainer.classList.add('hidden'); btnMulai.classList.remove('hidden'); }
-                    if(isRefresh) { syncProg.classList.add('hidden'); if(ikonSync) ikonSync.classList.remove('animate-spin'); uiToast('Gagal menarik data', 'error'); }
+                    if(!isRefresh && btnMulai) { bCont.classList.add('hidden'); btnMulai.classList.remove('hidden'); }
+                    if(isRefresh) { syncProg.classList.add('hidden'); if(iSync) iSync.classList.remove('animate-spin'); uiToast('Gagal menarik data', 'error'); }
                 }
             },
 
             tarikDataBaru() { this.prosesTarikData(true); },
-
-            async initPreload() { this.prosesTarikData(false); },
+            initPreload() { this.prosesTarikData(false); },
 
             mulai() {
-                const layarMulai = document.getElementById('layar-mulai');
-                layarMulai.style.opacity = '0'; setTimeout(() => layarMulai.classList.add('hidden'), 400);
+                document.getElementById('layar-mulai').style.opacity = '0'; setTimeout(() => document.getElementById('layar-mulai').classList.add('hidden'), 400);
                 AudioMgr.playBGM(); this.levelTerbuka = Math.min(this.levelTerbuka, Math.max(0, this.db.levels.length - 1)); this.bukaPilihLevel(true);
             },
 
@@ -540,7 +430,7 @@
             tutupPilihLevel() { document.getElementById('layar-pilih-level').classList.add('hidden'); },
 
             mainkanLevel(idx) {
-                this.tutupPilihLevel(); this.levelSekarang = idx; this.nyawa = 3; this.jawabanBenarSaatIni = 0;
+                this.tutupPilihLevel(); this.levelSekarang = idx; this.nyawa = 3; this.jawabanSaatIni = 0;
                 PhysicsEngine.berhenti(); this.renderUI(); this.muatArena();
             },
 
@@ -572,33 +462,119 @@
                 AudioMgr.setAudioLevel(dataLevel);
                 if(dataLevel.audio_soal) { setTimeout(() => AudioMgr.playSoal(), 500); }
 
-                interact('.zona-target-drag, .zona-urutan, .zona-tebak, .zona-siluet').unset();
-
                 const kat = dataLevel.kategori;
                 if(kat === 'drag') this.mesinDrag(dataLevel, arena);
+                else if (kat === 'siluet') this.mesinSiluet(dataLevel, arena);
                 else if (kat === 'urutan') this.mesinUrutan(dataLevel, arena);
-                else if (kat === 'memory') this.mesinMemory(dataLevel, arena);
                 else if (kat === 'tebak_kata') this.mesinTebakKata(dataLevel, arena);
+                else if (kat === 'memory') this.mesinMemory(dataLevel, arena);
                 else if (kat === 'bubble') this.mesinBubble(dataLevel, arena);
                 else if (kat === 'melayang') this.mesinMelayang(dataLevel, arena);
-                else if (kat === 'siluet') this.mesinSiluet(dataLevel, arena);
                 else if (kat === 'pukul') this.mesinPukul(dataLevel, arena);
                 else this.mesinKuis(dataLevel, arena);
             },
 
-            mesinKuis(data, arena) {
-                const target = data.item_target || { nama: "Jawaban Benar", isTarget: true };
-                const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
-                let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
+            // --- PROSES DRAG & DROP KE DALAM KOTAK ---
+            prosesDropItem(el, zone) {
+                const tipe = el.getAttribute('data-tipe');
                 
+                // DRAG NORMAL ATAU SILUET
+                if (tipe === 'drag-tunggal' || tipe === 'drag-siluet') {
+                    const isBenar = el.getAttribute('data-benar') === 'ya';
+                    if(isBenar) {
+                        this.kunciBenda(el, zone);
+                        this.prosesKuis(true, zone);
+                    } else {
+                        this.prosesSalahDrag(zone, el);
+                    }
+                } 
+                // URUTAN ATAU TEBAK KATA
+                else if (tipe === 'drag-urutan' || tipe === 'drag-tebak') {
+                    const idDrop = parseInt(zone.getAttribute('data-index'));
+                    let isBenar = false;
+                    
+                    if(tipe === 'drag-urutan') {
+                        isBenar = parseInt(el.getAttribute('data-index-asli')) === idDrop;
+                    } else {
+                        const validIds = JSON.parse(el.getAttribute('data-valid-indexes') || '[]');
+                        isBenar = validIds.includes(idDrop) && zone.innerHTML === '';
+                    }
+
+                    if(isBenar) {
+                        this.kunciBenda(el, zone);
+                        AudioMgr.sfxBenar.currentTime=0; AudioMgr.sfxBenar.play().catch(()=>{});
+                        this.jawabanSaatIni++;
+                        if(this.jawabanSaatIni >= this.totalJawaban) {
+                            this.skor += 100; this.simpanProgres(); this.renderUI();
+                            setTimeout(() => this.munculLayarAkhir('benar'), 800);
+                        }
+                    } else {
+                        this.prosesSalahDrag(zone, el);
+                    }
+                }
+            },
+
+            kunciBenda(el, zone) {
+                el.classList.add('terkunci'); el.style.transform = 'translate3d(0,0,0) scale(1)';
+                el.setAttribute('data-x', 0); el.setAttribute('data-y', 0);
+                if(zone.classList.contains('zona-target-drag') || zone.classList.contains('zona-siluet')) zone.innerHTML = '';
+                zone.appendChild(el);
+                el.style.width = '100%'; el.style.height = '100%'; el.style.border = 'none'; el.style.borderRadius = 'inherit';
+            },
+
+            prosesSalahDrag(zone, el) {
+                AudioMgr.playSalah(); this.nyawa--; this.renderUI();
+                zone.classList.add('anim-shake', 'bg-red-100', 'border-red-400');
+                setTimeout(() => zone.classList.remove('anim-shake', 'bg-red-100', 'border-red-400'), 500);
+                el.style.transform = 'translate3d(0,0,0) scale(1)'; el.setAttribute('data-x', 0); el.setAttribute('data-y', 0);
+                if(this.nyawa <= 0) setTimeout(() => this.munculLayarAkhir('kalah'), 500);
+            },
+
+            // --- PROSES KETUK (KUIS, BUBBLE, DLL) ---
+            prosesKetuk(item, el, mode) {
+                if(mode === 'bubble') {
+                    this.prosesKuis(item.isTarget, el);
+                } else if (mode === 'melayang') {
+                    if(item.indexAsli === this.jawabanSaatIni) {
+                        el.style.display = 'none'; 
+                        AudioMgr.sfxBenar.currentTime=0; AudioMgr.sfxBenar.play().catch(()=>{});
+                        this.jawabanSaatIni++;
+                        if(this.jawabanSaatIni >= this.totalJawaban) {
+                            this.skor += 100; this.simpanProgres(); this.renderUI();
+                            setTimeout(() => this.munculLayarAkhir('benar'), 500);
+                        }
+                    } else {
+                        AudioMgr.playSalah(); this.nyawa--; this.renderUI();
+                        el.classList.add('bg-red-100', 'anim-shake');
+                        setTimeout(() => el.classList.remove('bg-red-100', 'anim-shake'), 500);
+                        if(this.nyawa <= 0) setTimeout(() => this.munculLayarAkhir('kalah'), 500);
+                    }
+                }
+            },
+
+            prosesKuis(isBenar, el) {
+                document.querySelectorAll('button.btn-pilihan').forEach(e => e.disabled = true);
+                if(isBenar) {
+                    AudioMgr.playBenar(); this.skor += 100; this.simpanProgres(); this.renderUI();
+                    el.classList.add('bg-emerald-50', 'border-emerald-400');
+                    setTimeout(() => this.munculLayarAkhir('benar'), 1000);
+                } else {
+                    AudioMgr.playSalah(); this.nyawa--; this.renderUI();
+                    el.classList.add('bg-rose-50', 'border-rose-400', 'anim-shake');
+                    setTimeout(() => this.munculLayarAkhir(this.nyawa <= 0 ? 'kalah' : 'salah'), 1000);
+                }
+            },
+
+            // --- FUNGSI GENERATOR ARENA ---
+            mesinKuis(data, arena) {
+                const target = data.item_target || { nama: "Jawaban Benar", isTarget: true }; const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
+                let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
                 const gridClass = itemsAcak.length > 2 ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2";
                 const grid = document.createElement('div'); grid.className = `grid ${gridClass} gap-3 w-full mt-auto pb-4 anim-fade`;
-                
                 itemsAcak.forEach(it => {
                     const btn = document.createElement('button');
-                    btn.className = "btn-pilihan bg-white border border-slate-200 text-slate-700 font-bold text-sm md:text-base p-3 rounded-2xl shadow-sm hover:border-sky-300 flex flex-col items-center justify-center gap-2 min-h-[100px] w-full";
-                    let konten = '';
-                    const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
+                    btn.className = "btn-pilihan bg-white border-2 border-slate-100 text-slate-700 font-bold text-sm md:text-base p-3 rounded-2xl shadow-sm hover:border-sky-300 flex flex-col items-center justify-center gap-2 min-h-[100px] w-full";
+                    let konten = ''; const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
                     if(urlPath) konten += `<img src="${urlPath}" class="h-16 object-contain rounded-lg" draggable="false">`;
                     if(it.nama) konten += `<span class="leading-tight text-center w-full">${it.nama}</span>`;
                     btn.innerHTML = konten || "Pilihan";
@@ -609,47 +585,27 @@
             },
 
             mesinDrag(data, arena) {
-                arena.innerHTML = `
-                    <div class="zona-target-drag w-32 h-32 md:w-40 md:h-40 border-2 border-dashed border-sky-400 bg-sky-50/70 backdrop-blur-sm rounded-[1.5rem] flex flex-col items-center justify-center mb-auto mt-2 transition-colors z-0">
-                        <i data-lucide="download" class="w-8 h-8 text-sky-400 mb-1"></i><span class="font-bold text-sky-600 text-xs">Taruh Sini</span>
-                    </div>
-                    <div id="wadah-item" class="w-full flex justify-center flex-wrap gap-3 pb-6 mt-8 anim-fade z-10"></div>
-                `;
+                arena.innerHTML = `<div class="zona-drop zona-target-drag w-32 h-32 md:w-40 md:h-40 border-2 border-dashed border-sky-400 bg-sky-50/70 backdrop-blur-sm rounded-[1.5rem] flex flex-col items-center justify-center mb-auto mt-2 transition-colors z-0"><i data-lucide="download" class="w-8 h-8 text-sky-400 mb-1"></i><span class="font-bold text-sky-600 text-xs">Taruh Sini</span></div><div id="wadah-item" class="w-full flex justify-center flex-wrap gap-3 pb-6 mt-8 anim-fade z-10"></div>`;
                 lucide.createIcons(); const wadahItem = document.getElementById('wadah-item');
                 const target = data.item_target || { nama: "Target", isTarget: true }; const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
                 let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
-
                 itemsAcak.forEach(it => {
-                    const el = document.createElement('div');
-                    el.setAttribute('data-tipe', 'drag-tunggal'); el.setAttribute('data-benar', it.isTarget ? 'ya' : 'tidak');
-                    el.className = "kartu-drag w-20 h-20 bg-white rounded-2xl shadow-sm border border-slate-200 cursor-grab flex items-center justify-center overflow-hidden relative";
+                    const el = document.createElement('div'); el.setAttribute('data-tipe', 'drag-tunggal'); el.setAttribute('data-benar', it.isTarget ? 'ya' : 'tidak');
+                    el.className = "kartu-drag w-20 h-20 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden relative";
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
                     el.innerHTML = `<div class="absolute inset-0 bg-slate-50 flex items-center justify-center text-slate-600 font-bold text-xs text-center p-1 leading-tight ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div><img src="${urlPath}" class="w-full h-full object-cover pointer-events-none" draggable="false" />`;
                     wadahItem.appendChild(el);
                 });
             },
 
-            // KATEGORI BARU 1: SILUET (TEBAK BAYANGAN)
             mesinSiluet(data, arena) {
-                const target = data.item_target || { nama: "Target", isTarget: true }; 
-                const targetUrl = target.url_gambar ? AudioMgr.getAmanPath(target.url_gambar) : '';
-                
-                // Zona target pakai gambar bayangan hitam
-                arena.innerHTML = `
-                    <div class="zona-siluet w-32 h-32 md:w-40 md:h-40 mb-auto mt-2 transition-colors z-0 flex items-center justify-center">
-                        <img src="${targetUrl}" class="w-full h-full object-contain bayangan-hitam pointer-events-none" draggable="false" onerror="this.outerHTML='<div class=\\'text-xs font-bold text-slate-400\\'>Taruh Sini</div>'">
-                    </div>
-                    <div id="wadah-item" class="w-full flex justify-center flex-wrap gap-3 pb-6 mt-8 anim-fade z-10"></div>
-                `;
-                
+                const target = data.item_target || { nama: "Target", isTarget: true }; const targetUrl = target.url_gambar ? AudioMgr.getAmanPath(target.url_gambar) : '';
+                arena.innerHTML = `<div class="zona-drop zona-siluet w-32 h-32 md:w-40 md:h-40 mb-auto mt-2 transition-colors z-0 flex items-center justify-center bg-slate-200/50 rounded-3xl border-2 border-dashed border-slate-400 p-2"><img src="${targetUrl}" class="w-full h-full object-contain bayangan-hitam pointer-events-none" draggable="false" onerror="this.outerHTML='<div class=\\'text-xs font-bold text-slate-500\\'>Target Sini</div>'"></div><div id="wadah-item" class="w-full flex justify-center flex-wrap gap-3 pb-6 mt-8 anim-fade z-10"></div>`;
                 const wadahItem = document.getElementById('wadah-item');
-                const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
-                let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
-
+                const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : []; let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
                 itemsAcak.forEach(it => {
-                    const el = document.createElement('div');
-                    el.setAttribute('data-tipe', 'drag-siluet'); el.setAttribute('data-benar', it.isTarget ? 'ya' : 'tidak');
-                    el.className = "kartu-drag w-20 h-20 bg-white rounded-2xl shadow-sm border border-slate-200 cursor-grab flex items-center justify-center overflow-hidden relative p-1";
+                    const el = document.createElement('div'); el.setAttribute('data-tipe', 'drag-siluet'); el.setAttribute('data-benar', it.isTarget ? 'ya' : 'tidak');
+                    el.className = "kartu-drag w-20 h-20 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden relative p-1";
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
                     el.innerHTML = `<div class="absolute inset-0 bg-slate-50 flex items-center justify-center text-slate-600 font-bold text-xs text-center p-1 leading-tight ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div><img src="${urlPath}" class="w-full h-full object-contain pointer-events-none" draggable="false" />`;
                     wadahItem.appendChild(el);
@@ -657,43 +613,59 @@
             },
 
             mesinUrutan(data, arena) {
-                const arrUrutan = data.item_urutan || []; const jumlahItem = arrUrutan.length; this.jawabanBenarSaatIni = 0;
-                const boxSize = jumlahItem > 4 ? 'w-12 h-12 md:w-16 md:h-16 text-[10px]' : 'w-16 h-16 md:w-20 md:h-20 text-xs';
+                const arrUrutan = data.item_urutan || []; this.totalJawaban = arrUrutan.length;
+                const boxSize = this.totalJawaban > 4 ? 'w-12 h-12 md:w-16 md:h-16 text-[10px]' : 'w-16 h-16 md:w-20 md:h-20 text-xs';
                 let htmlZona = `<div class="flex flex-wrap justify-center gap-2 mb-auto mt-4 w-full px-1">`;
-                for(let i=0; i<jumlahItem; i++) htmlZona += `<div data-index="${i}" class="zona-urutan ${boxSize} border-2 border-dashed border-sky-400 bg-sky-50/50 rounded-xl flex items-center justify-center transition-colors relative z-0"><span class="absolute -top-2 -left-2 bg-sky-500 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold shadow text-[10px]">${i+1}</span></div>`;
+                for(let i=0; i<this.totalJawaban; i++) htmlZona += `<div data-index="${i}" class="zona-drop zona-urutan ${boxSize} border-2 border-dashed border-sky-400 bg-sky-50/50 rounded-xl flex items-center justify-center transition-colors relative z-0"><span class="absolute -top-2 -left-2 bg-sky-500 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold shadow text-[10px]">${i+1}</span></div>`;
                 htmlZona += `</div><div id="wadah-item-urutan" class="w-full flex justify-center flex-wrap gap-2 pb-6 mt-8 anim-slide-up z-10"></div>`;
                 arena.innerHTML = htmlZona;
 
                 const wadahItem = document.getElementById('wadah-item-urutan');
                 let itemsAcak = [...arrUrutan].sort(() => Math.random() - 0.5);
-
                 itemsAcak.forEach(it => {
-                    const el = document.createElement('div');
-                    el.setAttribute('data-tipe', 'drag-urutan'); el.setAttribute('data-index-asli', it.indexAsli);
-                    el.className = `kartu-drag ${boxSize} bg-white rounded-xl shadow-sm border border-slate-200 cursor-grab flex items-center justify-center overflow-hidden relative`;
+                    const el = document.createElement('div'); el.setAttribute('data-tipe', 'drag-urutan'); el.setAttribute('data-index-asli', it.indexAsli);
+                    el.className = `kartu-drag ${boxSize} bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden relative`;
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
                     el.innerHTML = `<div class="absolute inset-0 flex items-center justify-center p-1 text-center font-bold text-slate-600 leading-tight ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div><img src="${urlPath}" class="w-full h-full object-cover pointer-events-none" draggable="false" />`;
                     wadahItem.appendChild(el);
                 });
             },
 
+            mesinTebakKata(data, arena) {
+                const kataTarget = (data.item_target.nama || "APEL").toUpperCase(); const hurufTarget = kataTarget.split('');
+                this.totalJawaban = hurufTarget.length;
+                let hurufEkstra = []; if(data.item_pengecoh) data.item_pengecoh.forEach(p => { if(p.nama) hurufEkstra.push(...p.nama.toUpperCase().split('')); });
+                let semuaHuruf = [...hurufTarget, ...hurufEkstra].sort(() => Math.random() - 0.5);
+
+                let htmlZona = `<div class="flex flex-wrap justify-center gap-1.5 md:gap-2 mb-auto mt-4 w-full">`;
+                hurufTarget.forEach((h, i) => { htmlZona += `<div data-index="${i}" class="zona-drop zona-tebak w-10 h-12 md:w-14 md:h-16 border-2 border-slate-300 bg-white/50 rounded-lg flex items-center justify-center transition-colors relative z-0 shadow-inner"></div>`; });
+                htmlZona += `</div><div id="wadah-item-tebak" class="w-full flex justify-center flex-wrap gap-2 pb-6 mt-8 anim-slide-up z-10"></div>`;
+                arena.innerHTML = htmlZona;
+
+                const wadahItem = document.getElementById('wadah-item-tebak');
+                semuaHuruf.forEach((huruf, i) => {
+                    const el = document.createElement('div');
+                    let validIndexes = []; hurufTarget.forEach((ht, idx) => { if(ht === huruf) validIndexes.push(idx); });
+                    el.setAttribute('data-tipe', 'drag-tebak'); el.setAttribute('data-valid-indexes', JSON.stringify(validIndexes));
+                    el.className = `kartu-drag w-10 h-12 md:w-14 md:h-16 bg-white rounded-lg shadow border border-slate-200 flex items-center justify-center overflow-hidden relative text-lg md:text-2xl font-black text-indigo-600`;
+                    el.innerText = huruf; wadahItem.appendChild(el);
+                });
+            },
+
             mesinMemory(data, arena) {
-                this.memoriFlipped = []; this.memoriMatched = 0;
-                let itemUnik = [];
+                this.memoriFlipped = []; this.memoriMatched = 0; let itemUnik = [];
                 if (data.item_target && (data.item_target.url_gambar || data.item_target.nama)) itemUnik.push(data.item_target);
                 if (data.item_pengecoh) data.item_pengecoh.forEach(p => { if(p.url_gambar || p.nama) itemUnik.push(p); });
                 if(itemUnik.length < 2) return arena.innerHTML = `<div class="text-rose-500 font-bold p-4 bg-rose-50 rounded-xl">Admin: Butuh minimal 2 gambar berbeda!</div>`;
 
-                let pasangan = [...itemUnik, ...itemUnik].sort(() => Math.random() - 0.5);
-                const totalPairs = itemUnik.length;
-
+                let pasangan = [...itemUnik, ...itemUnik].sort(() => Math.random() - 0.5); const totalPairs = itemUnik.length;
                 const gridClass = pasangan.length > 6 ? "grid-cols-4" : "grid-cols-3";
                 const grid = document.createElement('div'); grid.className = `grid ${gridClass} gap-2 w-full mt-auto pb-4 anim-fade max-w-sm`;
 
                 pasangan.forEach((it) => {
                     const card = document.createElement('div'); card.className = "mem-card w-full aspect-square";
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : ''; const namaAsli = it.nama || '';
-                    card.innerHTML = `<div class="mem-inner" data-id="${namaAsli}-${urlPath}"><div class="mem-front"><i data-lucide="help-circle" class="w-6 h-6 md:w-8 md:h-8 text-white"></i></div><div class="mem-back flex items-center justify-center p-1 bg-slate-50"><img src="${urlPath}" class="w-full h-full object-cover rounded-md ${urlPath ? '' : 'hidden'}"><span class="text-[9px] md:text-xs font-bold text-slate-700 text-center leading-tight ${urlPath ? 'hidden' : ''}">${namaAsli}</span></div></div>`;
+                    card.innerHTML = `<div class="mem-inner" data-id="${namaAsli}-${urlPath}"><div class="mem-front"><i data-lucide="help-circle" class="w-6 h-6 text-white"></i></div><div class="mem-back flex items-center justify-center p-1 bg-slate-50"><img src="${urlPath}" class="w-full h-full object-cover rounded-md ${urlPath ? '' : 'hidden'}"><span class="text-[9px] font-bold text-slate-700 text-center leading-tight ${urlPath ? 'hidden' : ''}">${namaAsli}</span></div></div>`;
                     card.onclick = () => this.flipMemoryCard(card.querySelector('.mem-inner'), totalPairs);
                     grid.appendChild(card);
                 });
@@ -703,7 +675,6 @@
             flipMemoryCard(cardInner, totalPairs) {
                 if(cardInner.parentElement.classList.contains('flipped') || this.memoriFlipped.length >= 2) return;
                 AudioMgr.stopSoal(); cardInner.parentElement.classList.add('flipped'); this.memoriFlipped.push(cardInner);
-
                 if(this.memoriFlipped.length === 2) {
                     const id1 = this.memoriFlipped[0].getAttribute('data-id'); const id2 = this.memoriFlipped[1].getAttribute('data-id');
                     if(id1 === id2) {
@@ -716,133 +687,58 @@
                 }
             },
 
-            mesinTebakKata(data, arena) {
-                this.jawabanBenarSaatIni = 0;
-                const kataTarget = (data.item_target.nama || "APEL").toUpperCase();
-                const hurufTarget = kataTarget.split('');
-                this.totalJawabanTebak = hurufTarget.length;
-
-                let hurufEkstra = [];
-                if(data.item_pengecoh) data.item_pengecoh.forEach(p => { if(p.nama) hurufEkstra.push(...p.nama.toUpperCase().split('')); });
-                let semuaHuruf = [...hurufTarget, ...hurufEkstra].sort(() => Math.random() - 0.5);
-
-                let htmlZona = `<div class="flex flex-wrap justify-center gap-1.5 md:gap-2 mb-auto mt-4 w-full">`;
-                hurufTarget.forEach((h, i) => { htmlZona += `<div data-index="${i}" class="zona-tebak w-10 h-12 md:w-14 md:h-16 border-2 border-slate-300 bg-white/50 rounded-lg flex items-center justify-center transition-colors relative z-0 shadow-inner"></div>`; });
-                htmlZona += `</div><div id="wadah-item-tebak" class="w-full flex justify-center flex-wrap gap-2 pb-6 mt-8 anim-slide-up z-10"></div>`;
-                arena.innerHTML = htmlZona;
-
-                const wadahItem = document.getElementById('wadah-item-tebak');
-                semuaHuruf.forEach((huruf, i) => {
-                    const el = document.createElement('div');
-                    let validIndexes = []; hurufTarget.forEach((ht, idx) => { if(ht === huruf) validIndexes.push(idx); });
-                    el.setAttribute('data-tipe', 'drag-tebak'); el.setAttribute('data-valid-indexes', JSON.stringify(validIndexes));
-                    el.className = `kartu-drag w-10 h-12 md:w-14 md:h-16 bg-white rounded-lg shadow border border-slate-200 cursor-grab flex items-center justify-center overflow-hidden relative text-lg md:text-2xl font-black text-indigo-600`;
-                    el.innerText = huruf;
-                    wadahItem.appendChild(el);
-                });
-            },
-
             mesinBubble(data, arena) {
-                const target = data.item_target || { nama: "Benar", isTarget: true };
-                const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
-                let itemAcak = [target, ...pengecoh];
-                const kecepatan = data.speed || 'normal';
-
-                arena.innerHTML = `<p class="text-xs text-sky-600 font-bold mb-2 z-10 bg-white/70 px-3 py-1 rounded-full">Tekan Gelembung yang Benar!</p>`;
-                PhysicsEngine.mulaiBubble(kecepatan, itemAcak, arena);
+                const target = data.item_target || { nama: "Benar", isTarget: true }; const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
+                let itemAcak = [target, ...pengecoh]; const kecepatan = data.speed || 'normal';
+                arena.innerHTML = `<p class="text-xs text-sky-600 font-bold mb-2 z-10 bg-white/70 px-3 py-1 rounded-full pointer-events-none">Tekan Gelembung yang Benar!</p>`;
+                PhysicsEngine.start('bubble', kecepatan, itemAcak, arena);
             },
 
             mesinMelayang(data, arena) {
-                const arrUrutan = data.item_urutan || [];
-                this.jawabanBenarSaatIni = 0;
-                const kecepatan = data.speed || 'normal';
-
+                const arrUrutan = data.item_urutan || []; this.totalJawaban = arrUrutan.length; const kecepatan = data.speed || 'normal';
                 arena.innerHTML = `<p class="text-xs text-sky-600 font-bold mb-2 z-10 bg-white/70 px-3 py-1 rounded-full pointer-events-none">Tekan sesuai urutan (1, 2, 3..)</p>`;
-                PhysicsEngine.mulaiMelayang(kecepatan, arrUrutan, arena);
+                PhysicsEngine.start('melayang', kecepatan, arrUrutan, arena);
             },
 
-            // KATEGORI BARU 2: PUKUL TIKUS (WHACK-A-MOLE)
             mesinPukul(data, arena) {
-                const target = data.item_target || { nama: "Benar", isTarget: true };
-                const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
-                let itemAcak = [target, ...pengecoh];
-                const kecepatan = data.speed || 'normal';
+                const target = data.item_target || { nama: "Benar", isTarget: true }; const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
+                let itemAcak = [target, ...pengecoh]; const kecepatan = data.speed || 'normal';
                 let speedMs = kecepatan === 'cepat' ? 800 : (kecepatan === 'lambat' ? 1800 : 1200);
+                this.totalJawaban = 3; 
 
-                this.jawabanBenarSaatIni = 0; // Butuh 3 kali pukul benar untuk menang
-
-                arena.innerHTML = `<p class="text-xs text-sky-600 font-bold mb-2 z-10 bg-white/70 px-3 py-1 rounded-full">Pukul gambar yang benar 3x!</p>
-                                   <div class="grid grid-cols-3 gap-3 w-full max-w-sm mt-auto pb-10" id="wadah-lubang"></div>`;
-                
-                const wadahLubang = document.getElementById('wadah-lubang');
-                let lubangs = [];
-                // Buat 6 Lubang
+                arena.innerHTML = `<p class="text-xs text-sky-600 font-bold mb-2 z-10 bg-white/70 px-3 py-1 rounded-full">Pukul gambar yang benar 3x!</p><div class="grid grid-cols-3 gap-3 w-full max-w-sm mt-auto pb-10" id="wadah-lubang"></div>`;
+                const wadahLubang = document.getElementById('wadah-lubang'); let lubangs = [];
                 for(let i=0; i<6; i++) {
-                    const lubang = document.createElement('div');
-                    lubang.className = "lubang-pukul aspect-square w-full";
-                    const benda = document.createElement('div');
-                    benda.className = "benda-pukul flex flex-col items-center justify-center bg-white border-2 border-indigo-200 rounded-t-full shadow-inner p-1";
+                    const lubang = document.createElement('div'); lubang.className = "lubang-pukul aspect-square w-full";
+                    const benda = document.createElement('div'); benda.className = "benda-pukul flex flex-col items-center justify-center bg-white border-2 border-indigo-200 rounded-t-full shadow-inner p-1";
                     
                     benda.onclick = () => {
-                        const isTarget = benda.getAttribute('data-is-target') === 'true';
-                        benda.classList.remove('muncul'); // Langsung masuk ke dalam
+                        const isTarget = benda.getAttribute('data-is-target') === 'true'; benda.classList.remove('muncul');
                         if(isTarget) {
-                            AudioMgr.playBenar(); this.jawabanBenarSaatIni++; this.skor += 50; this.renderUI();
-                            if(this.jawabanBenarSaatIni >= 3) {
-                                clearInterval(PhysicsEngine.intervalId);
-                                setTimeout(() => this.munculLayarAkhir('benar'), 500);
-                            }
+                            AudioMgr.playBenar(); this.jawabanSaatIni++; this.skor += 50; this.renderUI();
+                            if(this.jawabanSaatIni >= 3) { PhysicsEngine.berhenti(); setTimeout(() => this.munculLayarAkhir('benar'), 500); }
                         } else {
                             AudioMgr.playSalah(); this.nyawa--; this.renderUI();
-                            if(this.nyawa <= 0) {
-                                clearInterval(PhysicsEngine.intervalId);
-                                setTimeout(() => this.munculLayarAkhir('kalah'), 500);
-                            }
+                            if(this.nyawa <= 0) { PhysicsEngine.berhenti(); setTimeout(() => this.munculLayarAkhir('kalah'), 500); }
                         }
                     };
-                    lubang.appendChild(benda);
-                    wadahLubang.appendChild(lubang);
-                    lubangs.push(benda);
+                    lubang.appendChild(benda); wadahLubang.appendChild(lubang); lubangs.push(benda);
                 }
 
-                // Logika Muncul Tenggelam
                 PhysicsEngine.berhenti();
-                PhysicsEngine.intervalId = setInterval(() => {
-                    // Masukkan semua benda dulu
+                PhysicsEngine.rafId = setInterval(() => { // Using interval just for pop-up timing
                     lubangs.forEach(b => b.classList.remove('muncul'));
-                    
-                    // Pilih 1 atau 2 lubang acak untuk memunculkan benda
                     const numToPop = Math.random() > 0.5 ? 2 : 1;
                     const shuffledLubang = [...lubangs].sort(() => 0.5 - Math.random()).slice(0, numToPop);
-                    
                     shuffledLubang.forEach((benda, idx) => {
-                        // Pastikan ada target yang muncul sesekali
                         let it = itemAcak[Math.floor(Math.random() * itemAcak.length)];
-                        if(idx === 0 && Math.random() > 0.3) it = target; // 70% peluang target muncul
-
+                        if(idx === 0 && Math.random() > 0.3) it = target; 
                         const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
                         if(urlPath) benda.innerHTML = `<img src="${urlPath}" class="w-full h-full object-cover rounded-full pointer-events-none">`;
                         else benda.innerHTML = `<span class="text-[10px] font-bold text-slate-700 pointer-events-none">${it.nama}</span>`;
-                        
-                        benda.setAttribute('data-is-target', it.isTarget ? 'true' : 'false');
-                        benda.classList.add('muncul');
+                        benda.setAttribute('data-is-target', it.isTarget ? 'true' : 'false'); benda.classList.add('muncul');
                     });
                 }, speedMs);
-            },
-
-            prosesKuis(isBenar, elemenAnimasi) {
-                document.querySelectorAll('.kartu-drag').forEach(e => e.style.pointerEvents = 'none');
-                document.querySelectorAll('button.btn-pilihan').forEach(e => e.disabled = true);
-
-                if(isBenar) {
-                    AudioMgr.playBenar(); this.skor += 100; this.simpanProgres(); this.renderUI();
-                    elemenAnimasi.classList.add('bg-emerald-50', 'border-emerald-400');
-                    setTimeout(() => this.munculLayarAkhir('benar'), 1000);
-                } else {
-                    AudioMgr.playSalah(); this.nyawa--; this.renderUI();
-                    elemenAnimasi.classList.add('bg-rose-50', 'border-rose-400', 'anim-shake');
-                    setTimeout(() => this.munculLayarAkhir(this.nyawa <= 0 ? 'kalah' : 'salah'), 1000);
-                }
             },
 
             munculLayarAkhir(status) {
@@ -873,9 +769,6 @@
                 lucide.createIcons();
             }
         };
-
-        // Otomatis jalan preload saat dibuka
-        window.onload = () => Game.initPreload();
     </script>
 </body>
 </html>
