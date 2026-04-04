@@ -10,8 +10,6 @@
     <style>
         body { font-family: 'Nunito', sans-serif; background: #f8fafc; }
         .app-container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 25px rgba(0,0,0,0.05); position: relative; }
-        
-        /* Modal Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
@@ -54,6 +52,7 @@
             <p id="loading-teks" class="text-indigo-200 font-bold text-lg">Mengupload aset...</p>
         </div>
 
+        <!-- Modal Config Repo & Global Audio -->
         <div id="modal-config" class="hidden fixed inset-0 z-[60] bg-slate-900/70 backdrop-blur-sm flex justify-center items-center p-4">
             <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl relative">
                 <h2 class="font-black text-xl mb-4 flex items-center gap-2 text-indigo-800"><i data-lucide="github"></i> Setup GitHub</h2>
@@ -65,9 +64,9 @@
                     <h3 class="font-black text-sm text-indigo-800 mb-2">Musik Latar Umum (BGM)</h3>
                     <div class="flex gap-2 mb-2">
                         <input type="text" id="path-bgm-global" placeholder="Pilih dari galeri ->" class="w-full text-xs p-2 border border-indigo-200 rounded bg-white text-indigo-700 font-bold" readonly>
-                        <button onclick="Galeri.bukaUtama('path-bgm-global', 'audio')" class="bg-indigo-200 text-indigo-800 p-2 rounded"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
+                        <button onclick="Galeri.bukaUtama('path-bgm-global', 'audio')" class="bg-amber-100 text-amber-800 p-2 rounded"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
                     </div>
-                    <label class="text-[10px] font-bold text-slate-500">Atau upload baru:</label>
+                    <label class="text-[10px] font-bold text-slate-500">Atau upload baru (.mp3):</label>
                     <input type="file" id="f-bgm" accept="audio/*" class="w-full text-xs bg-white p-2 rounded-lg border border-indigo-200">
                 </div>
 
@@ -76,26 +75,24 @@
             </div>
         </div>
 
+        <!-- MODAL GALERI ASET CERDAS -->
         <div id="modal-galeri" class="hidden fixed inset-0 z-[80] bg-slate-100 flex flex-col max-w-[600px] mx-auto overflow-hidden">
-            <header class="bg-indigo-800 p-4 flex justify-between items-center shadow-md">
-                <h2 class="font-black text-lg text-white flex items-center gap-2"><i data-lucide="library"></i> Galeri Aset GitHub</h2>
-                <button onclick="Galeri.tutup()" class="bg-indigo-900 p-2 rounded-full text-white hover:bg-indigo-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <header class="bg-amber-500 p-4 flex justify-between items-center shadow-md">
+                <h2 class="font-black text-lg text-amber-950 flex items-center gap-2"><i data-lucide="library"></i> Galeri Aset GitHub</h2>
+                <button onclick="Galeri.tutup()" class="bg-amber-600 p-2 rounded-full text-white hover:bg-amber-700"><i data-lucide="x" class="w-5 h-5"></i></button>
             </header>
             
-            <div class="p-3 bg-indigo-100 border-b border-indigo-200 flex items-center gap-2">
-                <i data-lucide="info" class="w-5 h-5 text-indigo-600"></i>
-                <span class="text-xs font-bold text-indigo-800">Klik file di bawah ini untuk menggunakannya tanpa perlu upload ulang.</span>
-            </div>
-
             <div id="galeri-loading" class="p-8 text-center hidden">
-                <i data-lucide="loader" class="w-8 h-8 text-indigo-500 animate-spin mx-auto mb-2"></i>
-                <p class="text-sm font-bold text-slate-500">Mengambil file dari GitHub...</p>
+                <i data-lucide="loader" class="w-8 h-8 text-amber-600 animate-spin mx-auto mb-2"></i>
+                <p class="text-sm font-bold text-slate-500">Membaca file dari GitHub...</p>
             </div>
 
             <div id="galeri-grid" class="flex-1 overflow-y-auto p-4 grid grid-cols-3 gap-3 content-start">
-                </div>
+                <!-- Aset akan dilist di sini -->
+            </div>
         </div>
 
+        <!-- Modal Form Level -->
         <div id="modal-soal" class="hidden fixed inset-0 z-[60] bg-slate-100 flex flex-col max-w-[600px] mx-auto overflow-hidden">
             <header class="bg-white p-5 flex justify-between items-center shadow-sm border-b">
                 <h2 id="judul-modal-form" class="font-black text-xl text-slate-800">Edit Level</h2>
@@ -112,40 +109,42 @@
                         <option value="kuis">📝 Kuis (Pilihan)</option>
                     </select>
 
-                    <label class="font-black text-sm block mb-2 text-slate-800">Pertanyaan / Instruksi</label>
-                    <textarea id="in-tanya" class="w-full p-3 border-2 border-slate-200 rounded-xl bg-slate-50 outline-none focus:border-indigo-400" rows="2" placeholder="Tarik gambar sapi!"></textarea>
+                    <label class="font-black text-sm block mb-2 text-slate-800">Teks Instruksi / Soal</label>
+                    <textarea id="in-tanya" class="w-full p-3 border-2 border-slate-200 rounded-xl bg-slate-50 outline-none focus:border-indigo-400" rows="2" placeholder="Contoh: Manakah yang buah?"></textarea>
                 </div>
 
+                <!-- Custom Media Per-Level (Disederhanakan untuk stabilitas) -->
                 <div class="bg-sky-50 p-5 rounded-3xl shadow-sm border-2 border-sky-200">
-                    <h3 class="font-black text-sky-800 mb-3 flex items-center gap-2"><i data-lucide="image"></i> Media Khusus Level Ini</h3>
+                    <h3 class="font-black text-sky-800 mb-3 flex items-center gap-2"><i data-lucide="music"></i> Latar & Audio Khusus Level Ini</h3>
                     <div class="space-y-4">
                         <div>
                             <label class="text-xs font-bold text-sky-700">Gambar Latar Belakang (BG)</label>
                             <div class="flex gap-2 mb-1">
-                                <input type="text" id="path-lvl-bg" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Pilih dari Galeri ->" readonly>
-                                <button onclick="Galeri.bukaUtama('path-lvl-bg', 'image')" class="bg-sky-200 text-sky-800 p-2 rounded"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
+                                <input type="text" id="path-lvl-bg" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Galeri ->" readonly>
+                                <button onclick="Galeri.bukaUtama('path-lvl-bg', 'image')" class="bg-amber-100 text-amber-800 p-2 rounded"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
                             </div>
-                            <input type="file" id="f-lvl-bg" accept="image/*" class="w-full text-xs bg-white p-1 rounded-lg border border-sky-300">
+                            <input type="file" id="f-lvl-bg" accept="image/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-sky-300">
                         </div>
 
+                        <!-- Audio BGM per level -->
                         <div>
-                            <label class="text-xs font-bold text-sky-700">Audio Soal (Dibacakan)</label>
+                            <label class="text-xs font-bold text-sky-700">Musik BGM Khusus Level Ini (.mp3)</label>
                             <div class="flex gap-2 mb-1">
-                                <input type="text" id="path-lvl-soal" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Pilih dari Galeri ->" readonly>
-                                <button onclick="Galeri.bukaUtama('path-lvl-soal', 'audio')" class="bg-sky-200 text-sky-800 p-2 rounded"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
+                                <input type="text" id="path-lvl-bgm" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Galeri ->" readonly>
+                                <button onclick="Galeri.bukaUtama('path-lvl-bgm', 'audio')" class="bg-amber-100 text-amber-800 p-2 rounded"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
                             </div>
-                            <input type="file" id="f-lvl-soal" accept="audio/*" class="w-full text-xs bg-white p-1 rounded-lg border border-sky-300">
+                            <input type="file" id="f-lvl-bgm" accept="audio/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-sky-300">
                         </div>
                         
                         <div class="flex gap-2">
                             <div class="w-1/2 bg-white p-2 rounded-lg border border-green-200">
-                                <label class="text-[10px] font-bold text-green-700 flex justify-between">SFX Benar <button onclick="Galeri.bukaUtama('path-lvl-benar', 'audio')" class="bg-green-100 text-green-700 px-1 rounded"><i data-lucide="folder-search" class="w-3 h-3"></i></button></label>
-                                <input type="text" id="path-lvl-benar" class="w-full text-[9px] p-1 border-b my-1" placeholder="Path tersimpan" readonly>
+                                <label class="text-[10px] font-bold text-green-700 flex justify-between">SFX Benar <button onclick="Galeri.bukaUtama('path-lvl-benar', 'audio')" class="bg-amber-100 text-amber-800 px-1 rounded"><i data-lucide="folder-search" class="w-3 h-3"></i></button></label>
+                                <input type="text" id="path-lvl-benar" class="w-full text-[9px] p-1 border-b my-1" placeholder="Kosong = Default" readonly>
                                 <input type="file" id="f-lvl-benar" accept="audio/*" class="w-full text-[9px]">
                             </div>
                             <div class="w-1/2 bg-white p-2 rounded-lg border border-red-200">
-                                <label class="text-[10px] font-bold text-red-700 flex justify-between">SFX Salah <button onclick="Galeri.bukaUtama('path-lvl-salah', 'audio')" class="bg-red-100 text-red-700 px-1 rounded"><i data-lucide="folder-search" class="w-3 h-3"></i></button></label>
-                                <input type="text" id="path-lvl-salah" class="w-full text-[9px] p-1 border-b my-1" placeholder="Path tersimpan" readonly>
+                                <label class="text-[10px] font-bold text-red-700 flex justify-between">SFX Salah <button onclick="Galeri.bukaUtama('path-lvl-salah', 'audio')" class="bg-amber-100 text-amber-800 px-1 rounded"><i data-lucide="folder-search" class="w-3 h-3"></i></button></label>
+                                <input type="text" id="path-lvl-salah" class="w-full text-[9px] p-1 border-b my-1" placeholder="Kosong = Default" readonly>
                                 <input type="file" id="f-lvl-salah" accept="audio/*" class="w-full text-[9px]">
                             </div>
                         </div>
@@ -158,15 +157,15 @@
                     
                     <label class="text-xs font-bold block text-emerald-700 mb-1">Gambar Jawaban:</label>
                     <div class="flex gap-2 mb-1">
-                        <input type="text" id="path-benar-img" class="w-full text-xs p-2 border border-emerald-300 rounded bg-white font-mono text-emerald-700" placeholder="Pilih dari Galeri ->" readonly>
-                        <button onclick="Galeri.bukaUtama('path-benar-img', 'image')" class="bg-emerald-200 text-emerald-800 p-2 rounded"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
+                        <input type="text" id="path-benar-img" class="w-full text-xs p-2 border border-emerald-300 rounded bg-white font-mono text-emerald-700" placeholder="Galeri ->" readonly>
+                        <button onclick="Galeri.bukaUtama('path-benar-img', 'image')" class="bg-amber-100 text-amber-800 p-2 rounded"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
                     </div>
                     <input type="file" id="f-benar-img" accept="image/*" class="w-full text-sm bg-white p-2 rounded-xl border border-emerald-300">
                 </div>
 
                 <div class="bg-rose-50 p-5 rounded-3xl border-2 border-rose-300 mb-6">
                     <label class="font-black text-lg block mb-2 text-rose-800 flex items-center gap-2"><i data-lucide="x-circle"></i> PENGECOH</label>
-                    <p class="text-[11px] text-rose-600 mb-3 font-bold bg-rose-100 p-2 rounded-lg">Pisahkan teks dengan koma. Gambar bisa pilih banyak file sekaligus (Hanya via Upload).</p>
+                    <p class="text-[11px] text-rose-600 mb-3 font-bold bg-rose-100 p-2 rounded-lg">Pisahkan teks dengan koma. (Upload gambar bisa lebih dari 1 file sekaligus).</p>
                     <input type="text" id="in-salah-nama" placeholder="Cth: Meja, Kursi" class="w-full p-3 border-2 border-rose-300 rounded-xl bg-white mb-3 font-black text-slate-700 outline-none focus:border-rose-500">
                     <label class="text-xs font-bold block text-rose-700 mb-1">Upload Gambar Pengecoh:</label>
                     <input type="file" id="f-salah-img" accept="image/*" multiple class="w-full text-sm bg-white p-2 rounded-xl border border-rose-300">
@@ -192,11 +191,11 @@
         function tutupModal(id) { document.getElementById(id).classList.add('hidden'); }
 
         // ==========================================
-        // FITUR BARU: MANAJER GALERI ASET CERDAS
+        // GALERI ASET CERDAS
         // ==========================================
         const Galeri = {
             targetInputId: null,
-            filterType: 'all', // 'image' atau 'audio'
+            filterType: 'all', 
             
             bukaUtama(inputId, type) {
                 this.targetInputId = inputId;
@@ -204,10 +203,7 @@
                 document.getElementById('modal-galeri').classList.remove('hidden');
                 this.fetchDataGitHub();
             },
-            
-            tutup() {
-                document.getElementById('modal-galeri').classList.add('hidden');
-            },
+            tutup() { document.getElementById('modal-galeri').classList.add('hidden'); },
 
             async fetchDataGitHub() {
                 const token = localStorage.getItem('ghToken');
@@ -215,26 +211,22 @@
                 const grid = document.getElementById('galeri-grid');
                 const loader = document.getElementById('galeri-loading');
                 
-                grid.innerHTML = '';
-                loader.classList.remove('hidden');
+                grid.innerHTML = ''; loader.classList.remove('hidden');
 
                 try {
-                    // Minta daftar file di folder public/assets
                     const res = await fetch(`https://api.github.com/repos/${repo}/contents/public/assets?v=${Date.now()}`, {
                         headers: { 'Authorization': `token ${token}` }
                     });
-                    
                     loader.classList.add('hidden');
 
                     if(res.ok) {
                         const files = await res.json();
                         if(files.length === 0) {
-                            grid.innerHTML = `<p class="col-span-3 text-center text-sm font-bold text-slate-400 mt-10">Belum ada aset diunggah.</p>`;
+                            grid.innerHTML = `<p class="col-span-3 text-center text-sm font-bold text-slate-400 mt-10">Belum ada aset.</p>`;
                             return;
                         }
 
                         files.forEach(file => {
-                            // Filter berdasarkan tipe (image / audio)
                             const isImage = file.name.match(/\.(jpg|jpeg|png|gif|webp)$/i);
                             const isAudio = file.name.match(/\.(mp3|wav|ogg|m4a)$/i);
                             
@@ -242,36 +234,28 @@
                             if (this.filterType === 'audio' && !isAudio) return;
 
                             const btn = document.createElement('div');
-                            btn.className = "bg-white p-2 rounded-xl shadow-sm border border-indigo-100 hover:border-indigo-400 cursor-pointer transition flex flex-col items-center justify-center text-center";
+                            btn.className = "bg-white p-2 rounded-xl shadow-sm border border-slate-200 hover:border-amber-400 cursor-pointer transition flex flex-col items-center justify-center text-center";
                             btn.onclick = () => this.pilihAset(`assets/${file.name}`);
 
                             if (isImage) {
-                                // Pakai raw.githubusercontent untuk preview cepat (tanpa cache)
                                 const rawUrl = `https://raw.githubusercontent.com/${repo}/main/public/assets/${file.name}`;
                                 btn.innerHTML = `<img src="${rawUrl}" class="w-full h-16 object-cover rounded-lg mb-1 bg-slate-100">
                                                  <span class="text-[9px] font-bold text-slate-600 truncate w-full">${file.name}</span>`;
                             } else {
-                                btn.innerHTML = `<div class="w-full h-16 bg-indigo-50 rounded-lg mb-1 flex items-center justify-center"><i data-lucide="music" class="w-8 h-8 text-indigo-300"></i></div>
+                                btn.innerHTML = `<div class="w-full h-16 bg-amber-50 rounded-lg mb-1 flex items-center justify-center"><i data-lucide="music" class="w-8 h-8 text-amber-300"></i></div>
                                                  <span class="text-[9px] font-bold text-slate-600 truncate w-full">${file.name}</span>`;
                             }
                             grid.appendChild(btn);
                         });
                         lucide.createIcons();
-
-                    } else {
-                        throw new Error("Folder assets belum ada.");
-                    }
+                    } else throw new Error();
                 } catch(e) {
                     loader.classList.add('hidden');
-                    grid.innerHTML = `<p class="col-span-3 text-center text-sm font-bold text-rose-500 mt-10"><i data-lucide="folder-x" class="mx-auto w-8 h-8 mb-2"></i> Folder Aset belum tersedia. Upload satu file dulu lewat form.</p>`;
-                    lucide.createIcons();
+                    grid.innerHTML = `<p class="col-span-3 text-center text-sm font-bold text-slate-500 mt-10">Belum ada aset terupload.</p>`;
                 }
             },
-
             pilihAset(pathStr) {
-                if (this.targetInputId) {
-                    document.getElementById(this.targetInputId).value = pathStr;
-                }
+                if (this.targetInputId) document.getElementById(this.targetInputId).value = pathStr;
                 this.tutup();
             }
         };
@@ -327,7 +311,6 @@
                     dbLokal.global_settings = parsed.global_settings || {};
                     dbLokal.levels = parsed.levels || [];
                     
-                    // Isi kembali form global path untuk view
                     if(dbLokal.global_settings.bgm_url) document.getElementById('path-bgm-global').value = dbLokal.global_settings.bgm_url;
 
                     statusEl.innerHTML = `<i data-lucide="check-circle" class="w-6 h-6 text-emerald-500"></i> <span class="text-emerald-800">Terhubung: ${repo}</span>`;
@@ -375,10 +358,9 @@
 
         function hapusLevel(idx) {
             if(confirm("Hapus level ini? Pastikan klik tombol Publish di bawah setelah menghapus!")) {
-                // Catat aset lama ke array fileYangHarusDihapus
                 const l = dbLokal.levels[idx];
                 if(l.bg_image) fileYangHarusDihapus.push(`public/${l.bg_image}`);
-                if(l.audio_soal) fileYangHarusDihapus.push(`public/${l.audio_soal}`);
+                if(l.bgm_level) fileYangHarusDihapus.push(`public/${l.bgm_level}`);
                 if(l.sfx_benar) fileYangHarusDihapus.push(`public/${l.sfx_benar}`);
                 if(l.sfx_salah) fileYangHarusDihapus.push(`public/${l.sfx_salah}`);
                 if(l.item_target && l.item_target.url_gambar) fileYangHarusDihapus.push(`public/${l.item_target.url_gambar}`);
@@ -406,9 +388,8 @@
             document.getElementById('in-kategori').value = data.kategori;
             document.getElementById('in-tanya').value = data.pertanyaan;
             
-            // Isi semua input teks path dari data yang sudah ada (Fitur Galeri)
             document.getElementById('path-lvl-bg').value = data.bg_image || "";
-            document.getElementById('path-lvl-soal').value = data.audio_soal || "";
+            document.getElementById('path-lvl-bgm').value = data.bgm_level || "";
             document.getElementById('path-lvl-benar').value = data.sfx_benar || "";
             document.getElementById('path-lvl-salah').value = data.sfx_salah || "";
             
@@ -438,7 +419,6 @@
             objLevel.pertanyaan = tanya;
             objLevel.item_target.nama = benarNama;
 
-            // FUNGSI CEK FILE ATAU PATH
             const cekMedia = (idFile, idPath, propObj, prefix) => {
                 const f = document.getElementById(idFile).files[0];
                 const p = document.getElementById(idPath).value;
@@ -447,18 +427,18 @@
                     objLevel[propObj] = `assets/${prefix}_${ts}.${f.name.split('.').pop()}`; 
                     antreanFile.push({path: `public/${objLevel[propObj]}`, file: f}); 
                 } else if(p) {
-                    objLevel[propObj] = p; // Menggunakan Aset Galeri
+                    objLevel[propObj] = p; 
                 } else {
-                    objLevel[propObj] = null; // Kosongkan
+                    objLevel[propObj] = null; 
                 }
             };
 
             cekMedia('f-lvl-bg', 'path-lvl-bg', 'bg_image', 'bg');
-            cekMedia('f-lvl-soal', 'path-lvl-soal', 'audio_soal', 'asoal');
+            cekMedia('f-lvl-bgm', 'path-lvl-bgm', 'bgm_level', 'bgm');
             cekMedia('f-lvl-benar', 'path-lvl-benar', 'sfx_benar', 'sbenar');
             cekMedia('f-lvl-salah', 'path-lvl-salah', 'sfx_salah', 'ssalah');
 
-            // Proses Target Gambar Benar
+            // Target Gambar Benar
             const fTarget = document.getElementById('f-benar-img').files[0];
             const pTarget = document.getElementById('path-benar-img').value;
             if(fTarget) { 
@@ -469,7 +449,7 @@
                 objLevel.item_target.url_gambar = pTarget;
             }
 
-            // Proses Pengecoh (Hanya Multi-Upload untuk kesederhanaan, jika ada input baru maka replace)
+            // Pengecoh
             const textPengecoh = document.getElementById('in-salah-nama').value.split(',').map(s => s.trim()).filter(s => s);
             const filePengecoh = document.getElementById('f-salah-img').files;
 
@@ -525,41 +505,37 @@
 
         async function publishKeGitHub() {
             const token = localStorage.getItem('ghToken'); const repo = localStorage.getItem('ghRepo');
-            if(!token || !repo) return alert("Silakan hubungkan Token GitHub terlebih dahulu!");
+            if(!token || !repo) return alert("Hubungkan Token GitHub terlebih dahulu!");
 
             const modLoad = document.getElementById('modal-loading');
             const tLoad = document.getElementById('loading-teks');
             modLoad.classList.remove('hidden');
 
             try {
-                // 1. Hapus Aset Sampah (Garbage Collection)
                 if (fileYangHarusDihapus.length > 0) {
                     for(let i=0; i<fileYangHarusDihapus.length; i++) {
-                        tLoad.innerText = `Menghapus sampah ${i+1}/${fileYangHarusDihapus.length}...`;
+                        tLoad.innerText = `Membersihkan sampah ${i+1}/${fileYangHarusDihapus.length}...`;
                         await githubDeleteRequest(token, repo, fileYangHarusDihapus[i]);
                     }
                 }
 
-                // 2. Upload Aset Baru
                 for(let i=0; i<antreanFile.length; i++) {
-                    tLoad.innerText = `Mengunggah file ${i+1} dari ${antreanFile.length}...`;
+                    tLoad.innerText = `Mengunggah media ${i+1} dari ${antreanFile.length}...`;
                     const b64 = await ubahFileKeBase64(antreanFile[i].file);
                     await githubPutRequest(token, repo, antreanFile[i].path, b64);
                 }
 
-                // 3. Update JSON
                 tLoad.innerText = `Menyinkronkan Database...`;
                 const jsonStr = JSON.stringify(dbLokal, null, 2);
                 const jsonB64 = window.btoa(unescape(encodeURIComponent(jsonStr)));
                 await githubPutRequest(token, repo, 'public/data-soal.json', jsonB64);
 
                 tLoad.innerText = `SELESAI!`;
-                antreanFile = []; 
-                fileYangHarusDihapus = []; 
+                antreanFile = []; fileYangHarusDihapus = []; 
                 
                 setTimeout(() => {
                     modLoad.classList.add('hidden');
-                    alert("Berhasil! Semua Data & Aset sudah tersinkronisasi sempurna.");
+                    alert("Berhasil! Semua Data & Aset sudah tersinkronisasi. Tunggu 1 menit lalu mainkan gamenya.");
                 }, 1000);
 
             } catch(e) {
