@@ -35,25 +35,35 @@
       ]
     },
     {
-      "id": "L_AUTO_1775321891358_1",
-      "kategori": "urutan",
+      "id": "L_1775330576334",
+      "kategori": "melayang",
       "pertanyaan": "Logika: Urutkan angka 1 sampai 4!",
+      "speed": "normal",
+      "media_soal": null,
       "item_urutan": [
         {
-          "nama": "Satu 1",
-          "indexAsli": 0
+          "indexAsli": 0,
+          "nama": "Satu 1"
         },
         {
-          "nama": "Dua 2",
-          "indexAsli": 1
+          "indexAsli": 1,
+          "nama": "Dua 2"
         },
         {
-          "nama": "Tiga 3",
-          "indexAsli": 2
+          "indexAsli": 2,
+          "nama": "Tiga 3"
         },
         {
-          "nama": "Empat 4",
-          "indexAsli": 3
+          "indexAsli": 3,
+          "nama": "Empat 4"
+        },
+        {
+          "indexAsli": 4,
+          "nama": "5"
+        },
+        {
+          "indexAsli": 5,
+          "nama": "6"
         }
       ]
     },
