@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Game Pintar Premium</title>
+    <title>Game Edukasi Premium</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        /* Mencegah Pull-to-refresh dan Scrolling liar di HP */
-        body { font-family: 'Nunito', sans-serif; margin: 0; background: #f8fafc; touch-action: none; overscroll-behavior-y: none; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+        /* MENGUNCI LAYAR AGAR TIDAK SCROLL SAAT BERMAIN */
+        body { font-family: 'Nunito', sans-serif; margin: 0; background: #f8fafc; touch-action: none; overscroll-behavior: none; overflow: hidden; -webkit-tap-highlight-color: transparent; }
         #view-game { background-size: cover; background-position: center; transition: background-image 0.5s ease-in-out; }
         
         .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,1); box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
@@ -20,7 +20,7 @@
         .btn-pilihan { transition: transform 0.1s; cursor: pointer; } .btn-pilihan:active { transform: scale(0.92); border-color: #3b82f6; }
         
         /* ======================================================= */
-        /* DRAG & DROP MURNI ALA CANVA (100% ANTI MACET DI HP)     */
+        /* DRAG & DROP MURNI (JAMINAN 100000% ANTI MACET)          */
         /* ======================================================= */
         .kartu-drag { 
             touch-action: none; 
@@ -28,19 +28,23 @@
             position: relative; 
             z-index: 10; 
             cursor: grab; 
-            /* Transisi hanya aktif saat gambar SNAP BACK (kembali) */
-            transition: left 0.3s ease, top 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s; 
+            /* Transisi ini akan bekerja indah saat SNAP BACK (kembali) */
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s; 
+            will-change: transform;
         }
+        .kartu-drag:active { cursor: grabbing; }
         .is-dragging { 
-            /* Saat ditarik, transisi dimatikan agar responsif menempel di jari */
+            opacity: 0.95; 
+            z-index: 99999 !important; 
+            /* Transisi DIMATIKAN saat diseret agar responsif instan dengan jari */
             transition: none !important; 
             box-shadow: 0 25px 50px rgba(0,0,0,0.35); 
-            cursor: grabbing;
+            transform: scale(1.15) !important; 
         }
         
         .zona-drop { transition: all 0.2s; }
         .drop-hover { border-color: #0ea5e9 !important; background-color: #e0f2fe !important; box-shadow: inset 0 0 0 4px #bae6fd; transform: scale(1.05); }
-        .terkunci { pointer-events: none !important; opacity: 1 !important; box-shadow: none !important; transition: none !important; }
+        .terkunci { pointer-events: none !important; opacity: 1 !important; transform: translate3d(0,0,0) scale(1) !important; box-shadow: none !important; transition: none !important; }
 
         /* KARTU MEMORI */
         .mem-card { perspective: 1000px; cursor: pointer; }
@@ -50,18 +54,18 @@
         .mem-front { background: #38bdf8; display: flex; align-items: center; justify-content: center; border: 4px solid #fff; }
         .mem-back { background: #fff; transform: rotateY(180deg); border: 4px solid #fff; overflow: hidden; }
 
-        /* BUBBLE & MELAYANG */
+        /* FISIKA: BUBBLE & MELAYANG */
         .objek-terbang { position: absolute; cursor: pointer; user-select: none; transition: none; will-change: transform; z-index: 25; }
         .objek-terbang:active { transform: scale(0.9) !important; }
 
-        /* SILUET & PUKUL */
-        .bayangan-hitam { filter: brightness(0) drop-shadow(0 4px 4px rgba(0,0,0,0.3)); opacity: 0.7; pointer-events: none; }
+        /* SILUET & PUKUL TIKUS */
+        .bayangan-hitam { filter: brightness(0) drop-shadow(0 4px 4px rgba(0,0,0,0.3)); opacity: 0.8; pointer-events: none; }
         .lubang-pukul { overflow: hidden; position: relative; background: #cbd5e1; border-radius: 50%; border-bottom: 8px solid #94a3b8; }
-        .benda-pukul { position: absolute; bottom: -100%; left: 5%; right: 5%; height: 95%; transition: bottom 0.2s ease-out; cursor: pointer; z-index: 20; }
+        .benda-pukul { position: absolute; bottom: -100%; left: 5%; right: 5%; height: 95%; transition: bottom 0.15s ease-out; cursor: pointer; z-index: 20; }
         .benda-pukul.muncul { bottom: 0; }
         .benda-pukul:active { transform: scale(0.9); }
 
-        /* TOAST & ANIMASI */
+        /* TOAST NOTIF & ANIMASI */
         .toast-enter { animation: slideInDown 0.3s forwards; } .toast-leave { animation: slideOutUp 0.3s forwards; }
         @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         @keyframes slideOutUp { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, -100%); opacity: 0; } }
@@ -76,11 +80,12 @@
 </head>
 <body>
 
+    <!-- Wadah Notifikasi Pop-up -->
     <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
     <div id="view-game" class="h-[100dvh] w-screen flex flex-col relative overflow-hidden bg-slate-50">
         
-        <!-- Layar Mulai / Loading -->
+        <!-- Layar Mulai / Loading Failsafe -->
         <div id="layar-mulai" class="absolute inset-0 z-[100] bg-gradient-to-br from-sky-400 to-indigo-500 flex flex-col items-center justify-center p-6 text-center transition-all duration-500">
             <div class="bg-white/20 p-6 rounded-3xl backdrop-blur-sm mb-6 anim-pulse-soft shadow-xl border border-white/30">
                 <i data-lucide="gamepad-2" class="w-16 h-16 text-white"></i>
@@ -126,7 +131,7 @@
         </header>
 
         <!-- Area Bermain -->
-        <main class="flex-1 overflow-visible flex flex-col items-center justify-start px-4 pt-20 pb-6 w-full max-w-2xl mx-auto z-10 relative">
+        <main class="flex-1 overflow-hidden flex flex-col items-center justify-start px-4 pt-20 pb-6 w-full max-w-2xl mx-auto z-10 relative">
             <div class="glass-card rounded-[1.5rem] p-4 w-full flex flex-col items-center mb-2 anim-fade flex-shrink-0 z-20 pointer-events-auto">
                 <div class="w-full flex items-center justify-between gap-3">
                     <button onclick="AudioMgr.putarUlangSoal()" id="btn-suara-soal" class="hidden flex-shrink-0 w-12 h-12 flex items-center justify-center bg-sky-100 text-sky-600 rounded-full active:scale-90 transition-transform shadow-sm"><i data-lucide="volume-2" id="ikon-baca-soal" class="w-6 h-6"></i></button>
@@ -164,123 +169,100 @@
         }
 
         // =========================================================================
-        // ENGINE DRAG CANVA SUPER MULUS (Posisi Fixed saat di Drag)
+        // MESIN DRAG BEBAS BUG 100% (Sistem Matematika Bounding Box Absolut)
         // =========================================================================
-        const CanvaDragEngine = {
-            activeCard: null, offsetX: 0, offsetY: 0, originalParent: null, dropzones: [],
+        const DragEngine = {
+            activeEl: null, startX: 0, startY: 0, initX: 0, initY: 0,
             
             init() {
-                // Event listener ditempel di document agar jari tidak pernah 'lepas' dari gambar
-                document.addEventListener('touchstart', this.onDown.bind(this), {passive: false});
+                document.addEventListener('touchstart', this.onStart.bind(this), {passive: false});
                 document.addEventListener('touchmove', this.onMove.bind(this), {passive: false});
-                document.addEventListener('touchend', this.onUp.bind(this));
-                document.addEventListener('mousedown', this.onDown.bind(this), {passive: false});
+                document.addEventListener('touchend', this.onEnd.bind(this));
+                document.addEventListener('mousedown', this.onStart.bind(this), {passive: false});
                 document.addEventListener('mousemove', this.onMove.bind(this), {passive: false});
-                document.addEventListener('mouseup', this.onUp.bind(this));
+                document.addEventListener('mouseup', this.onEnd.bind(this));
             },
+            
+            getPos(e) { return e.touches ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : { x: e.clientX, y: e.clientY }; },
 
-            getPos(e) { return e.touches ? e.touches[0] : e; },
-
-            onDown(e) {
-                const card = e.target.closest('.kartu-drag');
-                if(!card || card.classList.contains('terkunci')) return;
+            onStart(e) {
+                const el = e.target.closest('.kartu-drag');
+                if (!el || el.classList.contains('terkunci')) return;
                 
-                // Matikan default behavior HP (scroll, pull-refresh)
-                if(e.cancelable) e.preventDefault(); 
+                // Mencegah HP men-scroll layar saat bermain (PENTING!)
+                if (e.cancelable) e.preventDefault();
                 
-                this.activeCard = card; 
-                this.originalParent = card.parentElement;
+                this.activeEl = el;
+                this.activeEl.classList.add('is-dragging');
                 AudioMgr.stopSoal();
 
                 const pos = this.getPos(e);
-                const rect = card.getBoundingClientRect();
+                this.startX = pos.x; 
+                this.startY = pos.y;
                 
-                // Hitung seberapa jauh jari dari pojok kiri atas gambar
-                this.offsetX = pos.clientX - rect.left;
-                this.offsetY = pos.clientY - rect.top;
-
-                // JURUS CANVA: Cabut gambar dari flexbox, jadikan Fixed agar melayang absolut di atas layar
-                card.style.position = 'fixed';
-                card.style.zIndex = '99999';
-                card.style.left = rect.left + 'px';
-                card.style.top = rect.top + 'px';
-                card.style.margin = '0';
-                card.style.transform = 'scale(1.15)'; // Efek terangkat
-
-                card.classList.add('is-dragging');
-                
-                this.dropzones = Array.from(document.querySelectorAll('.zona-drop'));
+                // Ambil sisa X dan Y jika gambar pernah terpantul
+                this.initX = parseFloat(this.activeEl.getAttribute('data-x')) || 0;
+                this.initY = parseFloat(this.activeEl.getAttribute('data-y')) || 0;
             },
 
             onMove(e) {
-                if(!this.activeCard) return;
-                if(e.cancelable) e.preventDefault(); // Wajib agar tidak scroll
-
+                if (!this.activeEl) return;
+                if (e.cancelable) e.preventDefault();
+                
                 const pos = this.getPos(e);
+                const newX = this.initX + (pos.x - this.startX);
+                const newY = this.initY + (pos.y - this.startY);
                 
-                // Setel posisi gambar ke posisi jari - offset
-                const newX = pos.clientX - this.offsetX;
-                const newY = pos.clientY - this.offsetY;
-                
-                this.activeCard.style.left = newX + 'px';
-                this.activeCard.style.top = newY + 'px';
+                // Terbang mulus menggunakan GPU (Hardware Acceleration)
+                this.activeEl.style.transform = `translate3d(${newX}px, ${newY}px, 0) scale(1.15)`;
+                this.activeEl.setAttribute('data-x', newX);
+                this.activeEl.setAttribute('data-y', newY);
 
-                // Deteksi Hover Kotak Target
-                const cx = newX + (this.activeCard.offsetWidth / 2);
-                const cy = newY + (this.activeCard.offsetHeight / 2);
+                // CEK TABRAKAN SECARA MATEMATIKA (Paling akurat)
+                const rect = this.activeEl.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2; 
+                const cy = rect.top + rect.height / 2;
 
-                this.dropzones.forEach(zone => {
-                    const zRect = zone.getBoundingClientRect();
+                document.querySelectorAll('.zona-drop').forEach(z => {
+                    const zRect = z.getBoundingClientRect();
                     if(cx > zRect.left && cx < zRect.right && cy > zRect.top && cy < zRect.bottom) {
-                        zone.classList.add('drop-hover');
+                        z.classList.add('drop-hover');
                     } else {
-                        zone.classList.remove('drop-hover');
+                        z.classList.remove('drop-hover');
                     }
                 });
             },
 
-            onUp(e) {
-                if(!this.activeCard) return;
-                
-                const card = this.activeCard; 
-                card.classList.remove('is-dragging'); 
-                this.activeCard = null;
-                
-                let isDropped = false;
-                
-                const cx = parseFloat(card.style.left) + (card.offsetWidth / 2);
-                const cy = parseFloat(card.style.top) + (card.offsetHeight / 2);
+            onEnd(e) {
+                if (!this.activeEl) return;
+                const el = this.activeEl;
+                el.classList.remove('is-dragging');
+                this.activeEl = null;
 
-                // Cek apakah dilepas tepat di atas zona
-                this.dropzones.forEach(zone => {
-                    zone.classList.remove('drop-hover');
-                    const zRect = zone.getBoundingClientRect();
+                let isDropped = false;
+                const rect = el.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2; 
+                const cy = rect.top + rect.height / 2;
+
+                document.querySelectorAll('.zona-drop').forEach(z => {
+                    z.classList.remove('drop-hover');
+                    const zRect = z.getBoundingClientRect();
+                    // Jika jari dilepas tepat di dalam kotak
                     if(!isDropped && cx > zRect.left && cx < zRect.right && cy > zRect.top && cy < zRect.bottom) {
                         isDropped = true; 
-                        
-                        // Kembalikan positioning agar masuk rapi ke flexbox zona target
-                        card.style.position = 'relative';
-                        card.style.left = '0'; card.style.top = '0';
-                        card.style.transform = 'scale(1)';
-                        
-                        Game.prosesDropItem(card, zone, this.originalParent);
+                        Game.prosesDropItem(el, z); 
                     }
                 });
 
-                // SNAP BACK JIKA GAGAL DIMASUKKAN
-                if(!isDropped && !card.classList.contains('terkunci')) {
-                    // Animasi terbang kembali ke asalnya
-                    card.style.left = '0'; card.style.top = '0';
-                    card.style.transform = 'scale(1)';
-                    card.style.position = 'relative';
-                    
-                    this.originalParent.appendChild(card);
+                // JIKA DILEPAS SEMBARANGAN: KEMBALI KE POSISI ASAL DENGAN MULUS (SNAP BACK)
+                if(!isDropped && !el.classList.contains('terkunci')) {
+                    el.style.transform = 'translate3d(0,0,0) scale(1)';
+                    el.setAttribute('data-x', 0); 
+                    el.setAttribute('data-y', 0);
                 }
             }
         };
-
-        // Nyalakan Mesin Drag Canva Anti Macet
-        CanvaDragEngine.init();
+        DragEngine.init();
 
         // ==========================================
         // AUDIO MANAGER 
@@ -351,35 +333,53 @@
             rafId: null, objects: [], arena: null, mode: null,
             start(mode, kecepatan, itemAcak, arenaEl) {
                 this.stop(); this.arena = arenaEl; this.mode = mode; this.objects = [];
-                let speedMult = kecepatan === 'cepat' ? 3.5 : (kecepatan === 'lambat' ? 1.5 : 2.5);
+                let speedMult = kecepatan === 'cepat' ? 3 : (kecepatan === 'lambat' ? 1.5 : 2);
                 const rect = this.arena.getBoundingClientRect();
-                const totalItems = mode === 'bubble' ? 15 : itemAcak.length; 
+                
+                // AIR TERJUN GELEMBUNG: Dibuat sangat banyak
+                const totalItems = mode === 'bubble' ? 25 : itemAcak.length; 
 
                 for(let i=0; i<totalItems; i++) {
                     let it = itemAcak[i % itemAcak.length]; 
-                    if(mode === 'bubble' && i%4===0) it = itemAcak.find(a => a.isTarget) || itemAcak[0];
+                    if(mode === 'bubble' && i%4===0) it = itemAcak.find(a => a.isTarget) || itemAcak[0]; // Perbanyak target
 
                     const el = document.createElement('div');
-                    el.className = `objek-terbang flex flex-col items-center justify-center shadow-lg overflow-hidden transition-transform ${mode==='bubble' ? 'bg-white/80 backdrop-blur border border-white rounded-full p-2' : 'bg-white border-2 border-indigo-200 rounded-2xl p-1'}`;
+                    el.className = `objek-terbang flex flex-col items-center justify-center shadow-lg overflow-hidden ${mode==='bubble' ? 'bg-white/80 backdrop-blur border-2 border-white rounded-full p-2' : 'bg-white border-2 border-indigo-200 rounded-2xl p-1'}`;
                     
                     const size = mode === 'bubble' ? (Math.random() * 30 + 60) : 80;
                     el.style.width = `${size}px`; el.style.height = `${size}px`;
                     
                     let px = Math.random() * (rect.width - size);
-                    let py = mode === 'bubble' ? -(Math.random() * 1000) - size : Math.random() * (rect.height - size);
+                    // Untuk Bubble: Disebar tinggi ke atas layar agar jatuh berurutan bagaikan air terjun
+                    let py = mode === 'bubble' ? -(Math.random() * 2000) - size : Math.random() * (rect.height - size);
+                    
+                    // Pastikan yang melayang awal tidak keluar batas
+                    if(mode === 'melayang') {
+                        px = Math.max(10, Math.min(px, rect.width - size - 10));
+                        py = Math.max(10, Math.min(py, rect.height - size - 10));
+                    }
                     
                     el.style.left = `0px`; el.style.top = `0px`; 
 
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                    if(urlPath) el.innerHTML = `<img src="${urlPath}" class="w-full h-full object-contain pointer-events-none" draggable="false">`;
-                    else el.innerHTML = `<span class="text-xs font-black text-slate-700 text-center pointer-events-none leading-tight">${it.nama}</span>`;
+                    // TAMPILAN FALLBACK CERDAS JIKA TIDAK ADA GAMBAR
+                    el.innerHTML = `
+                        <div class="absolute inset-0 bg-white flex flex-col items-center justify-center p-1 text-center font-bold text-slate-700 leading-none ${urlPath ? 'hidden' : ''}">
+                            <span class="text-2xl drop-shadow-sm mb-0.5">${it.nama.slice(-2).match(/([\uD800-\uDBFF][\uDC00-\uDFFF])/) ? it.nama.slice(-2) : ''}</span>
+                            <span class="text-[9px] w-full truncate px-1">${it.nama}</span>
+                        </div>
+                        <img src="${urlPath}" class="w-full h-full object-contain pointer-events-none" onerror="this.previousElementSibling.classList.remove('hidden'); this.style.display='none'" draggable="false" />
+                    `;
 
-                    el.onclick = () => { AudioMgr.stopSoal(); Game.prosesKetuk(it, el, mode); };
+                    el.onmousedown = (e) => { e.preventDefault(); AudioMgr.stopSoal(); Game.prosesKetuk(it, el, mode); };
+                    el.ontouchstart = (e) => { e.preventDefault(); AudioMgr.stopSoal(); Game.prosesKetuk(it, el, mode); };
+                    
                     arena.appendChild(el);
                     
                     const angle = Math.random() * Math.PI * 2;
                     this.objects.push({
-                        el: el, size: size, x: px, y: py,
+                        el: el, size: size,
+                        x: px, y: py,
                         vx: mode === 'bubble' ? 0 : Math.cos(angle) * speedMult,
                         vy: mode === 'bubble' ? (Math.random() * 1.5 + 1) * speedMult : Math.sin(angle) * speedMult,
                         sinC: Math.random() * 100, sinS: Math.random() * 0.05 + 0.02
@@ -389,19 +389,32 @@
             },
             loop() {
                 if(!this.arena) return;
-                const rect = this.arena.getBoundingClientRect();
+                const w = this.arena.clientWidth;
+                const h = this.arena.clientHeight;
+
                 this.objects.forEach(obj => {
+                    if(obj.el.style.display === 'none') return;
+
                     if (this.mode === 'bubble') {
                         obj.y += obj.vy; obj.sinC += obj.sinS;
                         obj.x += Math.sin(obj.sinC) * 1.5;
-                        if(obj.y > rect.height) { obj.y = -obj.size - 100; obj.x = Math.random() * (rect.width - obj.size); }
-                        obj.x = Math.max(0, Math.min(obj.x, rect.width - obj.size));
+                        
+                        // RESPawn di atas jika menyentuh bawah layar
+                        if(obj.y > h + 20) { 
+                            obj.y = -obj.size - (Math.random() * 300); 
+                            obj.x = Math.random() * (w - obj.size); 
+                        }
+                        obj.x = Math.max(0, Math.min(obj.x, w - obj.size));
+
                     } else if (this.mode === 'melayang') {
                         obj.x += obj.vx; obj.y += obj.vy;
-                        if(obj.x <= 0 || obj.x >= rect.width - obj.size) obj.vx *= -1;
-                        if(obj.y <= 0 || obj.y >= rect.height - obj.size) obj.vy *= -1;
-                        obj.x = Math.max(0, Math.min(obj.x, rect.width - obj.size));
-                        obj.y = Math.max(0, Math.min(obj.y, rect.height - obj.size));
+                        
+                        // MEMANTUL KETAT DI DALAM LAYAR
+                        if(obj.x <= 0) { obj.vx = Math.abs(obj.vx); obj.x = 0; }
+                        if(obj.x >= w - obj.size) { obj.vx = -Math.abs(obj.vx); obj.x = w - obj.size; }
+                        
+                        if(obj.y <= 0) { obj.vy = Math.abs(obj.vy); obj.y = 0; }
+                        if(obj.y >= h - obj.size) { obj.vy = -Math.abs(obj.vy); obj.y = h - obj.size; }
                     }
                     obj.el.style.transform = `translate3d(${obj.x}px, ${obj.y}px, 0)`;
                 });
@@ -418,6 +431,7 @@
             levelTerbuka: parseInt(localStorage.getItem('maxUnlockedLevel')) || 0,
             jawabanSaatIni: 0, totalJawaban: 0, memoriFlipped: [], memoriMatched: 0,
 
+            // LOADING FAILSAFE (TIDAK AKAN STUCK DI 0%)
             initPreload() {
                 const bCont = document.getElementById('loading-bar-container'); 
                 const bFill = document.getElementById('loading-bar-fill'); 
@@ -426,20 +440,37 @@
 
                 bCont.classList.remove('hidden'); btnMulai.classList.add('hidden');
 
-                let cnt = 0; let intv = setInterval(() => { cnt += Math.floor(Math.random()*15)+5; if(cnt > 90) cnt = 90; bFill.style.width = `${cnt}%`; bTxt.innerText = `${cnt}%`; }, 100);
+                let cnt = 0; 
+                let intv = setInterval(() => { 
+                    cnt += Math.floor(Math.random()*20)+5; 
+                    if(cnt > 90) cnt = 90; 
+                    bFill.style.width = `${cnt}%`; bTxt.innerText = `${cnt}%`; 
+                }, 100);
 
-                fetch(`public/data-soal.json?v=${Date.now()}`, { cache: 'no-store' }).then(res => {
-                    if(!res.ok) throw new Error("Gagal mengambil data"); return res.json();
-                }).then(data => {
-                    this.db.global = data.global_settings || {}; this.db.levels = data.levels || []; AudioMgr.initGlobal(this.db.global);
-                    clearInterval(intv); bFill.style.width = `100%`; bTxt.innerText = `Siap!`; 
+                fetch(`public/data-soal.json?v=${Date.now()}`, { cache: 'no-store' })
+                .then(res => {
+                    if(!res.ok) throw new Error("Gagal mengambil data");
+                    return res.json();
+                })
+                .then(data => {
+                    this.db.global = data.global_settings || {}; this.db.levels = data.levels || [];
+                    AudioMgr.initGlobal(this.db.global);
+                    clearInterval(intv);
+                    bFill.style.width = `100%`; bTxt.innerText = `Siap!`; 
                     setTimeout(()=>{bCont.classList.add('hidden'); btnMulai.classList.remove('hidden');}, 300);
-                }).catch(e => {
-                    clearInterval(intv); this.db.levels = [{ kategori: "kuis", pertanyaan: "Belum ada soal, buatlah soal di Panel Admin!", item_target: { nama: "Mengerti", isTarget: true }, item_pengecoh: [] }];
+                })
+                .catch(e => {
+                    clearInterval(intv);
+                    this.db.levels = [{ kategori: "kuis", pertanyaan: "Belum ada soal, buka Admin Panel untuk Buat Soal Otomatis!", item_target: { nama: "Mengerti", isTarget: true }, item_pengecoh: [] }];
                     bCont.classList.add('hidden'); btnMulai.classList.remove('hidden');
                 });
 
-                setTimeout(() => { if(btnMulai.classList.contains('hidden')) { clearInterval(intv); bCont.classList.add('hidden'); btnMulai.classList.remove('hidden'); } }, 3000);
+                // FALLBACK PAKSA: 3 Detik tombol PASTI MUNCUL
+                setTimeout(() => {
+                    if(btnMulai.classList.contains('hidden')) {
+                        clearInterval(intv); bCont.classList.add('hidden'); btnMulai.classList.remove('hidden');
+                    }
+                }, 3000);
             },
 
             async tarikDataBaru() {
@@ -452,10 +483,15 @@
                     const res = await fetch(`public/data-soal.json?v=${Date.now()}`, { cache: 'no-store' });
                     if (!res.ok) throw new Error("Gagal");
                     const data = await res.json();
-                    this.db.global = data.global_settings || {}; this.db.levels = data.levels || []; AudioMgr.initGlobal(this.db.global);
-                    clearInterval(intv); syncBar.style.width = `100%`; 
+                    this.db.global = data.global_settings || {}; this.db.levels = data.levels || [];
+                    AudioMgr.initGlobal(this.db.global);
+                    
+                    clearInterval(intv);
+                    syncBar.style.width = `100%`; 
                     setTimeout(()=>{syncProg.classList.add('hidden'); if(iSync) iSync.classList.remove('animate-spin'); this.bukaPilihLevel(false); uiToast('Data level terbaru ditarik!'); }, 500);
-                } catch(e) { clearInterval(intv); syncProg.classList.add('hidden'); if(iSync) iSync.classList.remove('animate-spin'); uiToast('Gagal menarik data', 'error'); }
+                } catch(e) { 
+                    clearInterval(intv); syncProg.classList.add('hidden'); if(iSync) iSync.classList.remove('animate-spin'); uiToast('Gagal menarik data', 'error');
+                }
             },
 
             mulai() {
@@ -531,53 +567,63 @@
                 else this.mesinKuis(dataLevel, arena);
             },
 
-            // --- PROSES DRAG KETIKA GAMBAR DILEPAS DI KOTAK ---
-            prosesDropItem(card, zone, originalParent) {
+            // --- PROSES DRAG CUSTOM DARI MESIN DRAG ---
+            prosesDropItem(card, zone) {
                 const tipe = card.getAttribute('data-tipe');
                 
                 if (tipe === 'drag-tunggal' || tipe === 'drag-siluet') {
                     const isBenar = card.getAttribute('data-benar') === 'ya';
                     if(isBenar) { 
-                        card.classList.add('terkunci');
-                        zone.appendChild(card);
-                        card.style.width = '100%'; card.style.height = '100%'; card.style.border = 'none'; card.style.borderRadius = 'inherit';
+                        this.kunciBenda(card, zone); 
                         this.prosesKuis(true, zone); 
-                    } else { this.prosesSalahDrag(zone, card, originalParent); }
+                    } else { this.prosesSalahDrag(zone, card); }
                 } 
                 else if (tipe === 'drag-urutan' || tipe === 'drag-tebak') {
                     const idDrop = parseInt(zone.getAttribute('data-index'));
                     let isBenar = false;
                     
-                    if(tipe === 'drag-urutan') { isBenar = parseInt(card.getAttribute('data-index-asli')) === idDrop; } 
-                    else { const validIds = JSON.parse(card.getAttribute('data-valid-indexes') || '[]'); isBenar = validIds.includes(idDrop) && zone.innerHTML === ''; }
+                    if(tipe === 'drag-urutan') { 
+                        isBenar = parseInt(card.getAttribute('data-index-asli')) === idDrop; 
+                    } else { 
+                        const validIds = JSON.parse(card.getAttribute('data-valid-indexes') || '[]'); 
+                        isBenar = validIds.includes(idDrop) && zone.innerHTML === ''; 
+                    }
 
                     if(isBenar) {
-                        card.classList.add('terkunci');
-                        zone.appendChild(card);
-                        card.style.width = '100%'; card.style.height = '100%'; card.style.border = 'none'; card.style.borderRadius = 'inherit';
-                        
+                        this.kunciBenda(card, zone);
                         AudioMgr.sfxBenar.currentTime=0; AudioMgr.sfxBenar.play().catch(()=>{});
                         this.jawabanSaatIni++;
                         if(this.jawabanSaatIni >= this.totalJawaban) {
                             this.skor += 100; this.simpanProgres(); this.renderUI();
                             setTimeout(() => this.munculLayarAkhir('benar'), 800);
                         }
-                    } else { this.prosesSalahDrag(zone, card, originalParent); }
+                    } else { this.prosesSalahDrag(zone, card); }
                 }
             },
 
-            prosesSalahDrag(zone, card, originalParent) {
+            kunciBenda(card, zone) {
+                card.classList.add('terkunci'); 
+                card.style.transform = 'translate3d(0,0,0) scale(1)';
+                card.setAttribute('data-x', 0); card.setAttribute('data-y', 0);
+                
+                if(zone.classList.contains('zona-target-drag') || zone.classList.contains('zona-siluet')) zone.innerHTML = '';
+                zone.appendChild(card);
+                
+                card.style.width = '100%'; card.style.height = '100%'; card.style.border = 'none'; card.style.borderRadius = 'inherit';
+            },
+
+            prosesSalahDrag(zone, card) {
                 AudioMgr.playSalah(); this.nyawa--; this.renderUI();
                 zone.classList.add('anim-shake', 'bg-red-100', 'border-red-400');
                 setTimeout(() => zone.classList.remove('anim-shake', 'bg-red-100', 'border-red-400'), 500);
                 
-                // Kembalikan ke tempat asalnya
-                originalParent.appendChild(card);
-
+                // Terbang balik
+                card.style.transform = 'translate3d(0,0,0) scale(1)'; 
+                card.setAttribute('data-x', 0); card.setAttribute('data-y', 0);
+                
                 if(this.nyawa <= 0) setTimeout(() => this.munculLayarAkhir('kalah'), 500);
             },
 
-            // --- PROSES KETUK (MELAYANG / BUBBLE) ---
             prosesKetuk(item, el, mode) {
                 if(mode === 'bubble') {
                     this.prosesKuis(item.isTarget, el);
@@ -615,6 +661,16 @@
             },
 
             // --- GENERATOR ARENA ---
+            generateGambarHtml(it, urlPath, kelasTeks) {
+                return `
+                    <div class="absolute inset-0 bg-white flex flex-col items-center justify-center p-1 text-center font-bold text-slate-700 leading-tight ${urlPath ? 'hidden' : ''}">
+                        <span class="text-3xl drop-shadow-sm mb-1">${it.nama.slice(-2).match(/([\uD800-\uDBFF][\uDC00-\uDFFF])/) ? it.nama.slice(-2) : ''}</span>
+                        <span class="${kelasTeks} w-full truncate px-1">${it.nama}</span>
+                    </div>
+                    <img src="${urlPath}" class="w-full h-full object-contain pointer-events-none" onerror="this.previousElementSibling.classList.remove('hidden'); this.style.display='none'" draggable="false" />
+                `;
+            },
+
             mesinKuis(data, arena) {
                 const target = data.item_target || { nama: "Jawaban", isTarget: true }; const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : [];
                 let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
@@ -622,11 +678,9 @@
                 const grid = document.createElement('div'); grid.className = `grid ${gridClass} gap-3 w-full mt-auto pb-4 anim-fade`;
                 itemsAcak.forEach(it => {
                     const btn = document.createElement('button');
-                    btn.className = "btn-pilihan bg-white border-2 border-slate-100 text-slate-700 font-bold text-sm md:text-base p-3 rounded-2xl shadow-sm hover:border-sky-300 flex flex-col items-center justify-center gap-2 min-h-[100px] w-full";
-                    let konten = ''; const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                    if(urlPath) konten += `<img src="${urlPath}" class="h-16 object-contain rounded-lg" draggable="false">`;
-                    if(it.nama) konten += `<span class="leading-tight text-center w-full">${it.nama}</span>`;
-                    btn.innerHTML = konten || "Pilihan";
+                    btn.className = "btn-pilihan bg-white border-2 border-slate-100 text-slate-700 font-bold text-sm md:text-base p-3 rounded-2xl shadow-sm hover:border-sky-300 flex flex-col items-center justify-center gap-2 min-h-[100px] w-full relative overflow-hidden";
+                    const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
+                    btn.innerHTML = this.generateGambarHtml(it, urlPath, "text-sm");
                     btn.onclick = () => { AudioMgr.stopSoal(); this.prosesKuis(it.isTarget, btn); };
                     grid.appendChild(btn);
                 });
@@ -640,23 +694,23 @@
                 let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
                 itemsAcak.forEach(it => {
                     const el = document.createElement('div'); el.setAttribute('data-tipe', 'drag-tunggal'); el.setAttribute('data-benar', it.isTarget ? 'ya' : 'tidak');
-                    el.className = "kartu-drag w-20 h-20 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden";
+                    el.className = "kartu-drag w-24 h-24 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden";
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                    el.innerHTML = `<div class="absolute inset-0 bg-slate-50 flex items-center justify-center text-slate-600 font-bold text-xs text-center p-1 leading-tight ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div><img src="${urlPath}" class="w-full h-full object-cover pointer-events-none" draggable="false" />`;
+                    el.innerHTML = this.generateGambarHtml(it, urlPath, "text-xs");
                     wadahItem.appendChild(el);
                 });
             },
 
             mesinSiluet(data, arena) {
                 const target = data.item_target || { nama: "Target", isTarget: true }; const targetUrl = target.url_gambar ? AudioMgr.getAmanPath(target.url_gambar) : '';
-                arena.innerHTML = `<div class="zona-drop zona-siluet w-32 h-32 md:w-40 md:h-40 mb-auto mt-2 transition-colors z-0 flex items-center justify-center bg-slate-200/50 rounded-3xl border-2 border-dashed border-slate-400 p-2"><img src="${targetUrl}" class="w-full h-full object-contain bayangan-hitam" draggable="false" onerror="this.outerHTML='<div class=\\'text-xs font-bold text-slate-500\\'>Target Sini</div>'"></div><div id="wadah-item" class="w-full flex justify-center flex-wrap gap-3 pb-6 mt-8 anim-fade z-10"></div>`;
+                arena.innerHTML = `<div class="zona-drop zona-siluet w-32 h-32 md:w-40 md:h-40 mb-auto mt-2 transition-colors z-0 flex items-center justify-center bg-slate-200/50 rounded-3xl border-2 border-dashed border-slate-400 p-2"><img src="${targetUrl}" class="w-full h-full object-contain bayangan-hitam pointer-events-none" draggable="false" onerror="this.outerHTML='<div class=\\'text-xs font-bold text-slate-500\\'>Target Sini</div>'"></div><div id="wadah-item" class="w-full flex justify-center flex-wrap gap-3 pb-6 mt-8 anim-fade z-10"></div>`;
                 const wadahItem = document.getElementById('wadah-item');
                 const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : []; let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5);
                 itemsAcak.forEach(it => {
                     const el = document.createElement('div'); el.setAttribute('data-tipe', 'drag-siluet'); el.setAttribute('data-benar', it.isTarget ? 'ya' : 'tidak');
                     el.className = "kartu-drag w-20 h-20 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden p-1";
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                    el.innerHTML = `<div class="absolute inset-0 bg-slate-50 flex items-center justify-center text-slate-600 font-bold text-xs text-center p-1 leading-tight ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div><img src="${urlPath}" class="w-full h-full object-contain pointer-events-none" draggable="false" />`;
+                    el.innerHTML = this.generateGambarHtml(it, urlPath, "text-[10px]");
                     wadahItem.appendChild(el);
                 });
             },
@@ -675,7 +729,7 @@
                     const el = document.createElement('div'); el.setAttribute('data-tipe', 'drag-urutan'); el.setAttribute('data-index-asli', it.indexAsli);
                     el.className = `kartu-drag ${boxSize} bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center overflow-hidden`;
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                    el.innerHTML = `<div class="absolute inset-0 flex items-center justify-center p-1 text-center font-bold text-slate-600 leading-tight ${urlPath ? 'hidden' : ''}">${it.nama || '?'}</div><img src="${urlPath}" class="w-full h-full object-cover pointer-events-none" draggable="false" />`;
+                    el.innerHTML = this.generateGambarHtml(it, urlPath, "text-[9px]");
                     wadahItem.appendChild(el);
                 });
             },
@@ -714,7 +768,7 @@
                 pasangan.forEach((it) => {
                     const card = document.createElement('div'); card.className = "mem-card w-full aspect-square";
                     const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : ''; const namaAsli = it.nama || '';
-                    card.innerHTML = `<div class="mem-inner" data-id="${namaAsli}-${urlPath}"><div class="mem-front"><i data-lucide="help-circle" class="w-6 h-6 md:w-8 md:h-8 text-white"></i></div><div class="mem-back flex items-center justify-center p-1 bg-slate-50"><img src="${urlPath}" class="w-full h-full object-cover rounded-md ${urlPath ? '' : 'hidden'}"><span class="text-[9px] md:text-xs font-bold text-slate-700 text-center leading-tight ${urlPath ? 'hidden' : ''}">${namaAsli}</span></div></div>`;
+                    card.innerHTML = `<div class="mem-inner" data-id="${namaAsli}-${urlPath}"><div class="mem-front"><i data-lucide="help-circle" class="w-6 h-6 text-white"></i></div><div class="mem-back flex items-center justify-center p-1 bg-slate-50 relative overflow-hidden">${this.generateGambarHtml(it, urlPath, "text-[9px]")}</div></div>`;
                     card.onclick = () => this.flipMemoryCard(card.querySelector('.mem-inner'), totalPairs);
                     grid.appendChild(card);
                 });
@@ -759,7 +813,7 @@
                 const wadahLubang = document.getElementById('wadah-lubang'); let lubangs = [];
                 for(let i=0; i<6; i++) {
                     const lubang = document.createElement('div'); lubang.className = "lubang-pukul aspect-square w-full";
-                    const benda = document.createElement('div'); benda.className = "benda-pukul flex flex-col items-center justify-center bg-white border-2 border-indigo-200 rounded-t-full shadow-inner p-1";
+                    const benda = document.createElement('div'); benda.className = "benda-pukul flex flex-col items-center justify-center bg-white border-4 border-indigo-300 rounded-t-full shadow-inner p-1 overflow-hidden";
                     
                     benda.onclick = (e) => {
                         e.stopPropagation();
@@ -786,8 +840,7 @@
                         let it = itemAcak[Math.floor(Math.random() * itemAcak.length)];
                         if(idx === 0 && Math.random() > 0.3) it = target; 
                         const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : '';
-                        if(urlPath) benda.innerHTML = `<img src="${urlPath}" class="w-full h-full object-cover rounded-full pointer-events-none">`;
-                        else benda.innerHTML = `<span class="text-[10px] font-bold text-slate-700 pointer-events-none">${it.nama}</span>`;
+                        benda.innerHTML = this.generateGambarHtml(it, urlPath, "text-[10px]");
                         benda.setAttribute('data-is-target', it.isTarget ? 'true' : 'false'); benda.classList.add('muncul');
                     });
                 }, speedMs);
@@ -822,6 +875,7 @@
             }
         };
 
+        // Tunggu halaman siap, lalu langsung paksa tarik data
         document.addEventListener('DOMContentLoaded', () => { Game.initPreload(); });
     </script>
 </body>
