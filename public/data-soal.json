@@ -2,16 +2,16 @@
   "global_settings": {},
   "levels": [
     {
-      "id": "L_1775365284017",
+      "id": "L_1775372506139",
       "kategori": "kuis",
       "pertanyaan": "Carikan ciri ciri Buku seprti apa?",
       "speed": "normal",
       "target_count": 3,
       "is_transparent_box": "ya",
-      "audio_count": 3,
+      "audio_count": 2,
       "bgm_loop": "ya",
       "media_soal": "assets/msoal_1775361356303.gif",
-      "bg_image": "assets/bg_1775360638895.png",
+      "bg_image": "assets/Gemini_Generated_Image_hynlpehynlpehynl.png",
       "bgm_level": "assets/bgm_1775360638895.mp3",
       "audio_soal": "assets/asoal_1775360638895.mp3",
       "item_target": {
@@ -38,7 +38,7 @@
       ]
     },
     {
-      "id": "L_1775366290699",
+      "id": "L_1775372531097",
       "kategori": "drag",
       "pertanyaan": "Cuaca panas enaknya nyari apa yah?",
       "speed": "normal",
@@ -47,12 +47,12 @@
       "audio_count": 2,
       "bgm_loop": "ya",
       "media_soal": "assets/msoal_1775362421983.gif",
-      "bg_image": "assets/bg_1775362633945.png",
+      "bg_image": "assets/Gemini_Generated_Image_q715wkq715wkq715.png",
       "bgm_level": "assets/bgm_1775360638895.mp3",
       "audio_soal": "assets/asoal_1775362421983.mp3",
       "item_target": {
         "isTarget": true,
-        "nama": "Minun",
+        "nama": "Minum",
         "url_gambar": "assets/p2_1775361069732.gif"
       },
       "item_pengecoh": [
