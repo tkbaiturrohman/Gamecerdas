@@ -38,11 +38,14 @@
       ]
     },
     {
-      "id": "L_1775362633945",
+      "id": "L_1775366290699",
       "kategori": "drag",
       "pertanyaan": "Cuaca panas enaknya nyari apa yah?",
       "speed": "normal",
       "target_count": 3,
+      "is_transparent_box": "ya",
+      "audio_count": 2,
+      "bgm_loop": "ya",
       "media_soal": "assets/msoal_1775362421983.gif",
       "bg_image": "assets/bg_1775362633945.png",
       "bgm_level": "assets/bgm_1775360638895.mp3",
@@ -71,23 +74,40 @@
       ]
     },
     {
+      "id": "L_1775367076253",
       "kategori": "siluet",
-      "pertanyaan": "Tarik mobil pemadam ke bayangannya!",
+      "pertanyaan": "Ada apa ayo kita padamkan ?",
+      "speed": "normal",
+      "target_count": 3,
+      "is_transparent_box": "ya",
+      "audio_count": 3,
+      "bgm_loop": "ya",
+      "media_soal": "https://media3.giphy.com/media/v1.Y2lkPTZjMDliOTUyZ2Nza2pqcWlvanV1M2Z2MTMwcHRjd2t1a2RkeHQ0MmNhNmEwaHVwdSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/246QwBincYkcBrpPIh/giphy.gif",
+      "bg_image": "assets/Gemini_Generated_Image_x0jvtkx0jvtkx0jv.png",
+      "bgm_level": "assets/bgm_1775360638895.mp3",
+      "audio_soal": "assets/api.mp3",
       "item_target": {
-        "nama": "mobil pemadam 🚒",
-        "isTarget": true
+        "isTarget": true,
+        "nama": "Air",
+        "url_gambar": "assets/TfGeVgsxkwZMtwrSlG.gif"
       },
       "item_pengecoh": [
         {
           "nama": "gunting ✂️",
-          "isTarget": false
+          "isTarget": false,
+          "url_gambar": "assets/GoojeYFOcSM9HvBZVv.gif"
         },
         {
-          "nama": "gembok terbuka 🔓",
-          "isTarget": false
+          "nama": "Kipas",
+          "isTarget": false,
+          "url_gambar": "https://media1.giphy.com/media/v1.Y2lkPTZjMDliOTUyOG1la2xxYzFueGd5MzdnY2tyZnk5cjFmdXVjejBzbmkzMW13cG04OCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/xbmQcGpsWe67ReasVd/giphy.gif"
+        },
+        {
+          "nama": "Buku",
+          "isTarget": false,
+          "url_gambar": "assets/tgt_1775361554081.gif"
         }
-      ],
-      "id": "L_AUTO_1775356431269_2"
+      ]
     },
     {
       "kategori": "urutan",
