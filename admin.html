@@ -12,15 +12,16 @@
         .app-container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 25px rgba(0,0,0,0.05); position: relative; }
         ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
-        .toast-enter { animation: slideInDown 0.3s forwards; }
-        .toast-leave { animation: slideOutUp 0.3s forwards; }
-        @keyframes slideInDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
-        @keyframes slideOutUp { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, -100%); opacity: 0; } }
+        /* TOAST DI TENGAH */
+        .toast-enter { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .toast-leave { animation: popOut 0.2s ease-in forwards; }
+        @keyframes popIn { from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+        @keyframes popOut { from { transform: translate(-50%, -50%) scale(1); opacity: 1; } to { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } }
     </style>
 </head>
 <body>
 
-    <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+    <div id="toast-container" class="fixed top-1/2 left-1/2 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
     <div id="modal-confirm" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-[2rem] p-6 max-w-sm w-full text-center shadow-2xl relative overflow-hidden">
@@ -43,13 +44,10 @@
             </div>
         </header>
 
-        <main class="flex-1 p-5 space-y-4">
-            <div id="admin-status" class="bg-yellow-50 border-2 border-yellow-200 text-yellow-800 p-4 rounded-2xl text-sm font-bold flex items-center justify-between shadow-sm transition-colors duration-300">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="alert-circle" class="w-6 h-6 flex-shrink-0" id="icon-status"></i> 
-                    <span id="text-status">Klik tombol kuning "Repo".</span>
-                </div>
-                <button onclick="tarikDataGitHub(true)" class="bg-white/50 p-2 rounded-lg hover:bg-white transition" title="Tarik Paksa Data Github"><i data-lucide="refresh-cw" id="icon-sync" class="w-4 h-4"></i></button>
+        <main class="flex-1 p-5 space-y-4 relative">
+            <div id="admin-status" class="bg-yellow-50 border-2 border-yellow-200 text-yellow-800 p-4 rounded-2xl text-sm font-bold flex items-center gap-2 shadow-sm transition-colors duration-300">
+                <i data-lucide="alert-circle" class="w-6 h-6 flex-shrink-0" id="icon-status"></i> 
+                <span id="text-status">Klik tombol kuning "Repo".</span>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
@@ -72,10 +70,15 @@
                 </button>
             </div>
 
-            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 mt-4">
-                <div class="flex justify-between items-center mb-4 pb-3 border-b-2 border-slate-100">
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 mt-4 relative">
+                
+                <button onclick="tarikDataGitHub(true)" class="absolute -top-3 -right-3 bg-sky-500 text-white p-3 rounded-full shadow-lg hover:bg-sky-600 hover:scale-105 active:scale-95 transition-all z-10" title="Tarik Data Github">
+                    <i data-lucide="refresh-cw" id="icon-sync" class="w-5 h-5"></i>
+                </button>
+
+                <div class="flex justify-between items-center mb-4 pb-3 border-b-2 border-slate-100 pr-8">
                     <h2 class="font-black text-xl text-slate-800">Daftar Level (<span id="total-level">0</span>)</h2>
-                    <button onclick="bukaFormTambah()" class="bg-sky-100 text-sky-700 font-black px-4 py-2 rounded-xl text-sm flex gap-1 items-center hover:bg-sky-200 transition"><i data-lucide="plus" class="w-5 h-5"></i> BUAT BARU</button>
+                    <button onclick="bukaFormTambah()" class="bg-sky-100 text-sky-700 font-black px-4 py-2 rounded-xl text-sm flex gap-1 items-center hover:bg-sky-200 transition"><i data-lucide="plus" class="w-5 h-5"></i> BUAT</button>
                 </div>
                 <div id="daftar-soal-admin" class="space-y-3"></div>
             </div>
@@ -163,11 +166,16 @@
 
                 <div id="wadah-speed" class="hidden bg-orange-50 p-5 rounded-3xl border border-orange-200 shadow-sm">
                     <label class="font-black text-sm block mb-2 text-orange-800">Kecepatan Gerakan Benda</label>
-                    <select id="in-speed" class="w-full p-3 border border-orange-300 rounded-xl bg-white font-bold outline-none">
+                    <select id="in-speed" class="w-full p-3 border border-orange-300 rounded-xl bg-white font-bold outline-none mb-4">
                         <option value="lambat">🐢 Lambat</option>
                         <option value="normal" selected>🚶 Normal</option>
                         <option value="cepat">🚀 Cepat</option>
                     </select>
+
+                    <div id="wadah-target-count" class="hidden">
+                        <label class="font-black text-sm block mb-2 text-orange-800">Target Pukulan / Pecahan (Berapa Kali?)</label>
+                        <input type="number" id="in-target-count" min="1" max="20" value="3" class="w-full p-3 border border-orange-300 rounded-xl bg-white font-bold outline-none">
+                    </div>
                 </div>
 
                 <div class="bg-sky-50 p-5 rounded-3xl shadow-sm border border-sky-200">
@@ -270,7 +278,7 @@
         function uiToast(msg, type='success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `toast-enter px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 ${type==='success' ? 'bg-emerald-500 text-white' : (type==='error' ? 'bg-rose-500 text-white' : (type==='info' ? 'bg-sky-500 text-white' : 'bg-slate-800 text-white'))}`;
+            toast.className = `toast-enter absolute px-6 py-3 rounded-full font-black text-sm shadow-2xl flex items-center justify-center gap-2 whitespace-nowrap ${type==='success' ? 'bg-emerald-500 text-white' : (type==='error' ? 'bg-rose-500 text-white' : (type==='info' ? 'bg-sky-500 text-white' : 'bg-slate-800 text-white'))}`;
             toast.innerHTML = `<i data-lucide="${type==='success' ? 'check-circle' : (type==='error' ? 'alert-circle' : 'info')}" class="w-5 h-5"></i> ${msg}`;
             container.appendChild(toast); lucide.createIcons();
             setTimeout(() => { toast.classList.replace('toast-enter', 'toast-leave'); setTimeout(() => toast.remove(), 300); }, 3000);
@@ -311,13 +319,29 @@
 
         function UbahTampilanForm() {
             const val = document.getElementById('in-kategori').value;
+            
+            // Menyembunyikan/Menampilkan wadah Urutan atau Target biasa
             if(val === 'urutan' || val === 'melayang') {
-                document.getElementById('wadah-kuis-drag').classList.add('hidden'); document.getElementById('wadah-urutan').classList.remove('hidden');
+                document.getElementById('wadah-kuis-drag').classList.add('hidden'); 
+                document.getElementById('wadah-urutan').classList.remove('hidden');
             } else {
-                document.getElementById('wadah-kuis-drag').classList.remove('hidden'); document.getElementById('wadah-urutan').classList.add('hidden');
+                document.getElementById('wadah-kuis-drag').classList.remove('hidden'); 
+                document.getElementById('wadah-urutan').classList.add('hidden');
             }
-            if(val === 'bubble' || val === 'melayang' || val === 'pukul') document.getElementById('wadah-speed').classList.remove('hidden');
-            else document.getElementById('wadah-speed').classList.add('hidden');
+
+            // Opsi Speed
+            if(val === 'bubble' || val === 'melayang' || val === 'pukul') {
+                document.getElementById('wadah-speed').classList.remove('hidden');
+            } else {
+                document.getElementById('wadah-speed').classList.add('hidden');
+            }
+
+            // Opsi Target Count (Hit berapa kali)
+            if(val === 'bubble' || val === 'pukul') {
+                document.getElementById('wadah-target-count').classList.remove('hidden');
+            } else {
+                document.getElementById('wadah-target-count').classList.add('hidden');
+            }
         }
 
         async function hapusSemuaLevel() {
@@ -373,7 +397,6 @@
         // GENERATOR 9 SOAL PINTAR (ANTI-DUPLIKAT & RATUSAN EMOJI JSON)
         // ==============================================================
         const ProceduralGenerator = {
-            // Data langsung dari JSON (Diurutkan format: "Nama Emoji" agar deteksi fallback berfungsi maksimal di Game)
             emotikon_dan_perasaan: ["wajah tersenyum 😀", "wajah tersenyum lebar 😃", "wajah tersenyum dengan mata bahagia 😄", "wajah tertawa sampai menangis 😂", "wajah tersenyum dengan mata tersenyum 😊", "wajah tersenyum dengan lingkaran cahaya 😇", "wajah tersenyum dengan banyak hati 🥰", "wajah tersenyum dengan mata hati 😍", "wajah terpesona 🤩", "wajah mencium 😘", "wajah menikmati makanan enak 😋", "wajah menjulurkan lidah dan berkedip 😜", "wajah gila 🤪", "wajah dengan uang di mulut 🤑", "wajah memeluk 🤗", "wajah menutup mulut dengan tangan 🤭", "wajah menyuruh diam 🤫", "wajah berpikir 🤔", "wajah dengan mulut resleting 🤐", "wajah dengan alis terangkat 🤨", "wajah tersenyum dengan kacamata hitam 😎", "wajah kutu buku 🤓", "wajah dengan monokel 🧐", "kepala meledak 🤯", "wajah berpesta 🥳", "wajah memohon 🥺", "wajah berteriak ketakutan 😱", "wajah dengan simbol di mulut 🤬", "wajah tersenyum dengan tanduk 😈", "tengkorak 💀", "kotoran 💩", "wajah badut 🤡", "hantu 👻", "alien 👽", "wajah robot 🤖"],
             manusia_dan_tubuh: ["melambaikan tangan 👋", "tangan oke 👌", "tanda damai ✌️", "jari disilangkan 🤞", "tanda i love you 🤟", "tanda tanduk 🤘", "jempol ke atas 👍", "jempol ke bawah 👎", "tinju 👊", "tepuk tangan 👏", "mengangkat kedua tangan 🙌", "telapak tangan disatukan ke atas 🤲", "jabat tangan 🤝", "tangan terlipat 🙏", "otot lengan 💪", "otak 🧠", "jantung anatomis 🫀", "paru-paru 🫁", "gigi 🦷", "tulang 🦴", "sepasang mata 👀", "bayi 👶", "anak perempuan 👧", "anak laki-laki 👦", "wanita 👩", "pria 👨", "wanita tua 👵", "pria tua 👴", "petugas polisi 👮", "pekerja konstruksi 👷", "detektif 🕵️", "dokter wanita 👩‍⚕️", "dokter pria 👨‍⚕️", "guru wanita 👩‍🏫", "guru pria 👨‍🏫"],
             hewan_dan_alam: ["wajah anjing 🐶", "wajah kucing 🐱", "wajah tikus 🐭", "wajah hamster 🐹", "wajah kelinci 🐰", "wajah rubah 🦊", "wajah beruang 🐻", "wajah panda 🐼", "koala 🐨", "wajah harimau 🐯", "wajah singa 🦁", "wajah sapi 🐮", "wajah babi 🐷", "wajah katak 🐸", "wajah monyet 🐵", "gorila 🦍", "orangutan 🦧", "wajah serigala 🐺", "wajah kuda 🐴", "wajah unicorn 🦄", "zebra 🦓", "rusa 🦌", "sapi perah 🐄", "domba 🐑", "kambing 🐐", "unta berpunuk satu 🐪", "jerapah 🦒", "gajah 🐘", "badak 🦏", "kuda nil 🦛", "kelinci 🐇", "kelelawar 🦇", "ayam 🐔", "pinguin 🐧", "merpati 🕊️", "elang 🦅", "bebek 🦆", "angsa 🦢", "burung hantu 🦉", "merak 🦚", "burung beo 🦜", "kura-kura 🐢", "ular 🐍", "kadal 🦎", "T-Rex 🦖", "sauropoda 🦕", "gurita 🐙", "cumi-cumi 🦑", "udang 🦐", "lobster 🦞", "kepiting 🦀", "ikan tropis 🐠", "ikan 🐟", "lumba-lumba 🐬", "paus menyemburkan air 🐳", "hiu 🦈", "buaya 🐊", "harimau 🐅", "macan tutul 🐆", "kupu-kupu 🦋", "siput 🐌", "ulat 🐛", "semut 🐜", "lebah 🐝", "kepik 🐞", "laba-laba 🕷️", "kalajengking 🦂", "nyamuk 🦟", "mikroba 🦠", "bunga sakura 🌸", "mawar 🌹", "kembang sepatu 🌺", "bunga matahari 🌻", "bunga mekar 🌼", "tulip 🌷", "pohon cemara 🌲", "pohon palem 🌴", "kaktus 🌵", "semanggi 🍀", "daun maple 🍁", "daun gugur 🍂", "api 🔥", "tetesan air 💧", "matahari ☀️", "bulan sabit 🌙", "bintang ⭐", "awan ☁️", "awan dengan hujan 🌧️", "tegangan tinggi ⚡", "kepingan salju ❄️", "manusia salju ⛄"],
@@ -388,7 +411,6 @@
                 return [...this.emotikon_dan_perasaan, ...this.manusia_dan_tubuh, ...this.hewan_dan_alam, ...this.makanan_dan_minuman, ...this.aktivitas_dan_olahraga, ...this.perjalanan_dan_tempat, ...this.objek, ...this.simbol_dan_bendera]; 
             },
             
-            // Mengambil Teks (Membuang Emoji di akhir kata)
             namaItem(itemStr) { return itemStr.split(' ').slice(0, -1).join(' '); },
 
             bikinKuis() { 
@@ -406,26 +428,26 @@
             bikinUrutan() { 
                 const h = this.ambilAcak(this.makanan_dan_minuman, 4); 
                 const urut = h.map((n, i) => ({ indexAsli: i, nama: n })); 
-                return { kategori: "urutan", pertanyaan: `Urutkan makanan ini!`, item_urutan: urut }; 
+                return { kategori: "urutan", pertanyaan: `Urutkan dari makanan ini!`, item_urutan: urut }; 
             },
             bikinMemory() { 
                 const b = this.ambilAcak(this.emotikon_dan_perasaan, 4); 
                 return { kategori: "memory", pertanyaan: `Temukan pasangan yang tepat!`, item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }, { nama: b[2], isTarget: false }, { nama: b[3], isTarget: false }] }; 
             },
             bikinTebakKata() { 
-                // Khusus tebak kata, kita cari yang namanya hanya 1 KATA saja agar mudah disusun hurufnya
                 const valid = this.gabungSemua().filter(x => {
                     const nm = this.namaItem(x);
                     return nm.split(' ').length === 1 && nm.length > 2 && nm.length < 9;
                 });
                 const b = this.ambilAcak(valid, 1)[0] || "apel 🍎";
                 const kata = this.namaItem(b).toUpperCase();
-                // Untuk tebak kata, pilihan tidak perlu emoji karena sistem akan mengacak HURUF nya otomatis
                 return { kategori: "tebak_kata", pertanyaan: `Susun huruf menjadi: ${kata}`, item_target: { nama: kata, isTarget: true }, item_pengecoh: [{ nama: "A", isTarget: false }, { nama: "E", isTarget: false }] }; 
             },
             bikinBubble() { 
                 const b = this.ambilAcak(this.gabungSemua(), 2); 
-                return { kategori: "bubble", speed: "normal", pertanyaan: `Pecahkan gelembung ${this.namaItem(b[0])}!`, item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }] }; 
+                // Random target_count antara 5-10 biar seru
+                const targetHits = Math.floor(Math.random() * 5) + 5;
+                return { kategori: "bubble", speed: "normal", target_count: targetHits, pertanyaan: `Pecahkan ${targetHits} gelembung ${this.namaItem(b[0])}!`, item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }] }; 
             },
             bikinMelayang() { 
                 const b = this.ambilAcak(this.manusia_dan_tubuh.concat(this.aktivitas_dan_olahraga), 3); 
@@ -434,10 +456,11 @@
             },
             bikinPukul() { 
                 const h = this.ambilAcak(this.hewan_dan_alam, 2); 
-                return { kategori: "pukul", speed: "normal", pertanyaan: `Pukul ${this.namaItem(h[0])} 3 kali!`, item_target: { nama: h[0], isTarget: true }, item_pengecoh: [{ nama: h[1], isTarget: false }] }; 
+                // Random target_count antara 3-5
+                const targetHits = Math.floor(Math.random() * 3) + 3;
+                return { kategori: "pukul", speed: "normal", target_count: targetHits, pertanyaan: `Pukul ${this.namaItem(h[0])} ${targetHits} kali!`, item_target: { nama: h[0], isTarget: true }, item_pengecoh: [{ nama: h[1], isTarget: false }] }; 
             },
 
-            // KECERDASAN ANTI-DUPLIKAT
             apakahSudahAda(teksPertanyaan) {
                 return dbLokal.levels.some(lvl => lvl.pertanyaan === teksPertanyaan);
             },
@@ -456,18 +479,16 @@
 
                 generators.forEach((gen, i) => {
                     let sb;
-                    let batasPercobaan = 25; // Batas wajar mengocok soal agar tidak freeze
+                    let batasPercobaan = 25; 
                     let percobaan = 0;
                     let duplikat = true;
 
-                    // Mengocok ulang terus menerus jika pertanyaan sudah ada di database
                     while (duplikat && percobaan < batasPercobaan) {
                         sb = gen();
                         duplikat = this.apakahSudahAda(sb.pertanyaan);
                         percobaan++;
                     }
 
-                    // Memasukkan ke list jika soal benar-benar unik
                     if (!duplikat) {
                         sb.id = `L_AUTO_${tsBase}_${i}`; 
                         dbLokal.levels.push(sb);
@@ -490,7 +511,7 @@
             const statusEl = document.getElementById('admin-status'); const icon = document.getElementById('icon-status'); const text = document.getElementById('text-status'); const btnSync = document.getElementById('icon-sync');
             icon.setAttribute('data-lucide', 'refresh-cw'); icon.classList.add('animate-spin', 'text-indigo-500'); if(btnSync) btnSync.classList.add('animate-spin');
             text.innerText = "Menarik data 0%..."; text.className = "text-indigo-800";
-            statusEl.className = "bg-indigo-50 border-2 border-indigo-200 p-4 rounded-2xl text-sm font-bold flex items-center justify-between shadow-sm transition-colors";
+            statusEl.className = "bg-indigo-50 border-2 border-indigo-200 p-4 rounded-2xl text-sm font-bold flex items-center gap-2 shadow-sm transition-colors";
             lucide.createIcons();
 
             let counter = 0; let intv = setInterval(() => { counter+=10; if(counter>90) counter=90; text.innerText = `Menarik data ${counter}%...`; }, 100);
@@ -504,18 +525,18 @@
                     dbLokal.global_settings = parsed.global_settings || {}; dbLokal.levels = parsed.levels || []; document.getElementById('total-level').innerText = dbLokal.levels.length;
                     icon.setAttribute('data-lucide', 'check-circle'); icon.classList.remove('animate-spin', 'text-indigo-500'); icon.classList.add('text-emerald-500');
                     text.innerText = "Terhubung: " + repo; text.className = "text-emerald-800";
-                    statusEl.className = "bg-emerald-50 border-2 border-emerald-200 p-4 rounded-2xl text-sm font-bold flex items-center justify-between shadow-sm transition-colors";
+                    statusEl.className = "bg-emerald-50 border-2 border-emerald-200 p-4 rounded-2xl text-sm font-bold flex items-center gap-2 shadow-sm transition-colors";
                     if(forceRefresh) uiToast("Berhasil menarik data!");
                 } else if (res.status === 404) {
                     dbLokal = { global_settings: {}, levels: [] }; document.getElementById('total-level').innerText = 0;
                     icon.setAttribute('data-lucide', 'info'); icon.classList.remove('animate-spin', 'text-indigo-500'); icon.classList.add('text-sky-500');
                     text.innerText = "Repo Kosong."; text.className = "text-sky-800";
-                    statusEl.className = "bg-sky-50 border-2 border-sky-200 p-4 rounded-2xl text-sm font-bold flex items-center justify-between shadow-sm transition-colors";
+                    statusEl.className = "bg-sky-50 border-2 border-sky-200 p-4 rounded-2xl text-sm font-bold flex items-center gap-2 shadow-sm transition-colors";
                 } else throw new Error(`Akses Ditolak.`);
             } catch(e) { 
                 clearInterval(intv); icon.setAttribute('data-lucide', 'x-circle'); icon.classList.remove('animate-spin', 'text-indigo-500'); icon.classList.add('text-rose-500');
                 text.innerText = "Error: " + e.message; text.className = "text-rose-800";
-                statusEl.className = "bg-rose-50 border-2 border-rose-200 p-4 rounded-2xl text-sm font-bold flex items-center justify-between shadow-sm transition-colors";
+                statusEl.className = "bg-rose-50 border-2 border-rose-200 p-4 rounded-2xl text-sm font-bold flex items-center gap-2 shadow-sm transition-colors";
                 if(forceRefresh) uiToast("Gagal menarik data", "error");
             }
             if(btnSync) btnSync.classList.remove('animate-spin'); lucide.createIcons(); renderDaftarLevel();
@@ -563,13 +584,13 @@
         function bukaFormTambah() {
             document.getElementById('judul-modal-form').innerText = "Buat Level Baru"; document.getElementById('edit-index').value = "-1"; 
             document.querySelectorAll('#modal-soal input[type="text"], #modal-soal textarea').forEach(el => el.value = ''); document.querySelectorAll('#modal-soal input[type="file"]').forEach(el => el.value = '');
-            document.getElementById('in-kategori').value = 'kuis'; document.getElementById('in-speed').value = 'normal'; UbahTampilanForm(); bukaModal('modal-soal');
+            document.getElementById('in-kategori').value = 'kuis'; document.getElementById('in-speed').value = 'normal'; document.getElementById('in-target-count').value = '3'; UbahTampilanForm(); bukaModal('modal-soal');
         }
 
         function bukaFormEdit(idx) {
             const data = dbLokal.levels[idx];
             document.getElementById('judul-modal-form').innerText = `Edit Level ${idx + 1}`; document.getElementById('edit-index').value = idx; 
-            document.getElementById('in-kategori').value = data.kategori || 'kuis'; document.getElementById('in-speed').value = data.speed || 'normal'; UbahTampilanForm();
+            document.getElementById('in-kategori').value = data.kategori || 'kuis'; document.getElementById('in-speed').value = data.speed || 'normal'; document.getElementById('in-target-count').value = data.target_count || '3'; UbahTampilanForm();
             document.getElementById('in-tanya').value = data.pertanyaan; document.getElementById('path-media-soal').value = data.media_soal || "";
             document.getElementById('path-lvl-bg').value = data.bg_image || ""; document.getElementById('path-lvl-bgm').value = data.bgm_level || ""; document.getElementById('path-lvl-soal').value = data.audio_soal || "";
 
@@ -583,10 +604,10 @@
         }
 
         function simpanLevelKeDaftar() {
-            const ts = Date.now(); const idxEdit = parseInt(document.getElementById('edit-index').value); const kategori = document.getElementById('in-kategori').value; const tanya = document.getElementById('in-tanya').value.trim(); const speed = document.getElementById('in-speed').value;
+            const ts = Date.now(); const idxEdit = parseInt(document.getElementById('edit-index').value); const kategori = document.getElementById('in-kategori').value; const tanya = document.getElementById('in-tanya').value.trim(); const speed = document.getElementById('in-speed').value; const targetCount = parseInt(document.getElementById('in-target-count').value) || 1;
             if(!tanya) return uiToast("Pertanyaan WAJIB diisi!", "error");
             if(!dbLokal.levels) dbLokal.levels = [];
-            let objLevel = { id: `L_${ts}`, kategori: kategori, pertanyaan: tanya, speed: speed };
+            let objLevel = { id: `L_${ts}`, kategori: kategori, pertanyaan: tanya, speed: speed, target_count: targetCount };
 
             const cekM = (idF, idP, prp, prx) => {
                 const f = document.getElementById(idF).files[0]; const p = document.getElementById(idP).value;
