@@ -237,12 +237,21 @@
             initGlobal(cfg) {
                 if(cfg && cfg.bgm_url) { this.bgm.src = this.getAmanPath(cfg.bgm_url); this.bgm.loop = true; this.bgm.volume = this.volumeNormalBGM; }
                 
-                // EVENT LOOP UNTUK SOAL (Berkali-kali sesuai setting)
+                // EVENT LOOP UNTUK SOAL (Dengan Jeda)
                 this.soal.onended = () => { 
                     this.currentPlay++;
                     if (this.currentPlay < this.playCountTarget) {
-                        this.soal.play().catch(()=>{});
+                        
+                        // JEDA 5 DETIK SEBELUM MENGULANG SUARA
+                        setTimeout(() => {
+                            // Cek lagi pastikan tidak di-mute selama jeda
+                            if (!this.isMuted && this.urlSoalSaatIni) { 
+                                this.soal.play().catch(()=>{}); 
+                            }
+                        }, 5000); // <-- 5000 artinya 5 detik (Bisa kamu ubah jadi 10000 untuk 10 detik)
+                        
                     } else {
+                        // Jika sudah selesai, kembalikan volume BGM dan hilangkan efek pulse ikon
                         this.fadeVolume(this.bgm, this.volumeNormalBGM, 800); 
                         const ikon = document.getElementById('ikon-baca-soal'); if(ikon) ikon.classList.remove('animate-pulse', 'text-sky-400'); 
                     }
