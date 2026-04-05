@@ -2,7 +2,7 @@
   "global_settings": {},
   "levels": [
     {
-      "id": "L_1775360638895",
+      "id": "L_1775361069732",
       "kategori": "kuis",
       "pertanyaan": "Carikan ciri ciri Buku seprti apa?",
       "speed": "normal",
@@ -14,20 +14,23 @@
       "item_target": {
         "isTarget": true,
         "nama": "Novel",
-        "url_gambar": "undefined"
+        "url_gambar": "assets/msoal_1775360638895.gif"
       },
       "item_pengecoh": [
         {
-          "nama": "minuman panas ☕",
-          "isTarget": false
+          "nama": "Sendok garpu",
+          "isTarget": false,
+          "url_gambar": "assets/p1_1775361069732.gif"
         },
         {
           "nama": "minuman tropis 🍹",
-          "isTarget": false
+          "isTarget": false,
+          "url_gambar": "assets/p2_1775361069732.gif"
         },
         {
-          "nama": "Kayu",
-          "isTarget": false
+          "nama": "Roti",
+          "isTarget": false,
+          "url_gambar": "assets/p3_1775361069732.gif"
         }
       ]
     },
