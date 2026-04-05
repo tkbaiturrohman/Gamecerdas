@@ -12,7 +12,6 @@
         .app-container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 25px rgba(0,0,0,0.05); position: relative; }
         ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
-        /* TOAST DI TENGAH */
         .toast-enter { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         .toast-leave { animation: popOut 0.2s ease-in forwards; }
         @keyframes popIn { from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
@@ -71,7 +70,6 @@
             </div>
 
             <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 mt-4 relative">
-                
                 <button onclick="tarikDataGitHub(true)" class="absolute -top-3 -right-3 bg-sky-500 text-white p-3 rounded-full shadow-lg hover:bg-sky-600 hover:scale-105 active:scale-95 transition-all z-10" title="Tarik Data Github">
                     <i data-lucide="refresh-cw" id="icon-sync" class="w-5 h-5"></i>
                 </button>
@@ -107,7 +105,7 @@
                 <div class="bg-indigo-50 p-4 rounded-2xl mb-6 border border-indigo-100">
                     <h3 class="font-black text-sm text-indigo-800 mb-2">BGM Global (Musik Latar)</h3>
                     <div class="flex gap-2 mb-2">
-                        <input type="text" id="path-bgm-global" class="w-full text-xs p-2 border border-indigo-200 rounded bg-white text-indigo-700 font-bold" placeholder="Pilih dari Galeri ->" readonly>
+                        <input type="text" id="path-bgm-global" class="w-full text-xs p-2 border border-indigo-200 rounded bg-white text-indigo-700 font-bold" placeholder="Link / Pilih Galeri ->">
                         <button onclick="Galeri.bukaUtama('path-bgm-global', 'audio')" class="bg-indigo-200 text-indigo-800 p-2 rounded hover:bg-indigo-300"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
                     </div>
                     <input type="file" id="f-bgm" accept="audio/*" class="w-full text-xs bg-white p-2 rounded-lg border border-indigo-200">
@@ -153,12 +151,18 @@
                         <option value="pukul">🔨 Pukul Tikus (Whack-a-Mole)</option>
                     </select>
 
+                    <label class="font-black text-sm block mb-2 text-indigo-800">Gaya Box Item (Gambar/GIF)</label>
+                    <select id="in-box-transparan" class="w-full p-3 border border-indigo-200 rounded-xl bg-indigo-50 font-bold text-indigo-700 outline-none mb-4">
+                        <option value="tidak">⬜ Kotak Putih Bawaan</option>
+                        <option value="ya">🫥 Transparan (Hanya Gambar/GIF)</option>
+                    </select>
+
                     <label class="font-black text-sm block mb-2 text-slate-800">Teks Instruksi / Pertanyaan</label>
                     <textarea id="in-tanya" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 outline-none focus:border-indigo-400" rows="2" placeholder="Contoh: Manakah yang buah apel?"></textarea>
                 
                     <label class="font-black text-sm block mt-4 mb-2 text-slate-800 flex items-center gap-1"><i data-lucide="image" class="w-4 h-4 text-sky-500"></i> Gambar Petunjuk / Media Soal</label>
                     <div class="flex gap-2 mb-1">
-                        <input type="text" id="path-media-soal" class="w-full text-xs p-2 border border-slate-200 rounded bg-slate-50" placeholder="Pilih Galeri ->" readonly>
+                        <input type="text" id="path-media-soal" class="w-full text-xs p-2 border border-slate-200 rounded bg-slate-50" placeholder="Link / Pilih Galeri ->">
                         <button onclick="Galeri.bukaUtama('path-media-soal', 'image')" class="bg-indigo-100 text-indigo-700 p-2 rounded hover:bg-indigo-200"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
                     </div>
                     <input type="file" id="f-media-soal" accept="image/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-slate-200">
@@ -181,29 +185,40 @@
                 <div class="bg-sky-50 p-5 rounded-3xl shadow-sm border border-sky-200">
                     <h3 class="font-black text-sky-800 mb-3 flex items-center gap-2"><i data-lucide="music"></i> Latar & Audio Khusus Level</h3>
                     <div class="space-y-4">
-                        <div class="flex flex-col gap-1">
+                        <div class="flex flex-col gap-1 border-b border-sky-200 pb-3">
                             <label class="text-xs font-bold text-sky-700">Audio Soal (Dibacakan)</label>
                             <div class="flex gap-2 mb-1">
-                                <input type="text" id="path-lvl-soal" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Pilih Galeri ->" readonly>
+                                <input type="text" id="path-lvl-soal" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Link / Pilih Galeri ->">
                                 <button onclick="Galeri.bukaUtama('path-lvl-soal', 'audio')" class="bg-sky-200 text-sky-800 p-2 rounded hover:bg-sky-300"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
                             </div>
-                            <input type="file" id="f-lvl-soal" accept="audio/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-sky-300">
+                            <input type="file" id="f-lvl-soal" accept="audio/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-sky-300 mb-2">
+                            
+                            <label class="text-[10px] font-bold text-sky-600">Diputar Berapa Kali?</label>
+                            <input type="number" id="in-audio-count" min="1" max="5" value="1" class="w-full p-2 border border-sky-300 rounded bg-white text-xs font-bold outline-none">
                         </div>
-                        <div class="flex flex-col gap-1">
+
+                        <div class="flex flex-col gap-1 border-b border-sky-200 pb-3">
                             <label class="text-xs font-bold text-sky-700">Gambar Latar Belakang (BG)</label>
                             <div class="flex gap-2 mb-1">
-                                <input type="text" id="path-lvl-bg" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Pilih Galeri ->" readonly>
+                                <input type="text" id="path-lvl-bg" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Link / Pilih Galeri ->">
                                 <button onclick="Galeri.bukaUtama('path-lvl-bg', 'image')" class="bg-sky-200 text-sky-800 p-2 rounded hover:bg-sky-300"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
                             </div>
                             <input type="file" id="f-lvl-bg" accept="image/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-sky-300">
                         </div>
+
                         <div class="flex flex-col gap-1">
                             <label class="text-xs font-bold text-sky-700">Musik BGM Level</label>
                             <div class="flex gap-2 mb-1">
-                                <input type="text" id="path-lvl-bgm" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Pilih Galeri ->" readonly>
+                                <input type="text" id="path-lvl-bgm" class="w-full text-[10px] p-2 border border-sky-300 rounded bg-white font-mono text-sky-700" placeholder="Link / Pilih Galeri ->">
                                 <button onclick="Galeri.bukaUtama('path-lvl-bgm', 'audio')" class="bg-sky-200 text-sky-800 p-2 rounded hover:bg-sky-300"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
                             </div>
-                            <input type="file" id="f-lvl-bgm" accept="audio/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-sky-300">
+                            <input type="file" id="f-lvl-bgm" accept="audio/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-sky-300 mb-2">
+                            
+                            <label class="text-[10px] font-bold text-sky-600">Pengaturan BGM</label>
+                            <select id="in-bgm-loop" class="w-full p-2 border border-sky-300 rounded bg-white text-xs font-bold outline-none">
+                                <option value="ya">🔁 Berputar Terus (Loop)</option>
+                                <option value="tidak">🛑 Berhenti Setelah Selesai</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -213,7 +228,7 @@
                         <label class="font-black text-lg block mb-3 text-emerald-800 flex items-center gap-2"><i data-lucide="check-circle-2"></i> GAMBAR UTAMA / TARGET</label>
                         <input type="text" id="in-benar-nama" placeholder="Teks Jawaban Benar" class="w-full p-3 border border-emerald-300 rounded-xl bg-white mb-2 font-bold outline-none uppercase">
                         <div class="flex gap-2 mb-1 mt-2">
-                            <input type="text" id="path-benar-img" class="w-full text-xs p-2 border border-emerald-300 rounded bg-white font-mono text-emerald-700" placeholder="Pilih Galeri ->" readonly>
+                            <input type="text" id="path-benar-img" class="w-full text-xs p-2 border border-emerald-300 rounded bg-white font-mono text-emerald-700" placeholder="Link / Pilih Galeri ->">
                             <button onclick="Galeri.bukaUtama('path-benar-img', 'image')" class="bg-emerald-200 text-emerald-800 p-2 rounded hover:bg-emerald-300"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
                         </div>
                         <input type="file" id="f-benar-img" accept="image/*" class="w-full text-sm bg-white p-2 rounded-xl border border-emerald-300">
@@ -225,7 +240,7 @@
                         <div class="mb-4 bg-white/50 p-3 rounded-xl border border-rose-200">
                             <input type="text" id="in-p1-nama" placeholder="Teks Pengecoh 1" class="w-full p-2 border border-rose-200 rounded mb-1 text-sm font-bold uppercase">
                             <div class="flex gap-2 mb-1">
-                                <input type="text" id="path-p1-img" class="w-full text-[10px] p-2 border border-rose-200 rounded bg-white" placeholder="Pilih Galeri ->" readonly>
+                                <input type="text" id="path-p1-img" class="w-full text-[10px] p-2 border border-rose-200 rounded bg-white" placeholder="Link / Pilih Galeri ->">
                                 <button onclick="Galeri.bukaUtama('path-p1-img', 'image')" class="bg-rose-200 text-rose-800 p-2 rounded hover:bg-rose-300"><i data-lucide="folder-search" class="w-3 h-3"></i></button>
                             </div>
                             <input type="file" id="f-p1-img" accept="image/*" class="w-full text-xs bg-white p-1 rounded">
@@ -234,7 +249,7 @@
                         <div class="mb-4 bg-white/50 p-3 rounded-xl border border-rose-200">
                             <input type="text" id="in-p2-nama" placeholder="Teks Pengecoh 2 (Ops)" class="w-full p-2 border border-rose-200 rounded mb-1 text-sm font-bold uppercase">
                             <div class="flex gap-2 mb-1">
-                                <input type="text" id="path-p2-img" class="w-full text-[10px] p-2 border border-rose-200 rounded bg-white" placeholder="Pilih Galeri ->" readonly>
+                                <input type="text" id="path-p2-img" class="w-full text-[10px] p-2 border border-rose-200 rounded bg-white" placeholder="Link / Pilih Galeri ->">
                                 <button onclick="Galeri.bukaUtama('path-p2-img', 'image')" class="bg-rose-200 text-rose-800 p-2 rounded hover:bg-rose-300"><i data-lucide="folder-search" class="w-3 h-3"></i></button>
                             </div>
                             <input type="file" id="f-p2-img" accept="image/*" class="w-full text-xs bg-white p-1 rounded">
@@ -243,7 +258,7 @@
                         <div class="mb-2 bg-white/50 p-3 rounded-xl border border-rose-200">
                             <input type="text" id="in-p3-nama" placeholder="Teks Pengecoh 3 (Ops)" class="w-full p-2 border border-rose-200 rounded mb-1 text-sm font-bold uppercase">
                             <div class="flex gap-2 mb-1">
-                                <input type="text" id="path-p3-img" class="w-full text-[10px] p-2 border border-rose-200 rounded bg-white" placeholder="Pilih Galeri ->" readonly>
+                                <input type="text" id="path-p3-img" class="w-full text-[10px] p-2 border border-rose-200 rounded bg-white" placeholder="Link / Pilih Galeri ->">
                                 <button onclick="Galeri.bukaUtama('path-p3-img', 'image')" class="bg-rose-200 text-rose-800 p-2 rounded hover:bg-rose-300"><i data-lucide="folder-search" class="w-3 h-3"></i></button>
                             </div>
                             <input type="file" id="f-p3-img" accept="image/*" class="w-full text-xs bg-white p-1 rounded">
@@ -276,19 +291,16 @@
         let antreanFile = []; let fileYangHarusDihapus = []; 
 
         function uiToast(msg, type='success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
+            const container = document.getElementById('toast-container'); const toast = document.createElement('div');
             toast.className = `toast-enter absolute px-6 py-3 rounded-full font-black text-sm shadow-2xl flex items-center justify-center gap-2 whitespace-nowrap ${type==='success' ? 'bg-emerald-500 text-white' : (type==='error' ? 'bg-rose-500 text-white' : (type==='info' ? 'bg-sky-500 text-white' : 'bg-slate-800 text-white'))}`;
             toast.innerHTML = `<i data-lucide="${type==='success' ? 'check-circle' : (type==='error' ? 'alert-circle' : 'info')}" class="w-5 h-5"></i> ${msg}`;
             container.appendChild(toast); lucide.createIcons();
-            setTimeout(() => { toast.classList.replace('toast-enter', 'toast-leave'); setTimeout(() => toast.remove(), 300); }, 3000);
+            setTimeout(() => { toast.classList.replace('toast-enter', 'toast-leave'); setTimeout(() => toast.remove(), 200); }, 3000);
         }
 
         function uiConfirm(msg) {
             return new Promise((resolve) => {
-                const modal = document.getElementById('modal-confirm');
-                document.getElementById('confirm-text').innerText = msg;
-                modal.classList.remove('hidden');
+                const modal = document.getElementById('modal-confirm'); document.getElementById('confirm-text').innerText = msg; modal.classList.remove('hidden');
                 document.getElementById('btn-confirm-yes').onclick = () => { modal.classList.add('hidden'); resolve(true); };
                 document.getElementById('btn-confirm-no').onclick = () => { modal.classList.add('hidden'); resolve(false); };
             });
@@ -306,7 +318,7 @@
                     <div class="flex-1">
                         <input type="text" id="in-u${i}-nama" placeholder="Teks Urutan ${i}" class="w-full p-2 border border-indigo-100 rounded mb-1 text-sm font-bold">
                         <div class="flex gap-2 mb-1">
-                            <input type="text" id="path-u${i}-img" class="w-full text-[10px] p-2 border border-indigo-100 rounded bg-slate-50" placeholder="Pilih Galeri ->" readonly>
+                            <input type="text" id="path-u${i}-img" class="w-full text-[10px] p-2 border border-indigo-100 rounded bg-slate-50" placeholder="Link / Pilih Galeri ->">
                             <button onclick="Galeri.bukaUtama('path-u${i}-img', 'image')" class="bg-indigo-100 text-indigo-700 p-2 rounded hover:bg-indigo-200"><i data-lucide="folder-search" class="w-4 h-4"></i></button>
                         </div>
                         <input type="file" id="f-u${i}-img" accept="image/*" class="w-full text-xs">
@@ -320,82 +332,52 @@
         function UbahTampilanForm() {
             const val = document.getElementById('in-kategori').value;
             
-            // Menyembunyikan/Menampilkan wadah Urutan atau Target biasa
-            if(val === 'urutan' || val === 'melayang') {
-                document.getElementById('wadah-kuis-drag').classList.add('hidden'); 
-                document.getElementById('wadah-urutan').classList.remove('hidden');
-            } else {
-                document.getElementById('wadah-kuis-drag').classList.remove('hidden'); 
-                document.getElementById('wadah-urutan').classList.add('hidden');
-            }
+            if(val === 'urutan' || val === 'melayang') { document.getElementById('wadah-kuis-drag').classList.add('hidden'); document.getElementById('wadah-urutan').classList.remove('hidden'); } 
+            else { document.getElementById('wadah-kuis-drag').classList.remove('hidden'); document.getElementById('wadah-urutan').classList.add('hidden'); }
 
-            // Opsi Speed
-            if(val === 'bubble' || val === 'melayang' || val === 'pukul') {
-                document.getElementById('wadah-speed').classList.remove('hidden');
-            } else {
-                document.getElementById('wadah-speed').classList.add('hidden');
-            }
+            if(val === 'bubble' || val === 'melayang' || val === 'pukul') document.getElementById('wadah-speed').classList.remove('hidden');
+            else document.getElementById('wadah-speed').classList.add('hidden');
 
-            // Opsi Target Count (Hit berapa kali)
-            if(val === 'bubble' || val === 'pukul') {
-                document.getElementById('wadah-target-count').classList.remove('hidden');
-            } else {
-                document.getElementById('wadah-target-count').classList.add('hidden');
-            }
+            if(val === 'bubble' || val === 'pukul') document.getElementById('wadah-target-count').classList.remove('hidden');
+            else document.getElementById('wadah-target-count').classList.add('hidden');
         }
 
         async function hapusSemuaLevel() {
             if(dbLokal.levels.length === 0) return uiToast("Data sudah kosong!", "info");
-            const isYes = await uiConfirm("YAKIN HAPUS SEMUA LEVEL? 🚨 Semua gambar/audio yang dipakai akan dihancurkan. Ini tidak bisa di-undo!");
-            if(!isYes) return;
-
-            dbLokal.levels.forEach(lvl => {
-                const asetT = daftarAsetLevelIni(lvl);
-                fileYangHarusDihapus = [...fileYangHarusDihapus, ...asetT];
-            });
-
-            dbLokal.levels = [];
-            renderDaftarLevel();
-            uiToast("Semua level dibersihkan. Klik SIMPAN & PUBLISH untuk mengeksekusi penghapusan di server.", "success");
+            const isYes = await uiConfirm("YAKIN HAPUS SEMUA LEVEL? 🚨 Semua gambar/audio yang dipakai akan dihancurkan. Ini tidak bisa di-undo!"); if(!isYes) return;
+            dbLokal.levels.forEach(lvl => { const asetT = daftarAsetLevelIni(lvl); fileYangHarusDihapus = [...fileYangHarusDihapus, ...asetT]; });
+            dbLokal.levels = []; renderDaftarLevel(); uiToast("Semua level dibersihkan. Klik SIMPAN & PUBLISH untuk mengeksekusi penghapusan di server.", "success");
         }
 
         function exportJSON() {
             if(dbLokal.levels.length === 0) return uiToast("Database masih kosong!", "error");
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dbLokal, null, 2));
-            const dlAnchorElem = document.createElement('a'); dlAnchorElem.setAttribute("href", dataStr); dlAnchorElem.setAttribute("download", "backup-soal.json"); dlAnchorElem.click();
-            uiToast("File backup berhasil diunduh.");
+            const dlAnchorElem = document.createElement('a'); dlAnchorElem.setAttribute("href", dataStr); dlAnchorElem.setAttribute("download", "backup-soal.json"); dlAnchorElem.click(); uiToast("File backup berhasil diunduh.");
         }
 
         function importJSON(event) {
             const file = event.target.files[0]; if(!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const parsed = JSON.parse(e.target.result);
-                    if(parsed.levels) { dbLokal = parsed; renderDaftarLevel(); uiToast("Berhasil Import!"); } else { uiToast("Format JSON tidak valid.", "error"); }
+            const reader = new FileReader(); reader.onload = (e) => {
+                try { const parsed = JSON.parse(e.target.result); if(parsed.levels) { dbLokal = parsed; renderDaftarLevel(); uiToast("Berhasil Import!"); } else { uiToast("Format JSON tidak valid.", "error"); }
                 } catch(err) { uiToast("File bukan JSON yang valid.", "error"); }
             }; reader.readAsText(file);
         }
 
         window.onload = () => {
             const token = localStorage.getItem('ghToken'); const repo = localStorage.getItem('ghRepo');
-            if(token && repo) { document.getElementById('gh-token').value = token; document.getElementById('gh-repo').value = repo; tarikDataGitHub(false); } 
-            else { bukaModal('modal-config'); }
+            if(token && repo) { document.getElementById('gh-token').value = token; document.getElementById('gh-repo').value = repo; tarikDataGitHub(false); } else { bukaModal('modal-config'); }
         };
 
         function simpanConfigLokal() {
-            localStorage.setItem('ghToken', document.getElementById('gh-token').value.trim());
-            localStorage.setItem('ghRepo', document.getElementById('gh-repo').value.trim());
+            localStorage.setItem('ghToken', document.getElementById('gh-token').value.trim()); localStorage.setItem('ghRepo', document.getElementById('gh-repo').value.trim());
             const fBgm = document.getElementById('f-bgm').files[0]; const pBgm = document.getElementById('path-bgm-global').value;
             if(fBgm) {
-                dbLokal.global_settings.bgm_url = `assets/bgm_glbl.${fBgm.name.split('.').pop()}`; antreanFile.push({ path: `public/${dbLokal.global_settings.bgm_url}`, file: fBgm });
+                const namaBersih = fBgm.name.replace(/[^a-zA-Z0-9.\-]/g, '_');
+                dbLokal.global_settings.bgm_url = `assets/${namaBersih}`; antreanFile.push({ path: `public/${dbLokal.global_settings.bgm_url}`, file: fBgm });
             } else if(pBgm) { dbLokal.global_settings.bgm_url = pBgm; }
             tutupModal('modal-config'); tarikDataGitHub(true);
         }
 
-        // ==============================================================
-        // GENERATOR 9 SOAL PINTAR (ANTI-DUPLIKAT & RATUSAN EMOJI JSON)
-        // ==============================================================
         const ProceduralGenerator = {
             emotikon_dan_perasaan: ["wajah tersenyum 😀", "wajah tersenyum lebar 😃", "wajah tersenyum dengan mata bahagia 😄", "wajah tertawa sampai menangis 😂", "wajah tersenyum dengan mata tersenyum 😊", "wajah tersenyum dengan lingkaran cahaya 😇", "wajah tersenyum dengan banyak hati 🥰", "wajah tersenyum dengan mata hati 😍", "wajah terpesona 🤩", "wajah mencium 😘", "wajah menikmati makanan enak 😋", "wajah menjulurkan lidah dan berkedip 😜", "wajah gila 🤪", "wajah dengan uang di mulut 🤑", "wajah memeluk 🤗", "wajah menutup mulut dengan tangan 🤭", "wajah menyuruh diam 🤫", "wajah berpikir 🤔", "wajah dengan mulut resleting 🤐", "wajah dengan alis terangkat 🤨", "wajah tersenyum dengan kacamata hitam 😎", "wajah kutu buku 🤓", "wajah dengan monokel 🧐", "kepala meledak 🤯", "wajah berpesta 🥳", "wajah memohon 🥺", "wajah berteriak ketakutan 😱", "wajah dengan simbol di mulut 🤬", "wajah tersenyum dengan tanduk 😈", "tengkorak 💀", "kotoran 💩", "wajah badut 🤡", "hantu 👻", "alien 👽", "wajah robot 🤖"],
             manusia_dan_tubuh: ["melambaikan tangan 👋", "tangan oke 👌", "tanda damai ✌️", "jari disilangkan 🤞", "tanda i love you 🤟", "tanda tanduk 🤘", "jempol ke atas 👍", "jempol ke bawah 👎", "tinju 👊", "tepuk tangan 👏", "mengangkat kedua tangan 🙌", "telapak tangan disatukan ke atas 🤲", "jabat tangan 🤝", "tangan terlipat 🙏", "otot lengan 💪", "otak 🧠", "jantung anatomis 🫀", "paru-paru 🫁", "gigi 🦷", "tulang 🦴", "sepasang mata 👀", "bayi 👶", "anak perempuan 👧", "anak laki-laki 👦", "wanita 👩", "pria 👨", "wanita tua 👵", "pria tua 👴", "petugas polisi 👮", "pekerja konstruksi 👷", "detektif 🕵️", "dokter wanita 👩‍⚕️", "dokter pria 👨‍⚕️", "guru wanita 👩‍🏫", "guru pria 👨‍🏫"],
@@ -407,102 +389,36 @@
             simbol_dan_bendera: ["hati merah ❤️", "hati patah 💔", "seratus poin 💯", "simbol marah 💢", "tanda peringatan ⚠️", "daur ulang ♻️", "centang putih tebal ✅", "tanda silang ❌", "bendera Indonesia 🇮🇩", "bendera Amerika Serikat 🇺🇸", "bendera Inggris Raya 🇬🇧", "bendera Jepang 🇯🇵", "bendera Korea Selatan 🇰🇷", "bendera Arab Saudi 🇸🇦", "bendera Palestina 🇵🇸"],
 
             ambilAcak(arr, n) { const shuffled = [...arr].sort(() => 0.5 - Math.random()); return shuffled.slice(0, n); },
-            gabungSemua() { 
-                return [...this.emotikon_dan_perasaan, ...this.manusia_dan_tubuh, ...this.hewan_dan_alam, ...this.makanan_dan_minuman, ...this.aktivitas_dan_olahraga, ...this.perjalanan_dan_tempat, ...this.objek, ...this.simbol_dan_bendera]; 
-            },
-            
+            gabungSemua() { return [...this.emotikon_dan_perasaan, ...this.manusia_dan_tubuh, ...this.hewan_dan_alam, ...this.makanan_dan_minuman, ...this.aktivitas_dan_olahraga, ...this.perjalanan_dan_tempat, ...this.objek, ...this.simbol_dan_bendera]; },
             namaItem(itemStr) { return itemStr.split(' ').slice(0, -1).join(' '); },
 
-            bikinKuis() { 
-                const b = this.ambilAcak(this.gabungSemua(), 3); 
-                return { kategori: "kuis", pertanyaan: `Manakah yang merupakan ${this.namaItem(b[0])}?`, item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }, { nama: b[2], isTarget: false }] }; 
-            },
-            bikinDrag() { 
-                const h = this.ambilAcak(this.hewan_dan_alam, 3); 
-                return { kategori: "drag", pertanyaan: `Tarik ${this.namaItem(h[0])} ke dalam kotak!`, item_target: { nama: h[0], isTarget: true }, item_pengecoh: [{ nama: h[1], isTarget: false }, { nama: h[2], isTarget: false }] }; 
-            },
-            bikinSiluet() { 
-                const b = this.ambilAcak(this.objek.concat(this.perjalanan_dan_tempat), 3); 
-                return { kategori: "siluet", pertanyaan: `Tarik ${this.namaItem(b[0])} ke bayangannya!`, item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }, { nama: b[2], isTarget: false }] }; 
-            },
-            bikinUrutan() { 
-                const h = this.ambilAcak(this.makanan_dan_minuman, 4); 
-                const urut = h.map((n, i) => ({ indexAsli: i, nama: n })); 
-                return { kategori: "urutan", pertanyaan: `Urutkan dari makanan ini!`, item_urutan: urut }; 
-            },
-            bikinMemory() { 
-                const b = this.ambilAcak(this.emotikon_dan_perasaan, 4); 
-                return { kategori: "memory", pertanyaan: `Temukan pasangan yang tepat!`, item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }, { nama: b[2], isTarget: false }, { nama: b[3], isTarget: false }] }; 
-            },
-            bikinTebakKata() { 
-                const valid = this.gabungSemua().filter(x => {
-                    const nm = this.namaItem(x);
-                    return nm.split(' ').length === 1 && nm.length > 2 && nm.length < 9;
-                });
-                const b = this.ambilAcak(valid, 1)[0] || "apel 🍎";
-                const kata = this.namaItem(b).toUpperCase();
-                return { kategori: "tebak_kata", pertanyaan: `Susun huruf menjadi: ${kata}`, item_target: { nama: kata, isTarget: true }, item_pengecoh: [{ nama: "A", isTarget: false }, { nama: "E", isTarget: false }] }; 
-            },
-            bikinBubble() { 
-                const b = this.ambilAcak(this.gabungSemua(), 2); 
-                // Random target_count antara 5-10 biar seru
-                const targetHits = Math.floor(Math.random() * 5) + 5;
-                return { kategori: "bubble", speed: "normal", target_count: targetHits, pertanyaan: `Pecahkan ${targetHits} gelembung ${this.namaItem(b[0])}!`, item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }] }; 
-            },
-            bikinMelayang() { 
-                const b = this.ambilAcak(this.manusia_dan_tubuh.concat(this.aktivitas_dan_olahraga), 3); 
-                const urut = b.map((n, i) => ({ indexAsli: i, nama: n })); 
-                return { kategori: "melayang", speed: "lambat", pertanyaan: `Tekan berurutan: ${b.map(x=>this.namaItem(x)).join(', ')}`, item_urutan: urut }; 
-            },
-            bikinPukul() { 
-                const h = this.ambilAcak(this.hewan_dan_alam, 2); 
-                // Random target_count antara 3-5
-                const targetHits = Math.floor(Math.random() * 3) + 3;
-                return { kategori: "pukul", speed: "normal", target_count: targetHits, pertanyaan: `Pukul ${this.namaItem(h[0])} ${targetHits} kali!`, item_target: { nama: h[0], isTarget: true }, item_pengecoh: [{ nama: h[1], isTarget: false }] }; 
-            },
+            bikinKuis() { const b = this.ambilAcak(this.gabungSemua(), 3); return { kategori: "kuis", pertanyaan: `Manakah yang merupakan ${this.namaItem(b[0])}?`, is_transparent_box: "tidak", item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }, { nama: b[2], isTarget: false }] }; },
+            bikinDrag() { const h = this.ambilAcak(this.hewan_dan_alam, 3); return { kategori: "drag", pertanyaan: `Tarik ${this.namaItem(h[0])} ke dalam kotak!`, is_transparent_box: "tidak", item_target: { nama: h[0], isTarget: true }, item_pengecoh: [{ nama: h[1], isTarget: false }, { nama: h[2], isTarget: false }] }; },
+            bikinSiluet() { const b = this.ambilAcak(this.objek.concat(this.perjalanan_dan_tempat), 3); return { kategori: "siluet", pertanyaan: `Tarik ${this.namaItem(b[0])} ke bayangannya!`, is_transparent_box: "tidak", item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }, { nama: b[2], isTarget: false }] }; },
+            bikinUrutan() { const h = this.ambilAcak(this.makanan_dan_minuman, 4); const urut = h.map((n, i) => ({ indexAsli: i, nama: n })); return { kategori: "urutan", pertanyaan: `Urutkan dari makanan ini!`, is_transparent_box: "tidak", item_urutan: urut }; },
+            bikinMemory() { const b = this.ambilAcak(this.emotikon_dan_perasaan, 4); return { kategori: "memory", pertanyaan: `Temukan pasangan yang tepat!`, is_transparent_box: "tidak", item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }, { nama: b[2], isTarget: false }, { nama: b[3], isTarget: false }] }; },
+            bikinTebakKata() { const valid = this.gabungSemua().filter(x => { const nm = this.namaItem(x); return nm.split(' ').length === 1 && nm.length > 2 && nm.length < 9; }); const b = this.ambilAcak(valid, 1)[0] || "apel 🍎"; const kata = this.namaItem(b).toUpperCase(); return { kategori: "tebak_kata", pertanyaan: `Susun huruf menjadi: ${kata}`, is_transparent_box: "tidak", item_target: { nama: kata, isTarget: true }, item_pengecoh: [{ nama: "A", isTarget: false }, { nama: "E", isTarget: false }] }; },
+            bikinBubble() { const b = this.ambilAcak(this.gabungSemua(), 2); const targetHits = Math.floor(Math.random() * 5) + 5; return { kategori: "bubble", speed: "normal", target_count: targetHits, pertanyaan: `Pecahkan ${targetHits} gelembung ${this.namaItem(b[0])}!`, is_transparent_box: "tidak", item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }] }; },
+            bikinMelayang() { const b = this.ambilAcak(this.manusia_dan_tubuh.concat(this.aktivitas_dan_olahraga), 3); const urut = b.map((n, i) => ({ indexAsli: i, nama: n })); return { kategori: "melayang", speed: "lambat", pertanyaan: `Tekan berurutan: ${b.map(x=>this.namaItem(x)).join(', ')}`, is_transparent_box: "tidak", item_urutan: urut }; },
+            bikinPukul() { const h = this.ambilAcak(this.hewan_dan_alam, 2); const targetHits = Math.floor(Math.random() * 3) + 3; return { kategori: "pukul", speed: "normal", target_count: targetHits, pertanyaan: `Pukul ${this.namaItem(h[0])} ${targetHits} kali!`, is_transparent_box: "tidak", item_target: { nama: h[0], isTarget: true }, item_pengecoh: [{ nama: h[1], isTarget: false }] }; },
 
-            apakahSudahAda(teksPertanyaan) {
-                return dbLokal.levels.some(lvl => lvl.pertanyaan === teksPertanyaan);
-            },
+            apakahSudahAda(teksPertanyaan) { return dbLokal.levels.some(lvl => lvl.pertanyaan === teksPertanyaan); },
 
             async buatAcak9() {
                 const isYes = await uiConfirm("Generate 9 soal Pintar (Anti-Duplikat) untuk semua 9 kategori game?"); if(!isYes) return;
                 const tsBase = Date.now();
-                
-                const generators = [
-                    this.bikinKuis.bind(this), this.bikinDrag.bind(this), this.bikinSiluet.bind(this),
-                    this.bikinUrutan.bind(this), this.bikinMemory.bind(this), this.bikinTebakKata.bind(this),
-                    this.bikinBubble.bind(this), this.bikinMelayang.bind(this), this.bikinPukul.bind(this)
-                ];
+                const generators = [ this.bikinKuis.bind(this), this.bikinDrag.bind(this), this.bikinSiluet.bind(this), this.bikinUrutan.bind(this), this.bikinMemory.bind(this), this.bikinTebakKata.bind(this), this.bikinBubble.bind(this), this.bikinMelayang.bind(this), this.bikinPukul.bind(this) ];
 
                 let jumlahBerhasil = 0;
-
                 generators.forEach((gen, i) => {
-                    let sb;
-                    let batasPercobaan = 25; 
-                    let percobaan = 0;
-                    let duplikat = true;
-
-                    while (duplikat && percobaan < batasPercobaan) {
-                        sb = gen();
-                        duplikat = this.apakahSudahAda(sb.pertanyaan);
-                        percobaan++;
-                    }
-
-                    if (!duplikat) {
-                        sb.id = `L_AUTO_${tsBase}_${i}`; 
-                        dbLokal.levels.push(sb);
-                        jumlahBerhasil++;
-                    }
+                    let sb; let batasPercobaan = 25; let percobaan = 0; let duplikat = true;
+                    while (duplikat && percobaan < batasPercobaan) { sb = gen(); duplikat = this.apakahSudahAda(sb.pertanyaan); percobaan++; }
+                    if (!duplikat) { sb.id = `L_AUTO_${tsBase}_${i}`; dbLokal.levels.push(sb); jumlahBerhasil++; }
                 });
 
                 renderDaftarLevel(); 
-                
-                if (jumlahBerhasil === 9) {
-                    uiToast("9 Soal baru & UNIK ditambahkan! Jangan lupa Publish.", "success");
-                } else {
-                    uiToast(`Ditambahkan ${jumlahBerhasil} soal unik. (Beberapa di-skip karena level ini sudah ada di map)`, "info");
-                }
+                if (jumlahBerhasil === 9) { uiToast("9 Soal baru & UNIK ditambahkan! Jangan lupa Publish.", "success"); } 
+                else { uiToast(`Ditambahkan ${jumlahBerhasil} soal unik. (Beberapa di-skip karena level ini sudah ada di map)`, "info"); }
             }
         };
 
@@ -556,16 +472,16 @@
 
         function daftarAsetLevelIni(dataLevel) {
             let list = [];
-            if(dataLevel.bg_image) list.push(`public/${dataLevel.bg_image}`);
-            if(dataLevel.media_soal) list.push(`public/${dataLevel.media_soal}`);
-            if(dataLevel.audio_soal) list.push(`public/${dataLevel.audio_soal}`);
-            if(dataLevel.bgm_level) list.push(`public/${dataLevel.bgm_level}`);
+            if(dataLevel.bg_image && dataLevel.bg_image.startsWith('assets/')) list.push(`public/${dataLevel.bg_image}`);
+            if(dataLevel.media_soal && dataLevel.media_soal.startsWith('assets/')) list.push(`public/${dataLevel.media_soal}`);
+            if(dataLevel.audio_soal && dataLevel.audio_soal.startsWith('assets/')) list.push(`public/${dataLevel.audio_soal}`);
+            if(dataLevel.bgm_level && dataLevel.bgm_level.startsWith('assets/')) list.push(`public/${dataLevel.bgm_level}`);
             
             if(dataLevel.kategori === 'urutan' || dataLevel.kategori === 'melayang') {
-                if(dataLevel.item_urutan) dataLevel.item_urutan.forEach(u => { if(u.url_gambar) list.push(`public/${u.url_gambar}`); });
+                if(dataLevel.item_urutan) dataLevel.item_urutan.forEach(u => { if(u.url_gambar && u.url_gambar.startsWith('assets/')) list.push(`public/${u.url_gambar}`); });
             } else {
-                if(dataLevel.item_target && dataLevel.item_target.url_gambar) list.push(`public/${dataLevel.item_target.url_gambar}`);
-                if(dataLevel.item_pengecoh) dataLevel.item_pengecoh.forEach(pgc => { if(pgc.url_gambar) list.push(`public/${pgc.url_gambar}`); });
+                if(dataLevel.item_target && dataLevel.item_target.url_gambar && dataLevel.item_target.url_gambar.startsWith('assets/')) list.push(`public/${dataLevel.item_target.url_gambar}`);
+                if(dataLevel.item_pengecoh) dataLevel.item_pengecoh.forEach(pgc => { if(pgc.url_gambar && pgc.url_gambar.startsWith('assets/')) list.push(`public/${pgc.url_gambar}`); });
             }
             return list;
         }
@@ -584,13 +500,18 @@
         function bukaFormTambah() {
             document.getElementById('judul-modal-form').innerText = "Buat Level Baru"; document.getElementById('edit-index').value = "-1"; 
             document.querySelectorAll('#modal-soal input[type="text"], #modal-soal textarea').forEach(el => el.value = ''); document.querySelectorAll('#modal-soal input[type="file"]').forEach(el => el.value = '');
-            document.getElementById('in-kategori').value = 'kuis'; document.getElementById('in-speed').value = 'normal'; document.getElementById('in-target-count').value = '3'; UbahTampilanForm(); bukaModal('modal-soal');
+            document.getElementById('in-kategori').value = 'kuis'; document.getElementById('in-speed').value = 'normal'; document.getElementById('in-target-count').value = '3'; 
+            document.getElementById('in-box-transparan').value = 'tidak'; document.getElementById('in-audio-count').value = '1'; document.getElementById('in-bgm-loop').value = 'ya';
+            UbahTampilanForm(); bukaModal('modal-soal');
         }
 
         function bukaFormEdit(idx) {
             const data = dbLokal.levels[idx];
             document.getElementById('judul-modal-form').innerText = `Edit Level ${idx + 1}`; document.getElementById('edit-index').value = idx; 
-            document.getElementById('in-kategori').value = data.kategori || 'kuis'; document.getElementById('in-speed').value = data.speed || 'normal'; document.getElementById('in-target-count').value = data.target_count || '3'; UbahTampilanForm();
+            document.getElementById('in-kategori').value = data.kategori || 'kuis'; document.getElementById('in-speed').value = data.speed || 'normal'; document.getElementById('in-target-count').value = data.target_count || '3'; 
+            document.getElementById('in-box-transparan').value = data.is_transparent_box || 'tidak'; document.getElementById('in-audio-count').value = data.audio_count || '1'; document.getElementById('in-bgm-loop').value = data.bgm_loop || 'ya';
+            
+            UbahTampilanForm();
             document.getElementById('in-tanya').value = data.pertanyaan; document.getElementById('path-media-soal').value = data.media_soal || "";
             document.getElementById('path-lvl-bg').value = data.bg_image || ""; document.getElementById('path-lvl-bgm').value = data.bgm_level || ""; document.getElementById('path-lvl-soal').value = data.audio_soal || "";
 
@@ -604,22 +525,27 @@
         }
 
         function simpanLevelKeDaftar() {
-            const ts = Date.now(); const idxEdit = parseInt(document.getElementById('edit-index').value); const kategori = document.getElementById('in-kategori').value; const tanya = document.getElementById('in-tanya').value.trim(); const speed = document.getElementById('in-speed').value; const targetCount = parseInt(document.getElementById('in-target-count').value) || 1;
+            const ts = Date.now(); const idxEdit = parseInt(document.getElementById('edit-index').value); const kategori = document.getElementById('in-kategori').value; const tanya = document.getElementById('in-tanya').value.trim(); 
+            const speed = document.getElementById('in-speed').value; const targetCount = parseInt(document.getElementById('in-target-count').value) || 1;
+            const isTransparan = document.getElementById('in-box-transparan').value; const audioCount = parseInt(document.getElementById('in-audio-count').value) || 1; const bgmLoop = document.getElementById('in-bgm-loop').value;
+
             if(!tanya) return uiToast("Pertanyaan WAJIB diisi!", "error");
             if(!dbLokal.levels) dbLokal.levels = [];
-            let objLevel = { id: `L_${ts}`, kategori: kategori, pertanyaan: tanya, speed: speed, target_count: targetCount };
+            
+            let objLevel = { id: `L_${ts}`, kategori: kategori, pertanyaan: tanya, speed: speed, target_count: targetCount, is_transparent_box: isTransparan, audio_count: audioCount, bgm_loop: bgmLoop };
 
-            const cekM = (idF, idP, prp, prx) => {
+            const cekM = (idF, idP, prp) => {
                 const f = document.getElementById(idF).files[0]; const p = document.getElementById(idP).value;
                 if(f) { 
-                    if(idxEdit > -1 && dbLokal.levels[idxEdit][prp]) fileYangHarusDihapus.push(`public/${dbLokal.levels[idxEdit][prp]}`);
-                    objLevel[prp] = `assets/${prx}_${ts}.${f.name.split('.').pop()}`; antreanFile.push({path: `public/${objLevel[prp]}`, file: f}); 
+                    if(idxEdit > -1 && dbLokal.levels[idxEdit][prp] && dbLokal.levels[idxEdit][prp].startsWith('assets/')) fileYangHarusDihapus.push(`public/${dbLokal.levels[idxEdit][prp]}`);
+                    const namaBersih = f.name.replace(/[^a-zA-Z0-9.\-]/g, '_');
+                    objLevel[prp] = `assets/${namaBersih}`; antreanFile.push({path: `public/${objLevel[prp]}`, file: f}); 
                 } else if(p) { objLevel[prp] = p; } else { objLevel[prp] = null; }
             };
-            cekM('f-media-soal', 'path-media-soal', 'media_soal', 'msoal');
-            cekM('f-lvl-bg', 'path-lvl-bg', 'bg_image', 'bg');
-            cekM('f-lvl-bgm', 'path-lvl-bgm', 'bgm_level', 'bgm');
-            cekM('f-lvl-soal', 'path-lvl-soal', 'audio_soal', 'asoal');
+            cekM('f-media-soal', 'path-media-soal', 'media_soal');
+            cekM('f-lvl-bg', 'path-lvl-bg', 'bg_image');
+            cekM('f-lvl-bgm', 'path-lvl-bgm', 'bgm_level');
+            cekM('f-lvl-soal', 'path-lvl-soal', 'audio_soal');
 
             if (kategori === 'urutan' || kategori === 'melayang') {
                 objLevel.item_urutan = [];
@@ -628,8 +554,9 @@
                     if(nm || fU || pU) {
                         let uObj = { indexAsli: objLevel.item_urutan.length, nama: nm || `Ke-${i}` };
                         if(fU) { 
-                            if(idxEdit > -1 && dbLokal.levels[idxEdit].item_urutan && dbLokal.levels[idxEdit].item_urutan[i-1] && dbLokal.levels[idxEdit].item_urutan[i-1].url_gambar) fileYangHarusDihapus.push(`public/${dbLokal.levels[idxEdit].item_urutan[i-1].url_gambar}`);
-                            uObj.url_gambar = `assets/u${i}_${ts}.${fU.name.split('.').pop()}`; antreanFile.push({path: `public/${uObj.url_gambar}`, file: fU}); 
+                            if(idxEdit > -1 && dbLokal.levels[idxEdit].item_urutan && dbLokal.levels[idxEdit].item_urutan[i-1] && dbLokal.levels[idxEdit].item_urutan[i-1].url_gambar && dbLokal.levels[idxEdit].item_urutan[i-1].url_gambar.startsWith('assets/')) fileYangHarusDihapus.push(`public/${dbLokal.levels[idxEdit].item_urutan[i-1].url_gambar}`);
+                            const namaBersih = fU.name.replace(/[^a-zA-Z0-9.\-]/g, '_');
+                            uObj.url_gambar = `assets/${namaBersih}`; antreanFile.push({path: `public/${uObj.url_gambar}`, file: fU}); 
                         } else if(pU) { uObj.url_gambar = pU; }
                         objLevel.item_urutan.push(uObj);
                     }
@@ -638,8 +565,9 @@
                 objLevel.item_target = { isTarget: true }; objLevel.item_target.nama = document.getElementById('in-benar-nama').value || "Benar";
                 const fB = document.getElementById('f-benar-img').files[0]; const pB = document.getElementById('path-benar-img').value;
                 if(fB) { 
-                    if(idxEdit > -1 && dbLokal.levels[idxEdit].item_target && dbLokal.levels[idxEdit].item_target.url_gambar) fileYangHarusDihapus.push(`public/${dbLokal.levels[idxEdit].item_target.url_gambar}`);
-                    objLevel.item_target.url_gambar = `assets/tgt_${ts}.${fB.name.split('.').pop()}`; antreanFile.push({path: `public/${objLevel.item_target.url_gambar}`, file: fB}); 
+                    if(idxEdit > -1 && dbLokal.levels[idxEdit].item_target && dbLokal.levels[idxEdit].item_target.url_gambar && dbLokal.levels[idxEdit].item_target.url_gambar.startsWith('assets/')) fileYangHarusDihapus.push(`public/${dbLokal.levels[idxEdit].item_target.url_gambar}`);
+                    const namaBersih = fB.name.replace(/[^a-zA-Z0-9.\-]/g, '_');
+                    objLevel.item_target.url_gambar = `assets/${namaBersih}`; antreanFile.push({path: `public/${objLevel.item_target.url_gambar}`, file: fB}); 
                 } else if(pB) { objLevel.item_target.url_gambar = pB; }
                 
                 objLevel.item_pengecoh = [];
@@ -648,8 +576,9 @@
                     if(nm || fP || pP) {
                         let pObj = { nama: nm || "Pilihan", isTarget: false };
                         if(fP) { 
-                            if(idxEdit > -1 && dbLokal.levels[idxEdit].item_pengecoh && dbLokal.levels[idxEdit].item_pengecoh[i-1] && dbLokal.levels[idxEdit].item_pengecoh[i-1].url_gambar) fileYangHarusDihapus.push(`public/${dbLokal.levels[idxEdit].item_pengecoh[i-1].url_gambar}`);
-                            pObj.url_gambar = `assets/p${i}_${ts}.${fP.name.split('.').pop()}`; antreanFile.push({path: `public/${pObj.url_gambar}`, file: fP}); 
+                            if(idxEdit > -1 && dbLokal.levels[idxEdit].item_pengecoh && dbLokal.levels[idxEdit].item_pengecoh[i-1] && dbLokal.levels[idxEdit].item_pengecoh[i-1].url_gambar && dbLokal.levels[idxEdit].item_pengecoh[i-1].url_gambar.startsWith('assets/')) fileYangHarusDihapus.push(`public/${dbLokal.levels[idxEdit].item_pengecoh[i-1].url_gambar}`);
+                            const namaBersih = fP.name.replace(/[^a-zA-Z0-9.\-]/g, '_');
+                            pObj.url_gambar = `assets/${namaBersih}`; antreanFile.push({path: `public/${pObj.url_gambar}`, file: fP}); 
                         } else if(pP) { pObj.url_gambar = pP; }
                         objLevel.item_pengecoh.push(pObj);
                     }
@@ -687,7 +616,41 @@
             pilihAset(pathStr) { if (this.targetInputId) document.getElementById(this.targetInputId).value = pathStr; this.tutup(); }
         };
 
-        const ubahFileKeBase64 = (file) => new Promise((r) => { const rd = new FileReader(); rd.readAsDataURL(file); rd.onload = () => { let b64 = rd.result.replace(/^data:(.*,)?/, ''); if(b64.length%4>0) b64 += '='.repeat(4-(b64.length%4)); r(b64); }; });
+        // KOMPRESI GAMBAR CERDAS MENGGUNAKAN CANVAS (LEWATI GIF & AUDIO)
+        const compressImage = (file) => new Promise((resolve) => {
+            if (!file.type.match(/image\/(jpeg|png|webp)/)) {
+                // Jika file GIF, Audio, atau lainnya, ubah langsung jadi base64 tanpa kompresi
+                const rd = new FileReader(); rd.readAsDataURL(file);
+                rd.onload = () => { let b64 = rd.result.replace(/^data:(.*,)?/, ''); if(b64.length%4>0) b64 += '='.repeat(4-(b64.length%4)); resolve(b64); };
+                return;
+            }
+
+            // Jika file JPEG/PNG, kompres dulu agar enteng
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_SIZE = 800; // Resolusi Maksimal (Sangat tajam tapi file kecil)
+                    let w = img.width, h = img.height;
+                    
+                    if (w > h && w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } 
+                    else if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; }
+                    
+                    canvas.width = w; canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    
+                    // Format ke webp kualitas 85%
+                    const dataUrl = canvas.toDataURL('image/webp', 0.85); 
+                    let b64 = dataUrl.replace(/^data:(.*,)?/, '');
+                    if (b64.length % 4 > 0) b64 += '='.repeat(4 - (b64.length % 4));
+                    resolve(b64);
+                };
+            };
+        });
         
         async function githubPutRequest(token, repo, path, base64Content) {
             const url = `https://api.github.com/repos/${repo}/contents/${path}`; let sha = null;
@@ -724,8 +687,9 @@
                 }
 
                 for(let i=0; i<antreanFile.length; i++) {
-                    tLoad.innerText = `Upload media ${i+1}/${antreanFile.length}...`;
-                    await githubPutRequest(token, repo, antreanFile[i].path, await ubahFileKeBase64(antreanFile[i].file));
+                    tLoad.innerText = `Mengompres & Upload ${i+1}/${antreanFile.length}...`;
+                    // Menggunakan fungsi cerdas kompresi
+                    await githubPutRequest(token, repo, antreanFile[i].path, await compressImage(antreanFile[i].file));
                     currentProg += step; pubBar.style.width = `${currentProg}%`;
                 }
                 
