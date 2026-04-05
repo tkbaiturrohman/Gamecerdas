@@ -2,11 +2,19 @@
   "global_settings": {},
   "levels": [
     {
+      "id": "L_1775360638895",
       "kategori": "kuis",
-      "pertanyaan": "Manakah yang merupakan folder berkas?",
+      "pertanyaan": "Carikan ciri ciri Buku seprti apa?",
+      "speed": "normal",
+      "target_count": 3,
+      "media_soal": "assets/msoal_1775360638895.gif",
+      "bg_image": "assets/bg_1775360638895.png",
+      "bgm_level": "assets/bgm_1775360638895.mp3",
+      "audio_soal": "assets/asoal_1775360638895.mp3",
       "item_target": {
-        "nama": "folder berkas 📁",
-        "isTarget": true
+        "isTarget": true,
+        "nama": "Novel",
+        "url_gambar": "undefined"
       },
       "item_pengecoh": [
         {
@@ -16,9 +24,12 @@
         {
           "nama": "minuman tropis 🍹",
           "isTarget": false
+        },
+        {
+          "nama": "Kayu",
+          "isTarget": false
         }
-      ],
-      "id": "L_AUTO_1775356431269_0"
+      ]
     },
     {
       "kategori": "drag",
