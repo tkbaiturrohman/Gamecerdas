@@ -237,16 +237,14 @@
             initGlobal(cfg) {
                 if(cfg && cfg.bgm_url) { this.bgm.src = this.getAmanPath(cfg.bgm_url); this.bgm.loop = true; this.bgm.volume = this.volumeNormalBGM; }
                 
-                // EVENT LOOP UNTUK SOAL DENGAN JEDA 5 DETIK
                 this.soal.onended = () => { 
                     this.currentPlay++;
                     if (this.currentPlay < this.playCountTarget) {
-                        // Menunggu 5 detik sebelum putar ulang agar anak bisa berpikir
                         setTimeout(() => {
                             if (!this.isMuted && this.urlSoalSaatIni) { 
                                 this.soal.play().catch(()=>{}); 
                             }
-                        }, 5000); 
+                        }, 5000); // JEDA 5 DETIK SEBELUM DIPUTAR ULANG
                     } else {
                         this.fadeVolume(this.bgm, this.volumeNormalBGM, 800); 
                         const ikon = document.getElementById('ikon-baca-soal'); if(ikon) ikon.classList.remove('animate-pulse', 'text-sky-400'); 
@@ -441,29 +439,13 @@
 
             mainkanLevel(idx) { 
                 this.tutupPilihLevel(); this.levelSekarang = idx; this.nyawa = 3; this.jawabanSaatIni = 0; PhysicsEngine.stop(); 
-                
-                // SKOR CERDAS: Bisa dapat skor jika belum pernah dapet di level ini pada nyawa/sesi ini
                 this.bisaDapatSkor = !this.levelsEarnedScore.includes(idx);
-                
                 this.renderUI(); this.muatArena(); 
             },
 
-            // SISTEM SKOR & RESET CERDAS
-            tambahSkor(poin) { 
-                if (this.bisaDapatSkor) { 
-                    this.skor += poin; 
-                } 
-            },
-            simpanProgres() { 
-                if (this.levelSekarang >= this.levelTerbuka) { 
-                    this.levelTerbuka = Math.min(this.levelSekarang + 1, this.db.levels.length - 1); localStorage.setItem('maxUnlockedLevel', this.levelTerbuka); 
-                } 
-            },
-            resetGame() { 
-                this.skor = 0; 
-                this.levelsEarnedScore = []; // History skor di-reset, tapi Map Level TIDAK direset
-                this.renderUI(); 
-            },
+            tambahSkor(poin) { if (this.bisaDapatSkor) { this.skor += poin; } },
+            simpanProgres() { if (this.levelSekarang >= this.levelTerbuka) { this.levelTerbuka = Math.min(this.levelSekarang + 1, this.db.levels.length - 1); localStorage.setItem('maxUnlockedLevel', this.levelTerbuka); } },
+            resetGame() { this.skor = 0; this.levelsEarnedScore = []; this.renderUI(); },
 
             renderUI() {
                 document.getElementById('ui-skor').innerText = this.skor; const wadahNyawa = document.getElementById('ui-nyawa'); wadahNyawa.innerHTML = '';
@@ -542,26 +524,30 @@
                 if(isBenar) { AudioMgr.playBenar(); this.tambahSkor(100); this.simpanProgres(); this.renderUI(); el.classList.add('bg-emerald-50', 'border-emerald-400'); setTimeout(() => this.munculLayarAkhir('benar'), 1000); } else { AudioMgr.playSalah(); this.nyawa--; this.renderUI(); el.classList.add('bg-rose-50', 'border-rose-400', 'anim-shake'); setTimeout(() => this.munculLayarAkhir(this.nyawa <= 0 ? 'kalah' : 'salah'), 1000); }
             },
 
-            // TEXT PANJANG ANTI POTONG (MENGGUNAKAN break-words whitespace-normal)
+            // Teks menyesuaikan ruang agar tidak terpotong
             generateGambarHtml(it, urlPath, classText, isTransparan = false) {
                 const bgClass = isTransparan ? 'bg-transparent text-slate-800 drop-shadow-md' : 'bg-white text-slate-700';
+                // Gunakan break-words whitespace-normal agar teks panjang bisa wrap ke bawah
                 return `<div class="absolute inset-0 ${bgClass} flex flex-col items-center justify-center p-2 text-center font-bold leading-tight ${urlPath ? 'hidden' : ''}"><span class="text-3xl drop-shadow-sm mb-1">${it.nama.slice(-2).match(/([\uD800-\uDBFF][\uDC00-\uDFFF])/) ? it.nama.slice(-2) : ''}</span><span class="${classText} w-full break-words whitespace-normal px-1">${it.nama}</span></div><img src="${urlPath}" class="w-full h-full object-contain pointer-events-none" onerror="this.previousElementSibling.classList.remove('hidden'); this.style.display='none'" draggable="false" />`;
             },
 
-            // GENERATOR ARENA DENGAN LAYOUT CERDAS (GRID 1 KOLOM JIKA TEKS PANJANG)
+            // KEMBALIKAN KE 2 KOLOM (Tapi font mengecil jika teks panjang)
             mesinKuis(data, arena) {
                 const target = data.item_target || { nama: "Jawaban", isTarget: true }; const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : []; let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5); 
                 
-                // Deteksi jika ada teks yang panjang (Lebih dari 15 huruf atau 3 kata)
-                const adaTeksPanjang = itemsAcak.some(it => it.nama.length > 15 || it.nama.split(' ').length >= 3);
-                // Jika panjang, pakai 1 Kolom berjejer ke bawah agar teks tidak gepeng. Jika tidak, pakai 2 kolom biasa.
-                const gridClass = (itemsAcak.length > 2 || adaTeksPanjang) ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"; 
-                
+                // KEMBALI KE DEFAULT: Selalu pakai 2 kolom jika opsi 3 atau 4 (agar tidak memanjang di HP)
+                const gridClass = itemsAcak.length > 2 ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2"; 
                 const grid = document.createElement('div'); grid.className = `grid ${gridClass} gap-3 w-full mt-auto pb-4 anim-fade max-w-sm`;
                 const isT = data.is_transparent_box === 'ya';
                 
                 itemsAcak.forEach(it => {
-                    const btn = document.createElement('button'); btn.className = `btn-pilihan ${isT ? 'bg-transparent border-none' : 'bg-white border-2 border-slate-100 shadow-sm'} text-slate-700 font-bold p-2 rounded-2xl hover:border-sky-300 flex flex-col items-center justify-center min-h-[110px] w-full relative overflow-hidden`; const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : ''; btn.innerHTML = this.generateGambarHtml(it, urlPath, "text-sm", isT); btn.onclick = () => { AudioMgr.stopSoal(); this.prosesKuis(it.isTarget, btn); }; grid.appendChild(btn);
+                    const btn = document.createElement('button'); btn.className = `btn-pilihan ${isT ? 'bg-transparent border-none' : 'bg-white border-2 border-slate-100 shadow-sm'} text-slate-700 font-bold p-2 rounded-2xl hover:border-sky-300 flex flex-col items-center justify-center min-h-[110px] w-full relative overflow-hidden`; const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : ''; 
+                    
+                    // Kecilkan font sedikit jika karakternya banyak agar pas di 2 kolom
+                    const txtSize = it.nama.length > 12 ? 'text-[11px]' : 'text-sm';
+                    btn.innerHTML = this.generateGambarHtml(it, urlPath, txtSize, isT); 
+                    
+                    btn.onclick = () => { AudioMgr.stopSoal(); this.prosesKuis(it.isTarget, btn); }; grid.appendChild(btn);
                 }); arena.appendChild(grid);
             },
 
@@ -659,7 +645,6 @@
             munculLayarAkhir(status) {
                 PhysicsEngine.stop(); const layar = document.getElementById('layar-pesan'); const ikon = document.getElementById('pesan-ikon'); const judul = document.getElementById('pesan-judul'); const sub = document.getElementById('pesan-sub'); const wadahTombol = document.getElementById('wadah-tombol-pesan'); layar.classList.remove('hidden'); wadahTombol.innerHTML = '';
                 
-                // SKOR CERDAS: Mencatat level yang baru diselesaikan ini ke dalam histori sesi (agar tidak bisa farming skor)
                 if (status === 'benar' && this.bisaDapatSkor) {
                     this.levelsEarnedScore.push(this.levelSekarang);
                 }
@@ -671,7 +656,7 @@
                     ikon.innerHTML = `<div class="bg-orange-100 p-3 rounded-full mb-1 inline-block"><i data-lucide="refresh-ccw" class="w-10 h-10 text-orange-500"></i></div>`; judul.innerText = "Aduh Salah"; judul.className = "text-2xl font-black mb-0.5 text-slate-800"; sub.innerText = "Tidak apa-apa, ayo coba lagi!"; wadahTombol.innerHTML = `<button onclick="document.getElementById('layar-pesan').classList.add('hidden'); Game.muatArena();" class="w-full bg-sky-500 text-white font-bold text-lg py-3.5 rounded-xl shadow-sm transition-all">Coba Lagi</button>`;
                 } else {
                     ikon.innerHTML = `<div class="bg-rose-100 p-3 rounded-full mb-1 inline-block"><i data-lucide="heart-crack" class="w-12 h-12 text-rose-500"></i></div>`; judul.innerText = "Game Over"; judul.className = "text-2xl font-black mb-0.5 text-slate-800"; sub.innerText = `Skor Terakhir: ${this.skor}`;
-                    wadahTombol.innerHTML = `<button onclick="document.getElementById('layar-pesan').classList.add('hidden'); Game.resetGame(); Game.bukaPilihLevel();" class="w-full bg-slate-800 text-white font-bold text-base py-3 rounded-xl active:scale-95 transition-transform">Lanjut (Reset Poin)</button>`;
+                    wadahTombol.innerHTML = `<button onclick="document.getElementById('layar-pesan').classList.add('hidden'); Game.resetGame(); Game.bukaPilihLevel();" class="w-full bg-slate-800 text-white font-bold text-base py-3 rounded-xl active:scale-95 transition-transform">Lanjut (Skor Direset)</button>`;
                 } lucide.createIcons();
             }
         };
