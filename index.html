@@ -221,7 +221,7 @@
         }
 
         // ==========================================
-        // AUDIO MANAGER (Dengan Fitur Ulang & Looping)
+        // AUDIO MANAGER (DENGAN JEDA 5 DETIK)
         // ==========================================
         const AudioMgr = {
             bgm: new Audio(), sfxBenar: new Audio(), sfxSalah: new Audio(), soal: new Audio(), 
@@ -237,21 +237,17 @@
             initGlobal(cfg) {
                 if(cfg && cfg.bgm_url) { this.bgm.src = this.getAmanPath(cfg.bgm_url); this.bgm.loop = true; this.bgm.volume = this.volumeNormalBGM; }
                 
-                // EVENT LOOP UNTUK SOAL (Dengan Jeda)
+                // EVENT LOOP UNTUK SOAL DENGAN JEDA 5 DETIK
                 this.soal.onended = () => { 
                     this.currentPlay++;
                     if (this.currentPlay < this.playCountTarget) {
-                        
-                        // JEDA 5 DETIK SEBELUM MENGULANG SUARA
+                        // Menunggu 5 detik sebelum putar ulang agar anak bisa berpikir
                         setTimeout(() => {
-                            // Cek lagi pastikan tidak di-mute selama jeda
                             if (!this.isMuted && this.urlSoalSaatIni) { 
                                 this.soal.play().catch(()=>{}); 
                             }
-                        }, 5000); // <-- 5000 artinya 5 detik (Bisa kamu ubah jadi 10000 untuk 10 detik)
-                        
+                        }, 5000); 
                     } else {
-                        // Jika sudah selesai, kembalikan volume BGM dan hilangkan efek pulse ikon
                         this.fadeVolume(this.bgm, this.volumeNormalBGM, 800); 
                         const ikon = document.getElementById('ikon-baca-soal'); if(ikon) ikon.classList.remove('animate-pulse', 'text-sky-400'); 
                     }
@@ -264,12 +260,11 @@
                     const lBgm = this.getAmanPath(dataLevel.bgm_level);
                     if(!this.bgm.src.endsWith(lBgm.replace('public/',''))) { 
                         this.bgm.src = lBgm; 
-                        // Cek Perintah Loop dari Admin (Default True/Ya)
                         this.bgm.loop = dataLevel.bgm_loop === undefined ? true : (dataLevel.bgm_loop === 'ya');
                         if(!this.isMuted) this.bgm.play().catch(()=>{}); 
                     }
                 } else {
-                    this.bgm.loop = true; // Kembali ke BGM global loop
+                    this.bgm.loop = true;
                 }
 
                 this.sfxBenar.src = dataLevel.sfx_benar ? this.getAmanPath(dataLevel.sfx_benar) : this.defBenar;
@@ -333,7 +328,6 @@
                     if(mode === 'bubble' && i%3===0) it = itemAcak.find(a => a.isTarget) || itemAcak[0];
 
                     const el = document.createElement('div');
-                    // Cek apakah background harus transparan
                     const bgClass = isTransparan ? 'bg-transparent' : (mode==='bubble' ? 'bg-white/90 backdrop-blur border-2 border-sky-300' : 'bg-white border-2 border-indigo-200');
                     el.className = `objek-terbang flex flex-col items-center justify-center shadow-lg overflow-hidden rounded-full p-2 ${bgClass}`;
                     
@@ -389,6 +383,7 @@
             db: { global: {}, levels: [] }, levelSekarang: 0, skor: 0, nyawa: 3, 
             levelTerbuka: parseInt(localStorage.getItem('maxUnlockedLevel')) || 0,
             jawabanSaatIni: 0, totalJawaban: 0, memoriFlipped: [], memoriMatched: 0,
+            levelsEarnedScore: [], bisaDapatSkor: false,
 
             initPreload() {
                 const bCont = document.getElementById('loading-bar-container'); const bFill = document.getElementById('loading-bar-fill'); const bTxt = document.getElementById('loading-text'); const btnMulai = document.getElementById('btn-mulai');
@@ -444,12 +439,31 @@
 
             tutupPilihLevel() { document.getElementById('layar-pilih-level').classList.add('hidden'); },
 
-            mainkanLevel(idx) { this.tutupPilihLevel(); this.levelSekarang = idx; this.nyawa = 3; this.jawabanSaatIni = 0; PhysicsEngine.stop(); this.renderUI(); this.muatArena(); },
+            mainkanLevel(idx) { 
+                this.tutupPilihLevel(); this.levelSekarang = idx; this.nyawa = 3; this.jawabanSaatIni = 0; PhysicsEngine.stop(); 
+                
+                // SKOR CERDAS: Bisa dapat skor jika belum pernah dapet di level ini pada nyawa/sesi ini
+                this.bisaDapatSkor = !this.levelsEarnedScore.includes(idx);
+                
+                this.renderUI(); this.muatArena(); 
+            },
 
             // SISTEM SKOR & RESET CERDAS
-            tambahSkor(poin) { if (this.levelSekarang >= this.levelTerbuka) { this.skor += poin; } },
-            simpanProgres() { if (this.levelSekarang >= this.levelTerbuka) { this.levelTerbuka = Math.min(this.levelSekarang + 1, this.db.levels.length - 1); localStorage.setItem('maxUnlockedLevel', this.levelTerbuka); } },
-            resetGame() { this.skor = 0; this.levelTerbuka = 0; localStorage.setItem('maxUnlockedLevel', 0); this.renderUI(); },
+            tambahSkor(poin) { 
+                if (this.bisaDapatSkor) { 
+                    this.skor += poin; 
+                } 
+            },
+            simpanProgres() { 
+                if (this.levelSekarang >= this.levelTerbuka) { 
+                    this.levelTerbuka = Math.min(this.levelSekarang + 1, this.db.levels.length - 1); localStorage.setItem('maxUnlockedLevel', this.levelTerbuka); 
+                } 
+            },
+            resetGame() { 
+                this.skor = 0; 
+                this.levelsEarnedScore = []; // History skor di-reset, tapi Map Level TIDAK direset
+                this.renderUI(); 
+            },
 
             renderUI() {
                 document.getElementById('ui-skor').innerText = this.skor; const wadahNyawa = document.getElementById('ui-nyawa'); wadahNyawa.innerHTML = '';
@@ -467,7 +481,6 @@
                 const bgLayar = dataLevel.bg_image || this.db.global.bg_image; document.getElementById('view-game').style.backgroundImage = bgLayar ? `url('${AudioMgr.getAmanPath(bgLayar)}')` : 'none';
                 
                 AudioMgr.setAudioLevel(dataLevel);
-                // Play Audio sesuai setting count dari admin (Default 1x)
                 const playCount = dataLevel.audio_count ? parseInt(dataLevel.audio_count) : 1;
                 if(dataLevel.audio_soal) { setTimeout(() => AudioMgr.playSoal(playCount), 500); }
 
@@ -529,15 +542,24 @@
                 if(isBenar) { AudioMgr.playBenar(); this.tambahSkor(100); this.simpanProgres(); this.renderUI(); el.classList.add('bg-emerald-50', 'border-emerald-400'); setTimeout(() => this.munculLayarAkhir('benar'), 1000); } else { AudioMgr.playSalah(); this.nyawa--; this.renderUI(); el.classList.add('bg-rose-50', 'border-rose-400', 'anim-shake'); setTimeout(() => this.munculLayarAkhir(this.nyawa <= 0 ? 'kalah' : 'salah'), 1000); }
             },
 
+            // TEXT PANJANG ANTI POTONG (MENGGUNAKAN break-words whitespace-normal)
             generateGambarHtml(it, urlPath, classText, isTransparan = false) {
                 const bgClass = isTransparan ? 'bg-transparent text-slate-800 drop-shadow-md' : 'bg-white text-slate-700';
-                return `<div class="absolute inset-0 ${bgClass} flex flex-col items-center justify-center p-1 text-center font-bold leading-tight ${urlPath ? 'hidden' : ''}"><span class="text-3xl drop-shadow-sm mb-1">${it.nama.slice(-2).match(/([\uD800-\uDBFF][\uDC00-\uDFFF])/) ? it.nama.slice(-2) : ''}</span><span class="${classText} w-full truncate px-1">${it.nama}</span></div><img src="${urlPath}" class="w-full h-full object-contain pointer-events-none" onerror="this.previousElementSibling.classList.remove('hidden'); this.style.display='none'" draggable="false" />`;
+                return `<div class="absolute inset-0 ${bgClass} flex flex-col items-center justify-center p-2 text-center font-bold leading-tight ${urlPath ? 'hidden' : ''}"><span class="text-3xl drop-shadow-sm mb-1">${it.nama.slice(-2).match(/([\uD800-\uDBFF][\uDC00-\uDFFF])/) ? it.nama.slice(-2) : ''}</span><span class="${classText} w-full break-words whitespace-normal px-1">${it.nama}</span></div><img src="${urlPath}" class="w-full h-full object-contain pointer-events-none" onerror="this.previousElementSibling.classList.remove('hidden'); this.style.display='none'" draggable="false" />`;
             },
 
-            // GENERATOR ARENA DENGAN FITUR BOX TRANSPARAN
+            // GENERATOR ARENA DENGAN LAYOUT CERDAS (GRID 1 KOLOM JIKA TEKS PANJANG)
             mesinKuis(data, arena) {
-                const target = data.item_target || { nama: "Jawaban", isTarget: true }; const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : []; let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5); const gridClass = itemsAcak.length > 2 ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2"; const grid = document.createElement('div'); grid.className = `grid ${gridClass} gap-3 w-full mt-auto pb-4 anim-fade max-w-sm`;
+                const target = data.item_target || { nama: "Jawaban", isTarget: true }; const pengecoh = Array.isArray(data.item_pengecoh) ? data.item_pengecoh : []; let itemsAcak = [target, ...pengecoh].sort(() => Math.random() - 0.5); 
+                
+                // Deteksi jika ada teks yang panjang (Lebih dari 15 huruf atau 3 kata)
+                const adaTeksPanjang = itemsAcak.some(it => it.nama.length > 15 || it.nama.split(' ').length >= 3);
+                // Jika panjang, pakai 1 Kolom berjejer ke bawah agar teks tidak gepeng. Jika tidak, pakai 2 kolom biasa.
+                const gridClass = (itemsAcak.length > 2 || adaTeksPanjang) ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"; 
+                
+                const grid = document.createElement('div'); grid.className = `grid ${gridClass} gap-3 w-full mt-auto pb-4 anim-fade max-w-sm`;
                 const isT = data.is_transparent_box === 'ya';
+                
                 itemsAcak.forEach(it => {
                     const btn = document.createElement('button'); btn.className = `btn-pilihan ${isT ? 'bg-transparent border-none' : 'bg-white border-2 border-slate-100 shadow-sm'} text-slate-700 font-bold p-2 rounded-2xl hover:border-sky-300 flex flex-col items-center justify-center min-h-[110px] w-full relative overflow-hidden`; const urlPath = it.url_gambar ? AudioMgr.getAmanPath(it.url_gambar) : ''; btn.innerHTML = this.generateGambarHtml(it, urlPath, "text-sm", isT); btn.onclick = () => { AudioMgr.stopSoal(); this.prosesKuis(it.isTarget, btn); }; grid.appendChild(btn);
                 }); arena.appendChild(grid);
@@ -636,6 +658,12 @@
 
             munculLayarAkhir(status) {
                 PhysicsEngine.stop(); const layar = document.getElementById('layar-pesan'); const ikon = document.getElementById('pesan-ikon'); const judul = document.getElementById('pesan-judul'); const sub = document.getElementById('pesan-sub'); const wadahTombol = document.getElementById('wadah-tombol-pesan'); layar.classList.remove('hidden'); wadahTombol.innerHTML = '';
+                
+                // SKOR CERDAS: Mencatat level yang baru diselesaikan ini ke dalam histori sesi (agar tidak bisa farming skor)
+                if (status === 'benar' && this.bisaDapatSkor) {
+                    this.levelsEarnedScore.push(this.levelSekarang);
+                }
+
                 if(status === 'benar') {
                     lemparConfetti(); ikon.innerHTML = `<div class="bg-amber-100 p-3 rounded-full mb-1 inline-block"><i data-lucide="star" class="w-12 h-12 text-amber-500 fill-amber-400"></i></div>`; judul.innerText = "Luar Biasa!"; judul.className = "text-2xl font-black mb-0.5 text-slate-800";
                     if(this.levelSekarang >= this.db.levels.length - 1) { sub.innerText = `Skor Total: ${this.skor}\nSemua level selesai!`; wadahTombol.innerHTML = `<button onclick="document.getElementById('layar-pesan').classList.add('hidden'); Game.bukaPilihLevel();" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold text-lg py-3.5 rounded-xl shadow-sm transition-all">Pilih Level Lain</button>`; } else { sub.innerText = `Lanjut ke level berikutnya!`; wadahTombol.innerHTML = `<button onclick="document.getElementById('layar-pesan').classList.add('hidden'); Game.mainkanLevel(Game.levelSekarang + 1);" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold text-lg py-3.5 rounded-xl shadow-sm transition-all mb-2">Lanjut Level</button><button onclick="document.getElementById('layar-pesan').classList.add('hidden'); Game.bukaPilihLevel();" class="w-full bg-slate-100 text-slate-600 font-bold text-sm py-2.5 rounded-xl hover:bg-slate-200">Peta Level</button>`; }
@@ -643,7 +671,7 @@
                     ikon.innerHTML = `<div class="bg-orange-100 p-3 rounded-full mb-1 inline-block"><i data-lucide="refresh-ccw" class="w-10 h-10 text-orange-500"></i></div>`; judul.innerText = "Aduh Salah"; judul.className = "text-2xl font-black mb-0.5 text-slate-800"; sub.innerText = "Tidak apa-apa, ayo coba lagi!"; wadahTombol.innerHTML = `<button onclick="document.getElementById('layar-pesan').classList.add('hidden'); Game.muatArena();" class="w-full bg-sky-500 text-white font-bold text-lg py-3.5 rounded-xl shadow-sm transition-all">Coba Lagi</button>`;
                 } else {
                     ikon.innerHTML = `<div class="bg-rose-100 p-3 rounded-full mb-1 inline-block"><i data-lucide="heart-crack" class="w-12 h-12 text-rose-500"></i></div>`; judul.innerText = "Game Over"; judul.className = "text-2xl font-black mb-0.5 text-slate-800"; sub.innerText = `Skor Terakhir: ${this.skor}`;
-                    wadahTombol.innerHTML = `<button onclick="document.getElementById('layar-pesan').classList.add('hidden'); Game.resetGame(); Game.bukaPilihLevel();" class="w-full bg-slate-800 text-white font-bold text-base py-3 rounded-xl active:scale-95 transition-transform">Main Ulang dari Awal</button>`;
+                    wadahTombol.innerHTML = `<button onclick="document.getElementById('layar-pesan').classList.add('hidden'); Game.resetGame(); Game.bukaPilihLevel();" class="w-full bg-slate-800 text-white font-bold text-base py-3 rounded-xl active:scale-95 transition-transform">Lanjut (Reset Poin)</button>`;
                 } lucide.createIcons();
             }
         };
