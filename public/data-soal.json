@@ -110,27 +110,44 @@
       ]
     },
     {
+      "id": "L_1775368156488",
       "kategori": "urutan",
-      "pertanyaan": "Urutkan dari makanan ini!",
+      "pertanyaan": "Urutkan cara makan dengan baik adek adek",
+      "speed": "normal",
+      "target_count": 3,
+      "is_transparent_box": "ya",
+      "audio_count": 1,
+      "bgm_loop": "ya",
+      "media_soal": "assets/288371_18-8-2020_11-21-43.jpeg",
+      "bg_image": "assets/Gemini_Generated_Image_veyo8yveyo8yveyo.png",
+      "bgm_level": "assets/bgm_1775360638895.mp3",
+      "audio_soal": null,
       "item_urutan": [
         {
           "indexAsli": 0,
-          "nama": "kiwi 🥝"
+          "nama": "Cuci tangan"
         },
         {
           "indexAsli": 1,
-          "nama": "hamburger 🍔"
+          "nama": "Baca doa"
         },
         {
           "indexAsli": 2,
-          "nama": "persik 🍑"
+          "nama": "Duduk rapi"
         },
         {
           "indexAsli": 3,
-          "nama": "pir 🍐"
+          "nama": "Makan perlahan"
+        },
+        {
+          "indexAsli": 4,
+          "nama": "Doa makan"
+        },
+        {
+          "indexAsli": 5,
+          "nama": "Cuci piring"
         }
-      ],
-      "id": "L_AUTO_1775356431269_3"
+      ]
     },
     {
       "kategori": "memory",
