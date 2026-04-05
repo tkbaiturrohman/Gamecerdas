@@ -21,19 +21,40 @@
       "id": "L_AUTO_1775333913054_0"
     },
     {
-      "kategori": "siluet",
+      "id": "L_1775350595262",
+      "kategori": "melayang",
       "pertanyaan": "Tarik Ikan ke bayangannya!",
-      "item_target": {
-        "nama": "Ikan",
-        "isTarget": true
-      },
-      "item_pengecoh": [
+      "speed": "normal",
+      "media_soal": null,
+      "bg_image": null,
+      "bgm_level": null,
+      "audio_soal": null,
+      "item_urutan": [
         {
-          "nama": "Burung",
-          "isTarget": false
+          "indexAsli": 0,
+          "nama": "1"
+        },
+        {
+          "indexAsli": 1,
+          "nama": "2"
+        },
+        {
+          "indexAsli": 2,
+          "nama": "3"
+        },
+        {
+          "indexAsli": 3,
+          "nama": "4"
+        },
+        {
+          "indexAsli": 4,
+          "nama": "5"
+        },
+        {
+          "indexAsli": 5,
+          "nama": "6"
         }
-      ],
-      "id": "L_AUTO_1775333913054_1"
+      ]
     },
     {
       "kategori": "siluet",
@@ -82,23 +103,36 @@
       "id": "L_AUTO_1775333913054_4"
     },
     {
-      "kategori": "tebak_kata",
+      "id": "L_1775350753675",
+      "kategori": "bubble",
       "pertanyaan": "Susun kata: APEL",
+      "speed": "normal",
+      "media_soal": null,
+      "bg_image": null,
+      "bgm_level": null,
+      "audio_soal": null,
       "item_target": {
+        "isTarget": true,
         "nama": "APEL",
-        "isTarget": true
+        "url_gambar": "undefined"
       },
       "item_pengecoh": [
         {
           "nama": "X",
-          "isTarget": false
+          "isTarget": false,
+          "url_gambar": "assets/p1_1775350753675.png"
         },
         {
           "nama": "Y",
-          "isTarget": false
+          "isTarget": false,
+          "url_gambar": "assets/p2_1775350753675.png"
+        },
+        {
+          "nama": "7",
+          "isTarget": false,
+          "url_gambar": "assets/p3_1775350753675.jpg"
         }
-      ],
-      "id": "L_AUTO_1775333923037_0"
+      ]
     },
     {
       "kategori": "pukul",
