@@ -110,12 +110,12 @@
       ]
     },
     {
-      "id": "L_1775368156488",
+      "id": "L_1775368980078",
       "kategori": "urutan",
       "pertanyaan": "Urutkan cara makan dengan baik adek adek",
       "speed": "normal",
       "target_count": 3,
-      "is_transparent_box": "ya",
+      "is_transparent_box": "tidak",
       "audio_count": 1,
       "bgm_loop": "ya",
       "media_soal": "assets/288371_18-8-2020_11-21-43.jpeg",
