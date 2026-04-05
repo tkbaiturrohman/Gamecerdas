@@ -22,7 +22,6 @@
 
     <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- Modal Konfirmasi Custom -->
     <div id="modal-confirm" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-[2rem] p-6 max-w-sm w-full text-center shadow-2xl relative overflow-hidden">
             <div class="mx-auto flex justify-center mb-3"><div class="bg-rose-100 p-3 rounded-full"><i data-lucide="alert-triangle" class="w-8 h-8 text-rose-500"></i></div></div>
@@ -53,7 +52,6 @@
                 <button onclick="tarikDataGitHub(true)" class="bg-white/50 p-2 rounded-lg hover:bg-white transition" title="Tarik Paksa Data Github"><i data-lucide="refresh-cw" id="icon-sync" class="w-4 h-4"></i></button>
             </div>
 
-            <!-- TOMBOL AKSI UTAMA -->
             <div class="grid grid-cols-2 gap-2">
                 <button onclick="document.getElementById('file-import').click()" class="bg-white border-2 border-slate-200 hover:border-indigo-400 text-slate-700 p-3 rounded-xl font-bold flex items-center justify-center gap-2 text-sm transition shadow-sm">
                     <i data-lucide="download" class="w-4 h-4"></i> Import JSON
@@ -66,8 +64,8 @@
             </div>
 
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="ProceduralGenerator.buat5Soal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black p-3 rounded-xl flex justify-center items-center gap-2 transition-all shadow-sm">
-                    <i data-lucide="wand-2" class="w-4 h-4"></i> +5 Soal Acak
+                <button onclick="ProceduralGenerator.buatAcak9()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black p-3 rounded-xl flex justify-center items-center gap-2 transition-all shadow-sm">
+                    <i data-lucide="wand-2" class="w-4 h-4"></i> +9 Soal Pintar
                 </button>
                 <button onclick="hapusSemuaLevel()" class="bg-rose-500 hover:bg-rose-600 text-white font-black p-3 rounded-xl flex justify-center items-center gap-2 transition-all shadow-sm">
                     <i data-lucide="trash-2" class="w-4 h-4"></i> Hapus Semua
@@ -97,7 +95,6 @@
             <p id="loading-teks" class="text-indigo-200 font-bold text-sm">Memproses...</p>
         </div>
 
-        <!-- Modal Config -->
         <div id="modal-config" class="hidden fixed inset-0 z-[60] bg-slate-900/70 backdrop-blur-sm flex justify-center items-center p-4">
             <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl relative">
                 <h2 class="font-black text-xl mb-4 flex items-center gap-2 text-indigo-800"><i data-lucide="github"></i> Setup GitHub</h2>
@@ -118,7 +115,6 @@
             </div>
         </div>
 
-        <!-- MODAL GALERI ASET -->
         <div id="modal-galeri" class="hidden fixed inset-0 z-[80] bg-slate-100 flex flex-col max-w-[600px] mx-auto overflow-hidden">
             <header class="bg-indigo-800 p-4 flex justify-between items-center shadow-md">
                 <h2 class="font-black text-lg text-white flex items-center gap-2"><i data-lucide="folder-open"></i> Galeri Aset Tersimpan</h2>
@@ -131,7 +127,6 @@
             <div id="galeri-grid" class="flex-1 overflow-y-auto p-4 grid grid-cols-3 gap-3 content-start"></div>
         </div>
 
-        <!-- MODAL FORM LEVEL (LENGKAP DENGAN FOLDER GALERI DI SETIAP INPUT) -->
         <div id="modal-soal" class="hidden fixed inset-0 z-[60] bg-slate-100 flex flex-col max-w-[600px] mx-auto overflow-hidden">
             <header class="bg-white p-5 flex justify-between items-center shadow-sm border-b">
                 <h2 id="judul-modal-form" class="font-black text-xl text-slate-800">Edit Level</h2>
@@ -141,7 +136,6 @@
             <div class="flex-1 p-5 space-y-6 overflow-y-auto">
                 <input type="hidden" id="edit-index" value="-1">
 
-                <!-- SETTING DASAR -->
                 <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
                     <label class="font-black text-sm block mb-2 text-indigo-800">Kategori Game</label>
                     <select id="in-kategori" onchange="UbahTampilanForm()" class="w-full p-3 border border-indigo-200 rounded-xl bg-indigo-50 font-bold text-indigo-700 outline-none mb-4">
@@ -167,7 +161,6 @@
                     <input type="file" id="f-media-soal" accept="image/*" class="w-full text-[10px] bg-white p-1.5 rounded-lg border border-slate-200">
                 </div>
 
-                <!-- OPSI KECEPATAN FISIKA -->
                 <div id="wadah-speed" class="hidden bg-orange-50 p-5 rounded-3xl border border-orange-200 shadow-sm">
                     <label class="font-black text-sm block mb-2 text-orange-800">Kecepatan Gerakan Benda</label>
                     <select id="in-speed" class="w-full p-3 border border-orange-300 rounded-xl bg-white font-bold outline-none">
@@ -177,7 +170,6 @@
                     </select>
                 </div>
 
-                <!-- MEDIA SPESIFIK LEVEL -->
                 <div class="bg-sky-50 p-5 rounded-3xl shadow-sm border border-sky-200">
                     <h3 class="font-black text-sky-800 mb-3 flex items-center gap-2"><i data-lucide="music"></i> Latar & Audio Khusus Level</h3>
                     <div class="space-y-4">
@@ -208,7 +200,6 @@
                     </div>
                 </div>
 
-                <!-- WADAH TARGET & PENGECOH -->
                 <div id="wadah-kuis-drag">
                     <div class="bg-emerald-50 p-5 rounded-3xl border border-emerald-300 shadow-sm mb-4">
                         <label class="font-black text-lg block mb-3 text-emerald-800 flex items-center gap-2"><i data-lucide="check-circle-2"></i> GAMBAR UTAMA / TARGET</label>
@@ -252,13 +243,11 @@
                     </div>
                 </div>
 
-                <!-- WADAH URUTAN (Juga dipakai Melayang) -->
                 <div id="wadah-urutan" class="hidden">
                     <div class="bg-indigo-50 p-5 rounded-3xl border border-indigo-300 shadow-sm mb-6">
                         <label class="font-black text-lg block mb-3 text-indigo-800 flex items-center gap-2"><i data-lucide="list-ordered"></i> ITEM URUTAN GAMBAR</label>
                         <div class="space-y-3" id="wadah-slot-urutan">
-                            <!-- Di-generate lewat JS agar support tombol galeri -->
-                        </div>
+                            </div>
                     </div>
                 </div>
 
@@ -281,7 +270,7 @@
         function uiToast(msg, type='success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `toast-enter px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 ${type==='success' ? 'bg-emerald-500 text-white' : (type==='error' ? 'bg-rose-500 text-white' : 'bg-sky-500 text-white')}`;
+            toast.className = `toast-enter px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 ${type==='success' ? 'bg-emerald-500 text-white' : (type==='error' ? 'bg-rose-500 text-white' : (type==='info' ? 'bg-sky-500 text-white' : 'bg-slate-800 text-white'))}`;
             toast.innerHTML = `<i data-lucide="${type==='success' ? 'check-circle' : (type==='error' ? 'alert-circle' : 'info')}" class="w-5 h-5"></i> ${msg}`;
             container.appendChild(toast); lucide.createIcons();
             setTimeout(() => { toast.classList.replace('toast-enter', 'toast-leave'); setTimeout(() => toast.remove(), 300); }, 3000);
@@ -300,7 +289,6 @@
         function bukaModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function tutupModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-        // RENDER 6 KOTAK URUTAN LENGKAP DENGAN TOMBOL GALERI
         function renderSlotUrutan() {
             const wadah = document.getElementById('wadah-slot-urutan'); let html = '';
             for(let i=1; i<=6; i++) {
@@ -332,14 +320,11 @@
             else document.getElementById('wadah-speed').classList.add('hidden');
         }
 
-        // FUNGSI MENGHAPUS SEMUA LEVEL SEKALIGUS
         async function hapusSemuaLevel() {
             if(dbLokal.levels.length === 0) return uiToast("Data sudah kosong!", "info");
-            
             const isYes = await uiConfirm("YAKIN HAPUS SEMUA LEVEL? 🚨 Semua gambar/audio yang dipakai akan dihancurkan. Ini tidak bisa di-undo!");
             if(!isYes) return;
 
-            // Masukkan SEMUA aset ke tong sampah
             dbLokal.levels.forEach(lvl => {
                 const asetT = daftarAsetLevelIni(lvl);
                 fileYangHarusDihapus = [...fileYangHarusDihapus, ...asetT];
@@ -384,23 +369,119 @@
             tutupModal('modal-config'); tarikDataGitHub(true);
         }
 
+        // ==============================================================
+        // GENERATOR 9 SOAL PINTAR (ANTI-DUPLIKAT & RATUSAN EMOJI JSON)
+        // ==============================================================
         const ProceduralGenerator = {
-            buah: ["Apel", "Pisang", "Jeruk", "Anggur", "Mangga"], hewan: ["Kucing", "Anjing", "Burung", "Ikan", "Sapi"],
+            // Data langsung dari JSON (Diurutkan format: "Nama Emoji" agar deteksi fallback berfungsi maksimal di Game)
+            emotikon_dan_perasaan: ["wajah tersenyum 😀", "wajah tersenyum lebar 😃", "wajah tersenyum dengan mata bahagia 😄", "wajah tertawa sampai menangis 😂", "wajah tersenyum dengan mata tersenyum 😊", "wajah tersenyum dengan lingkaran cahaya 😇", "wajah tersenyum dengan banyak hati 🥰", "wajah tersenyum dengan mata hati 😍", "wajah terpesona 🤩", "wajah mencium 😘", "wajah menikmati makanan enak 😋", "wajah menjulurkan lidah dan berkedip 😜", "wajah gila 🤪", "wajah dengan uang di mulut 🤑", "wajah memeluk 🤗", "wajah menutup mulut dengan tangan 🤭", "wajah menyuruh diam 🤫", "wajah berpikir 🤔", "wajah dengan mulut resleting 🤐", "wajah dengan alis terangkat 🤨", "wajah tersenyum dengan kacamata hitam 😎", "wajah kutu buku 🤓", "wajah dengan monokel 🧐", "kepala meledak 🤯", "wajah berpesta 🥳", "wajah memohon 🥺", "wajah berteriak ketakutan 😱", "wajah dengan simbol di mulut 🤬", "wajah tersenyum dengan tanduk 😈", "tengkorak 💀", "kotoran 💩", "wajah badut 🤡", "hantu 👻", "alien 👽", "wajah robot 🤖"],
+            manusia_dan_tubuh: ["melambaikan tangan 👋", "tangan oke 👌", "tanda damai ✌️", "jari disilangkan 🤞", "tanda i love you 🤟", "tanda tanduk 🤘", "jempol ke atas 👍", "jempol ke bawah 👎", "tinju 👊", "tepuk tangan 👏", "mengangkat kedua tangan 🙌", "telapak tangan disatukan ke atas 🤲", "jabat tangan 🤝", "tangan terlipat 🙏", "otot lengan 💪", "otak 🧠", "jantung anatomis 🫀", "paru-paru 🫁", "gigi 🦷", "tulang 🦴", "sepasang mata 👀", "bayi 👶", "anak perempuan 👧", "anak laki-laki 👦", "wanita 👩", "pria 👨", "wanita tua 👵", "pria tua 👴", "petugas polisi 👮", "pekerja konstruksi 👷", "detektif 🕵️", "dokter wanita 👩‍⚕️", "dokter pria 👨‍⚕️", "guru wanita 👩‍🏫", "guru pria 👨‍🏫"],
+            hewan_dan_alam: ["wajah anjing 🐶", "wajah kucing 🐱", "wajah tikus 🐭", "wajah hamster 🐹", "wajah kelinci 🐰", "wajah rubah 🦊", "wajah beruang 🐻", "wajah panda 🐼", "koala 🐨", "wajah harimau 🐯", "wajah singa 🦁", "wajah sapi 🐮", "wajah babi 🐷", "wajah katak 🐸", "wajah monyet 🐵", "gorila 🦍", "orangutan 🦧", "wajah serigala 🐺", "wajah kuda 🐴", "wajah unicorn 🦄", "zebra 🦓", "rusa 🦌", "sapi perah 🐄", "domba 🐑", "kambing 🐐", "unta berpunuk satu 🐪", "jerapah 🦒", "gajah 🐘", "badak 🦏", "kuda nil 🦛", "kelinci 🐇", "kelelawar 🦇", "ayam 🐔", "pinguin 🐧", "merpati 🕊️", "elang 🦅", "bebek 🦆", "angsa 🦢", "burung hantu 🦉", "merak 🦚", "burung beo 🦜", "kura-kura 🐢", "ular 🐍", "kadal 🦎", "T-Rex 🦖", "sauropoda 🦕", "gurita 🐙", "cumi-cumi 🦑", "udang 🦐", "lobster 🦞", "kepiting 🦀", "ikan tropis 🐠", "ikan 🐟", "lumba-lumba 🐬", "paus menyemburkan air 🐳", "hiu 🦈", "buaya 🐊", "harimau 🐅", "macan tutul 🐆", "kupu-kupu 🦋", "siput 🐌", "ulat 🐛", "semut 🐜", "lebah 🐝", "kepik 🐞", "laba-laba 🕷️", "kalajengking 🦂", "nyamuk 🦟", "mikroba 🦠", "bunga sakura 🌸", "mawar 🌹", "kembang sepatu 🌺", "bunga matahari 🌻", "bunga mekar 🌼", "tulip 🌷", "pohon cemara 🌲", "pohon palem 🌴", "kaktus 🌵", "semanggi 🍀", "daun maple 🍁", "daun gugur 🍂", "api 🔥", "tetesan air 💧", "matahari ☀️", "bulan sabit 🌙", "bintang ⭐", "awan ☁️", "awan dengan hujan 🌧️", "tegangan tinggi ⚡", "kepingan salju ❄️", "manusia salju ⛄"],
+            makanan_dan_minuman: ["apel hijau 🍏", "apel merah 🍎", "pir 🍐", "jeruk 🍊", "lemon 🍋", "pisang 🍌", "semangka 🍉", "anggur 🍇", "stroberi 🍓", "melon 🍈", "ceri 🍒", "persik 🍑", "mangga 🥭", "nanas 🍍", "kelapa 🥥", "kiwi 🥝", "tomat 🍅", "alpukat 🥑", "terong 🍆", "kentang 🥔", "wortel 🥕", "jagung 🌽", "cabai 🌶️", "mentimun 🥒", "sayuran hijau 🥬", "brokoli 🥦", "bawang putih 🧄", "bawang bombay 🧅", "jamur 🍄", "kacang tanah 🥜", "roti 🍞", "kroisan 🥐", "pretzel 🥨", "panekuk 🥞", "wafel 🧇", "keju 🧀", "daging bertulang 🍖", "paha ayam 🍗", "potongan daging 🥩", "daging asap 🥓", "hamburger 🍔", "kentang goreng 🍟", "pizza 🍕", "hot dog 🌭", "sandwich 🥪", "taco 🌮", "telur 🥚", "telur ceplok 🍳", "salad 🥗", "ondel-ondel 🍿", "mentega 🧈", "garam 🧂", "makanan kaleng 🥫", "kotak bento 🍱", "nasi kepal 🍙", "nasi putih 🍚", "mangkuk mi 🍜", "spageti 🍝", "sushi 🍣", "udang goreng 🍤", "pangsit 🥟", "es krim 🍦", "es serut 🍧", "es krim mangkuk 🍨", "donat 🍩", "kue kering 🍪", "kue ulang tahun 🎂", "kue stroberi 🍰", "kue mangkuk 🧁", "pai 🥧", "cokelat batangan 🍫", "permen 🍬", "permen lolipop 🍭", "puding 🍮", "madu 🍯", "botol susu bayi 🍼", "gelas susu 🥛", "minuman panas ☕", "cangkir teh 🍵", "gelas anggur 🍷", "gelas koktail 🍸", "minuman tropis 🍹", "gelas bir 🍺", "gelas dengan sedotan 🥤", "kotak minuman 🧃", "es batu 🧊"],
+            aktivitas_dan_olahraga: ["bola sepak ⚽", "bola basket 🏀", "sepak bola amerika 🏈", "bisbol ⚾", "tenis 🎾", "bola voli 🏐", "rugbi 🏉", "frisbee 🥏", "biliar 🎱", "yoyo 🪀", "tenis meja 🏓", "bulu tangkis 🏸", "gawang 🥅", "golf ⛳", "layang-layang 🪁", "busur anak panah 🏹", "pancing 🎣", "kacamata selam 🤿", "sarung tinju 🥊", "seragam bela diri 🥋", "papan seluncur 🛹", "sepatu seluncur es ⛸️", "ski 🎿", "video game 🎮", "joystick 🕹️", "dadu 🎲", "teka-teki 🧩", "boneka beruang 🧸", "palet pelukis 🎨", "not musik 🎵", "mikrofon 🎤", "headphone 🎧", "radio 📻", "saksofon 🎷", "gitar 🎸", "kibor musik 🎹", "terompet 🎺", "biola 🎻", "drum 🥁"],
+            perjalanan_dan_tempat: ["mobil 🚗", "taksi 🚕", "bus 🚌", "mobil balap 🏎️", "mobil polisi 🚓", "ambulans 🚑", "mobil pemadam 🚒", "truk pengiriman 🚚", "traktor 🚜", "skuter motor 🛵", "sepeda motor 🏍️", "sepeda 🚲", "skuter dorong 🛴", "lokomotif uap 🚂", "kereta api 🚆", "kereta bawah tanah 🚇", "helikopter 🚁", "pesawat terbang ✈️", "roket 🚀", "piring terbang 🛸", "kano 🛶", "perahu layar ⛵", "perahu motor 🚤", "kapal pesiar 🛳️", "kapal 🚢", "jangkar ⚓", "pompa bensin ⛽", "lampu lalu lintas 🚥", "peta dunia 🗺️", "patung moai 🗿", "patung liberty 🗽", "menara tokyo 🗼", "kastel eropa 🏰", "kastel jepang 🏯", "stadion 🏟️", "kincir ria 🎡", "roller coaster 🎢", "kuda komidi putar 🎠", "air mancur ⛲", "payung di tanah ⛱️", "pantai dengan payung 🏖️", "pulau terpencil 🏝️", "gurun 🏜️", "gunung berapi 🌋", "gunung ⛰️", "berkemah 🏕️", "tenda ⛺", "rumah 🏠", "konstruksi bangunan 🏗️", "pabrik 🏭", "gedung perkantoran 🏢", "rumah sakit 🏥", "bank 🏦", "hotel 🏨", "minimarket 🏪", "sekolah 🏫", "gereja ⛪", "masjid 🕌", "sinagoga 🕍", "ka'bah 🕋", "kuil shinto ⛩️"],
+            objek: ["ponsel 📱", "komputer jinjing 💻", "papan ketik ⌨️", "komputer desktop 🖥️", "pencetak 🖨️", "tetikus komputer 🖱️", "disket 💾", "cakram optik 💿", "kamera 📷", "kamera video 📹", "televisi 📺", "kompas 🧭", "stopwatch ⏱️", "jam weker ⏰", "jam pasir ⏳", "baterai 🔋", "colokan listrik 🔌", "bola lampu 💡", "senter 🔦", "lilin 🕯️", "alat pemadam api 🧯", "tempat sampah 🗑️", "uang kertas dolar 💵", "kantung uang 💰", "kartu kredit 💳", "batu permata 💎", "timbangan penyeimbang ⚖️", "kotak perkakas 🧰", "kunci pas 🔧", "palu 🔨", "magnet 🧲", "pistol air 🔫", "bom 💣", "petasan 🧨", "kapak 🪓", "pisau dapur 🔪", "belati 🗡️", "pedang bersilang ⚔️", "perisai 🛡️", "rokok 🚬", "peti mati ⚰️", "bola kristal 🔮", "tasbih 📿", "teleskop 🔭", "mikroskop 🔬", "plester luka 🩹", "stetoskop 🩺", "pil 💊", "jarum suntik 💉", "tetesan darah 🩸", "DNA 🧬", "tabung reaksi 🧪", "termometer 🌡️", "sapu 🧹", "tisu gulung 🧻", "toilet 🚽", "pancuran 🚿", "bak mandi 🛁", "sabun 🧼", "spons 🧽", "kunci 🔑", "pintu 🚪", "kursi 🪑", "tempat tidur 🛏️", "bingkai gambar 🖼️", "tas belanja 🛍️", "kereta belanja 🛒", "kado yang dibungkus 🎁", "balon 🎈", "pita 🎀", "tongkat sihir 🪄", "amplop ✉️", "paket 📦", "label 🏷️", "gulungan kertas 📜", "diagram batang 📊", "kalender 📅", "folder berkas 📁", "koran 📰", "buku-buku 📚", "buku terbuka 📖", "gunting ✂️", "pena 🖊️", "kuas 🖌️", "krayon 🖍️", "memo 📝", "pensil ✏️", "kaca pembesar 🔍", "gembok tertutup 🔒", "gembok terbuka 🔓"],
+            simbol_dan_bendera: ["hati merah ❤️", "hati patah 💔", "seratus poin 💯", "simbol marah 💢", "tanda peringatan ⚠️", "daur ulang ♻️", "centang putih tebal ✅", "tanda silang ❌", "bendera Indonesia 🇮🇩", "bendera Amerika Serikat 🇺🇸", "bendera Inggris Raya 🇬🇧", "bendera Jepang 🇯🇵", "bendera Korea Selatan 🇰🇷", "bendera Arab Saudi 🇸🇦", "bendera Palestina 🇵🇸"],
+
             ambilAcak(arr, n) { const shuffled = [...arr].sort(() => 0.5 - Math.random()); return shuffled.slice(0, n); },
-            bikinSoalTebakKata() { const kata = this.ambilAcak(this.buah, 1)[0].toUpperCase(); return { kategori: "tebak_kata", pertanyaan: `Susun kata: ${kata}`, item_target: { nama: kata, isTarget: true }, item_pengecoh: [{ nama: "X", isTarget: false }, { nama: "Y", isTarget: false }] }; },
-            bikinSoalBubble() { const b = this.ambilAcak(this.buah, 2); return { kategori: "bubble", speed: "normal", pertanyaan: `Tekan gelembung ${b[0]}!`, item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }] }; },
-            bikinSoalSiluet() { const b = this.ambilAcak(this.hewan, 2); return { kategori: "siluet", pertanyaan: `Tarik ${b[0]} ke bayangannya!`, item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }] }; },
-            bikinSoalPukul() { const b = this.ambilAcak(this.buah, 2); return { kategori: "pukul", speed: "normal", pertanyaan: `Tangkap 3 ${b[0]}!`, item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }] }; },
-            bikinSoalMatematika() { const a = Math.floor(Math.random() * 5) + 1; let b = Math.floor(Math.random() * 5) + 1; return { kategori: "kuis", pertanyaan: `Berapa ${a} + ${b}?`, item_target: { nama: (a+b).toString(), isTarget: true }, item_pengecoh: [{ nama: (a+b+1).toString(), isTarget: false }] }; },
-            async buat5Soal() {
-                const isYes = await uiConfirm("Buat 5 soal otomatis dengan berbagai mode acak?"); if(!isYes) return;
+            gabungSemua() { 
+                return [...this.emotikon_dan_perasaan, ...this.manusia_dan_tubuh, ...this.hewan_dan_alam, ...this.makanan_dan_minuman, ...this.aktivitas_dan_olahraga, ...this.perjalanan_dan_tempat, ...this.objek, ...this.simbol_dan_bendera]; 
+            },
+            
+            // Mengambil Teks (Membuang Emoji di akhir kata)
+            namaItem(itemStr) { return itemStr.split(' ').slice(0, -1).join(' '); },
+
+            bikinKuis() { 
+                const b = this.ambilAcak(this.gabungSemua(), 3); 
+                return { kategori: "kuis", pertanyaan: `Manakah yang merupakan ${this.namaItem(b[0])}?`, item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }, { nama: b[2], isTarget: false }] }; 
+            },
+            bikinDrag() { 
+                const h = this.ambilAcak(this.hewan_dan_alam, 3); 
+                return { kategori: "drag", pertanyaan: `Tarik ${this.namaItem(h[0])} ke dalam kotak!`, item_target: { nama: h[0], isTarget: true }, item_pengecoh: [{ nama: h[1], isTarget: false }, { nama: h[2], isTarget: false }] }; 
+            },
+            bikinSiluet() { 
+                const b = this.ambilAcak(this.objek.concat(this.perjalanan_dan_tempat), 3); 
+                return { kategori: "siluet", pertanyaan: `Tarik ${this.namaItem(b[0])} ke bayangannya!`, item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }, { nama: b[2], isTarget: false }] }; 
+            },
+            bikinUrutan() { 
+                const h = this.ambilAcak(this.makanan_dan_minuman, 4); 
+                const urut = h.map((n, i) => ({ indexAsli: i, nama: n })); 
+                return { kategori: "urutan", pertanyaan: `Urutkan makanan ini!`, item_urutan: urut }; 
+            },
+            bikinMemory() { 
+                const b = this.ambilAcak(this.emotikon_dan_perasaan, 4); 
+                return { kategori: "memory", pertanyaan: `Temukan pasangan yang tepat!`, item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }, { nama: b[2], isTarget: false }, { nama: b[3], isTarget: false }] }; 
+            },
+            bikinTebakKata() { 
+                // Khusus tebak kata, kita cari yang namanya hanya 1 KATA saja agar mudah disusun hurufnya
+                const valid = this.gabungSemua().filter(x => {
+                    const nm = this.namaItem(x);
+                    return nm.split(' ').length === 1 && nm.length > 2 && nm.length < 9;
+                });
+                const b = this.ambilAcak(valid, 1)[0] || "apel 🍎";
+                const kata = this.namaItem(b).toUpperCase();
+                // Untuk tebak kata, pilihan tidak perlu emoji karena sistem akan mengacak HURUF nya otomatis
+                return { kategori: "tebak_kata", pertanyaan: `Susun huruf menjadi: ${kata}`, item_target: { nama: kata, isTarget: true }, item_pengecoh: [{ nama: "A", isTarget: false }, { nama: "E", isTarget: false }] }; 
+            },
+            bikinBubble() { 
+                const b = this.ambilAcak(this.gabungSemua(), 2); 
+                return { kategori: "bubble", speed: "normal", pertanyaan: `Pecahkan gelembung ${this.namaItem(b[0])}!`, item_target: { nama: b[0], isTarget: true }, item_pengecoh: [{ nama: b[1], isTarget: false }] }; 
+            },
+            bikinMelayang() { 
+                const b = this.ambilAcak(this.manusia_dan_tubuh.concat(this.aktivitas_dan_olahraga), 3); 
+                const urut = b.map((n, i) => ({ indexAsli: i, nama: n })); 
+                return { kategori: "melayang", speed: "lambat", pertanyaan: `Tekan berurutan: ${b.map(x=>this.namaItem(x)).join(', ')}`, item_urutan: urut }; 
+            },
+            bikinPukul() { 
+                const h = this.ambilAcak(this.hewan_dan_alam, 2); 
+                return { kategori: "pukul", speed: "normal", pertanyaan: `Pukul ${this.namaItem(h[0])} 3 kali!`, item_target: { nama: h[0], isTarget: true }, item_pengecoh: [{ nama: h[1], isTarget: false }] }; 
+            },
+
+            // KECERDASAN ANTI-DUPLIKAT
+            apakahSudahAda(teksPertanyaan) {
+                return dbLokal.levels.some(lvl => lvl.pertanyaan === teksPertanyaan);
+            },
+
+            async buatAcak9() {
+                const isYes = await uiConfirm("Generate 9 soal Pintar (Anti-Duplikat) untuk semua 9 kategori game?"); if(!isYes) return;
                 const tsBase = Date.now();
-                for(let i=0; i<5; i++) {
-                    const rnd = Math.random(); let sb;
-                    if(rnd < 0.2) sb = this.bikinSoalMatematika(); else if(rnd < 0.4) sb = this.bikinSoalTebakKata(); else if(rnd < 0.6) sb = this.bikinSoalBubble(); else if(rnd < 0.8) sb = this.bikinSoalSiluet(); else sb = this.bikinSoalPukul();
-                    sb.id = `L_AUTO_${tsBase}_${i}`; dbLokal.levels.push(sb);
+                
+                const generators = [
+                    this.bikinKuis.bind(this), this.bikinDrag.bind(this), this.bikinSiluet.bind(this),
+                    this.bikinUrutan.bind(this), this.bikinMemory.bind(this), this.bikinTebakKata.bind(this),
+                    this.bikinBubble.bind(this), this.bikinMelayang.bind(this), this.bikinPukul.bind(this)
+                ];
+
+                let jumlahBerhasil = 0;
+
+                generators.forEach((gen, i) => {
+                    let sb;
+                    let batasPercobaan = 25; // Batas wajar mengocok soal agar tidak freeze
+                    let percobaan = 0;
+                    let duplikat = true;
+
+                    // Mengocok ulang terus menerus jika pertanyaan sudah ada di database
+                    while (duplikat && percobaan < batasPercobaan) {
+                        sb = gen();
+                        duplikat = this.apakahSudahAda(sb.pertanyaan);
+                        percobaan++;
+                    }
+
+                    // Memasukkan ke list jika soal benar-benar unik
+                    if (!duplikat) {
+                        sb.id = `L_AUTO_${tsBase}_${i}`; 
+                        dbLokal.levels.push(sb);
+                        jumlahBerhasil++;
+                    }
+                });
+
+                renderDaftarLevel(); 
+                
+                if (jumlahBerhasil === 9) {
+                    uiToast("9 Soal baru & UNIK ditambahkan! Jangan lupa Publish.", "success");
+                } else {
+                    uiToast(`Ditambahkan ${jumlahBerhasil} soal unik. (Beberapa di-skip karena level ini sudah ada di map)`, "info");
                 }
-                renderDaftarLevel(); uiToast("5 Soal ditambahkan! Klik SIMPAN & PUBLISH.");
             }
         };
 
