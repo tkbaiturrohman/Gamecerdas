@@ -2,11 +2,14 @@
   "global_settings": {},
   "levels": [
     {
-      "id": "L_1775361554081",
+      "id": "L_1775365284017",
       "kategori": "kuis",
       "pertanyaan": "Carikan ciri ciri Buku seprti apa?",
       "speed": "normal",
       "target_count": 3,
+      "is_transparent_box": "ya",
+      "audio_count": 3,
+      "bgm_loop": "ya",
       "media_soal": "assets/msoal_1775361356303.gif",
       "bg_image": "assets/bg_1775360638895.png",
       "bgm_level": "assets/bgm_1775360638895.mp3",
