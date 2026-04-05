@@ -35,23 +35,37 @@
       ]
     },
     {
+      "id": "L_1775362633945",
       "kategori": "drag",
-      "pertanyaan": "Tarik pohon palem ke dalam kotak!",
+      "pertanyaan": "Cuaca panas enaknya nyari apa yah?",
+      "speed": "normal",
+      "target_count": 3,
+      "media_soal": "assets/msoal_1775362421983.gif",
+      "bg_image": "assets/bg_1775362633945.png",
+      "bgm_level": "assets/bgm_1775360638895.mp3",
+      "audio_soal": "assets/asoal_1775362421983.mp3",
       "item_target": {
-        "nama": "pohon palem 🌴",
-        "isTarget": true
+        "isTarget": true,
+        "nama": "Minun",
+        "url_gambar": "assets/p2_1775361069732.gif"
       },
       "item_pengecoh": [
         {
-          "nama": "wajah kelinci 🐰",
-          "isTarget": false
+          "nama": "Roti",
+          "isTarget": false,
+          "url_gambar": "assets/p3_1775361069732.gif"
         },
         {
-          "nama": "siput 🐌",
-          "isTarget": false
+          "nama": "Sendok",
+          "isTarget": false,
+          "url_gambar": "assets/p1_1775361069732.gif"
+        },
+        {
+          "nama": "Buku",
+          "isTarget": false,
+          "url_gambar": "assets/tgt_1775361554081.gif"
         }
-      ],
-      "id": "L_AUTO_1775356431269_1"
+      ]
     },
     {
       "kategori": "siluet",
