@@ -2,7 +2,7 @@
   "global_settings": {},
   "levels": [
     {
-      "id": "L_1775361356303",
+      "id": "L_1775361554081",
       "kategori": "kuis",
       "pertanyaan": "Carikan ciri ciri Buku seprti apa?",
       "speed": "normal",
@@ -14,7 +14,7 @@
       "item_target": {
         "isTarget": true,
         "nama": "Novel",
-        "url_gambar": "assets/msoal_1775360638895.gif"
+        "url_gambar": "assets/tgt_1775361554081.gif"
       },
       "item_pengecoh": [
         {
