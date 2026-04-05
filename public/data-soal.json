@@ -155,6 +155,34 @@
         }
       ],
       "id": "L_AUTO_1775353971964_8"
+    },
+    {
+      "id": "L_1775354721312",
+      "kategori": "tebak_kata",
+      "pertanyaan": "Apel",
+      "speed": "normal",
+      "media_soal": null,
+      "bg_image": null,
+      "bgm_level": null,
+      "audio_soal": null,
+      "item_target": {
+        "isTarget": true,
+        "nama": "Apel"
+      },
+      "item_pengecoh": [
+        {
+          "nama": "X",
+          "isTarget": false
+        },
+        {
+          "nama": "Y",
+          "isTarget": false
+        },
+        {
+          "nama": "Z",
+          "isTarget": false
+        }
+      ]
     }
   ]
 }
