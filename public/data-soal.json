@@ -105,25 +105,6 @@
       "id": "L_AUTO_1775353971964_4"
     },
     {
-      "kategori": "tebak_kata",
-      "pertanyaan": "Susun huruf menjadi: KEPITING",
-      "item_target": {
-        "nama": "KEPITING",
-        "isTarget": true
-      },
-      "item_pengecoh": [
-        {
-          "nama": "A",
-          "isTarget": false
-        },
-        {
-          "nama": "E",
-          "isTarget": false
-        }
-      ],
-      "id": "L_AUTO_1775353971964_5"
-    },
-    {
       "kategori": "bubble",
       "speed": "normal",
       "pertanyaan": "Pecahkan gelembung bisbol!",
